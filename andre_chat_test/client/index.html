@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <style>
+    #chat-output { border: 1px solid gray; }
+    #chat-input { border: 1px solid gray; }
+  </style>
+</head>
+<body>
+<textarea readonly id="chat-output" name="chat-output" rows="10" cols="50">
+Chat Output
+</textarea>
+<br>
+<textarea id="chat-input" name="chat-input" rows="1" cols="50">
+Chat Input
+</textarea>
+<br>
+<button id="chat-send" type="button">Send</button>
+<script src="/socket.io/socket.io.js"></script>
+<script>var exports = {};</script>
+<script src="client.js"></script>
+</body>
+</html>
