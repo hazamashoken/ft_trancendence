@@ -12,11 +12,23 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
+	"postCreateCommand": "chmod +x .devcontainer/post-create.sh && .devcontainer/post-create.sh",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "root"
+	"remoteUser": "root",
+
+	// Add Vscode Extension
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"WallabyJs.console-ninja",
+				"GitHub.copilot-nightly",
+				"GitHub.copilot-chat"
+			]
+		}
+	}
+
 }
