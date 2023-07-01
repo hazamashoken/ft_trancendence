@@ -18,5 +18,3 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 export const NextAuthProvider = ({ children, session }: Props) => {
   return <SessionProvider session={session}>{children}</SessionProvider>;
 };
-
-
