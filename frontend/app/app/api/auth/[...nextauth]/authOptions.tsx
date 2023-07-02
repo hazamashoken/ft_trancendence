@@ -2,12 +2,12 @@ import type { NextAuthOptions } from 'next-auth'
 import FortyTwoProvider from "next-auth/providers/42-school";
 
 export const authOptions: NextAuthOptions = {
-    providers: [
-        FortyTwoProvider({
-          clientId: `${process.env.FORTY_TWO_CLIENT_ID}`,
-          clientSecret: `${process.env.FORTY_TWO_CLIENT_SECRET}`
-        })
-    ],
+  providers: [
+      FortyTwoProvider({
+        clientId: `${process.env.FORTY_TWO_CLIENT_ID}`,
+        clientSecret: `${process.env.FORTY_TWO_CLIENT_SECRET}`
+      })
+  ],
   callbacks: {
     async redirect({url, baseUrl}: {url: string, baseUrl: string}) {
       return baseUrl;
