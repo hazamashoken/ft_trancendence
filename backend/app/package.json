@@ -22,13 +22,15 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.4.3",
+    "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^9.4.3",
+    "@nestjs/jwt": "^10.1.0",
     "@nestjs/platform-express": "^9.4.3",
+    "@nestjs/swagger": "^7.1.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },
   "devDependencies": {
-    "@compodoc/compodoc": "^1.1.21",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
