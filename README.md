@@ -16,6 +16,12 @@ to run only `Backend NestJS`
 make run-backend
 ```
 
+to run only database
+
+```sh
+make run-database
+```
+
 to stop docker compose service
 
 ```sh
@@ -27,3 +33,12 @@ to restart entire service
 ```sh
 make re
 ```
+
+## Tools
+
+Database GUI tool for `Postgres`
+
+[pgadmin]
+
+<!-- reference -->
+[pgadmin]: https://www.pgadmin.org/download/
