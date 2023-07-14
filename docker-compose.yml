@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # https://blog.logrocket.com/containerized-development-nestjs-docker/
@@ -20,4 +20,4 @@ services:
     restart: unless-stopped
 
 networks:
-    nesjs-network:
+  nesjs-network:
