@@ -1,8 +1,19 @@
+all: run-backend
 
 run-backend:
-	docker compose -f docker-compose.dev.yml up --build -V
+	docker compose up --build --detach
 
 re-backend: clean run-backend
 
-clean:
+re: clean run-backend
+
+stop:
+	docker compose stop
+
+down: stop
+	docker compose down
+
+clean: down
 	-docker rmi -f $$(docker images "ft_trancendence*" | awk 'NR!=1 {print}' | awk '{print $$1}')
+
+.PHONY: run-backend re-backend all stop down re clean

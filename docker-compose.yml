@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # https://blog.logrocket.com/containerized-development-nestjs-docker/
   nestjs:
     container_name: nestjs-dev
     build:
@@ -15,7 +16,7 @@ services:
       - nesjs-network
     volumes:
       - ./backend/app:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./backend/app/node_modules:/usr/src/app/node_modules
     restart: unless-stopped
 
 networks:
