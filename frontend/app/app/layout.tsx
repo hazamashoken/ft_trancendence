@@ -1,36 +1,33 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
+import "./globals.css";
+import { Inter } from "next/font/google";
 
-import { TopNavBar } from '@/components/top-navbar'
-import { ThemeProvider, NextAuthProvider } from './provider'
-import { getServerSession } from 'next-auth'
-import { authOptions } from './api/auth/[...nextauth]/authOptions'
+import { Providers } from "./provider";
 
-const inter = Inter({ subsets: ['latin'] })
+import { Toaster } from "@/components/ui/toaster";
+import { Protected } from "./protected";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: 'ft_transendence',
-  description: 'final project',
-}
+  title: "ft_transendence",
+  description: "final project",
+};
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
       <body className={inter.className}>
-        <NextAuthProvider session={session}>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            <TopNavBar />
+        <Providers>
+          <Protected>
             {children}
-          </ThemeProvider>
-        </NextAuthProvider>
+            <Toaster />
+          </Protected>
+        </Providers>
       </body>
     </html>
-  )
+  );
 }
