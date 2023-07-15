@@ -41,4 +41,5 @@ Database GUI tool for `Postgres`
 [pgadmin]
 
 <!-- reference -->
+
 [pgadmin]: https://www.pgadmin.org/download/
