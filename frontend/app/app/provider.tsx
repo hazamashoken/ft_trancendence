@@ -1,20 +1,64 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ThemeProvider as NextThemesProvider } from "next-themes"
-import { type ThemeProviderProps } from "next-themes/dist/types"
-import { SessionProvider } from 'next-auth/react'
+import { SessionProvider } from "next-auth/react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { type ThemeProviderProps } from "next-themes/dist/types";
+import { QueryClient, QueryClientProvider } from "react-query";
 
-
-type Props = {
-    children?: React.ReactNode;
-    session?: any;
+type INextAuthProvider = {
+  children?: React.ReactNode;
 };
 
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+/**
+ * A wrapper component that provides theme support using the Next.js `next-themes` library.
+ *
+ * @param children The child components to render.
+ * @param props The props to pass to the `next-themes` `ThemeProvider` component.
+ */
+function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
 
-export const NextAuthProvider = ({ children, session }: Props) => {
-  return <SessionProvider session={session}>{children}</SessionProvider>;
+/**
+ * A wrapper component that provides session support using the Next.js `next-auth` library.
+ * @param children The child components to render.
+ * @see https://next-auth.js.org/
+ */
+export const NextAuthProvider = ({ children }: INextAuthProvider) => {
+  return <SessionProvider>{children}</SessionProvider>;
+};
+
+/**
+ * A wrapper component that provides query support using the `react-query` library.
+ *
+ * @param children The child components to render.
+ * @param client The `react-query` client to use.
+ * @see https://tanstack.com/query/v4/docs/react/reference/QueryClientProvider
+ */
+export const QueryProvider = ({
+  children,
+  client,
+}: {
+  children: React.ReactNode;
+  client: QueryClient;
+}) => {
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+};
+
+/**
+ * A wrapper component that provides global providers for the application.
+ *
+ * @param children The child components to render.
+ */
+export const Providers = ({ children }: { children: React.ReactNode }) => {
+  const client = new QueryClient();
+  return (
+    <NextAuthProvider>
+      <QueryProvider client={client}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </QueryProvider>
+    </NextAuthProvider>
+  );
 };
