@@ -4,7 +4,7 @@ import { SignInCard }from "@/components/sign-in";
 import { UserCard } from "@/components/user-card";
 import { useSession } from "next-auth/react";
 
-export default async function Home() {
+export default function Home() {
   const session = useSession();
 
   return (
