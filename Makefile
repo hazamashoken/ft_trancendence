@@ -1,4 +1,4 @@
-all: run-backend
+all: run-backend run-database
 
 run-backend:
 	docker compose up --build --detach backend
