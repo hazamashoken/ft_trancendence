@@ -12,7 +12,7 @@ export function Protected({ children }: { children: React.ReactNode }) {
           <TopNavBar />
           {children}
         </>
-      ) : ( 
+      ) : (
         <>{children}</>
       )}
     </>
