@@ -17,14 +17,21 @@ services:
     volumes:
       - ./backend/app:/usr/src/app
       - ./backend/app/node_modules:/usr/src/app/node_modules
+      - .env:/usr/src/app/.env
     restart: unless-stopped
+    depends_on:
+      - database
+
   database:
     container_name: postgres
     build:
       context: database
       dockerfile: Dockerfile
+      args:
+        - DB_NAME=${DB_NAME}
+        - DB_USERNAME=${DB_USERNAME}
+        - DB_PASSWORD=${DB_PASSWORD}
     environment:
-      - POSTGRES_USER
       - POSTGRES_PASSWORD
     ports:
       - "5432:5432"

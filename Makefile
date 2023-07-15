@@ -1,4 +1,4 @@
-all: run-backend
+all: run-backend run-database
 
 run-backend:
 	docker compose up --build --detach backend
@@ -18,5 +18,6 @@ down: stop
 
 clean: down
 	-docker rmi -f $$(docker images "ft_trancendence*" | awk 'NR!=1 {print}' | awk '{print $$1}')
+	-sudo rm -rf database/data
 
 .PHONY: run-backend re-backend all stop down re clean
