@@ -24,7 +24,7 @@ services:
       context: database
       dockerfile: Dockerfile
     environment:
-      - postgres
+      - POSTGRES_USER
       - POSTGRES_PASSWORD
     ports:
       - "5432:5432"
