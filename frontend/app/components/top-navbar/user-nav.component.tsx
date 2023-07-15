@@ -23,10 +23,11 @@ import ftLogo from "@/public/42_logo.svg"
 
 export function UserNav() {
   const { data, status } = useSession();
-  const isSignedIn = status === "authenticated";
-  const avatarLink = data?.user?.profile?.image.link;
-  const nameInitial = data?.user?.profile?.login[0] + data?.user?.profile?.login[1];
 
+  const isSignedIn = status === "authenticated";
+  const profile = data?.user?.profile;
+  const avatarLink = isSignedIn ? profile.image?.link : "";
+  const nameInitial = isSignedIn ? profile.login[0] + profile.login[1] : "TMP";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
