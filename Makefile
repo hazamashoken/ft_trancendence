@@ -1,7 +1,10 @@
 all: run-backend
 
 run-backend:
-	docker compose up --build --detach
+	docker compose up --build --detach backend
+
+run-database:
+	docker compose up --build --detach database
 
 re-backend: clean run-backend
 
