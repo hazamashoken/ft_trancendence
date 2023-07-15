@@ -1,6 +1,6 @@
-// import { User } from "./user.entity";
+// import { Profile } from "./profile.entity";
 
 const entities = [];
 
-// export {User};
+// export {Profile};
 export default entities;
