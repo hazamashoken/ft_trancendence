@@ -27,8 +27,11 @@ services:
     build:
       context: database
       dockerfile: Dockerfile
+      args:
+        - DB_NAME=${DB_NAME}
+        - DB_USERNAME=${DB_USERNAME}
+        - DB_PASSWORD=${DB_PASSWORD}
     environment:
-      - POSTGRES_USER
       - POSTGRES_PASSWORD
     ports:
       - "5432:5432"
