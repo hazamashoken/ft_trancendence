@@ -40,6 +40,12 @@ Database GUI tool for `Postgres`
 
 [pgadmin]
 
+access database from local with `psql` cli by using `dbconnect.sh` in database tools
+
+1. run `./database/tools/dbconnect.sh install`
+
+2. run `./database/tools/dbconnect.sh run`
+
 <!-- reference -->
 
 [pgadmin]: https://www.pgadmin.org/download/
