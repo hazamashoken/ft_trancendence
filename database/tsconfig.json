@@ -1,0 +1,21 @@
+{
+   "compilerOptions": {
+      "lib": [
+         "es5",
+         "es6"
+      ],
+      "declaration": true,
+      "declarationMap": true,
+      "target": "es5",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "outDir": "./build",
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true,
+      "paths": {
+         "@backend/*": ["../backend/app/src/*"],
+         "@entities/*": ["../backend/app/src/typeorm/*"],
+      },
+   }
+}
