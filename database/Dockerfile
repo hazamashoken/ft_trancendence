@@ -8,7 +8,7 @@ ENV DB_NAME=${DB_NAME}
 ENV DB_USERNAME=${DB_USERNAME}
 ENV DB_PASSWORD=${DB_PASSWORD}
 
-COPY initdb.sh /docker-entrypoint-initdb.d/
+COPY tools/initdb.sh /docker-entrypoint-initdb.d/
 
 EXPOSE 5432
 
