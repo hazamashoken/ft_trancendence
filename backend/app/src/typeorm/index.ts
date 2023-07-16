@@ -1,6 +1,6 @@
-// import { Profile } from "./profile.entity";
+import { Profile } from './profile.entity';
 
-const entities = [];
+const entities = [Profile];
 
-// export {Profile};
+export { Profile };
 export default entities;
