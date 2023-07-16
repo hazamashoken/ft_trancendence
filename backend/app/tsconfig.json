@@ -19,6 +19,6 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "#*": ["./src/*"]
-    },
+    }
   }
 }
