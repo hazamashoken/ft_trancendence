@@ -5,8 +5,12 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
     steps:
+      - name: debug list
+        run: |
+          pwd
+          ls -l
       - name: echo "Build a backend container image"
-        run: docker compose build backend
+        run: docker compose -f docker-compose.yml build backend
     env:
       DB_NAME: ft_trancendence
       DB_USERNAME: githubaction
