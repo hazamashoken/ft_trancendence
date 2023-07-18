@@ -10,6 +10,12 @@ To run to project on local environment
 make
 ```
 
+to run only `Frontend NextJS`
+
+```sh
+make run-frontend
+```
+
 to run only `Backend NestJS`
 
 ```sh
