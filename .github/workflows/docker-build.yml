@@ -24,3 +24,11 @@ jobs:
       DB_NAME: ft_trancendence
       DB_USERNAME: githubaction
       DB_PASSWORD: 424242
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: echo "Build a frontend container image"
+        run: docker compose -f docker-compose.yml build frontend
