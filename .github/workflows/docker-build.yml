@@ -5,8 +5,14 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Build a backend container image"
+      - name: echo "Build a backend container image"
+        run: docker compose build backend
+    env:
+      DB_NAME: ft_trancendence
+      DB_USERNAME: githubaction
+      DB_PASSWORD: 424242
   build-database:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Build a frontend container image"
+
