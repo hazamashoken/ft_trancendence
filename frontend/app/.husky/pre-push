@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd frontend/app && npm run lint
+
+if [ $? -eq 0 ]; then
+  echo "Linting passed"
+else
+  echo "Linting failed, commit aborted"
+  exit 1
+fi
