@@ -7,18 +7,16 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
-      - name: debug list
-        run: |
-          pwd
-          ls -l
       - name: echo "Build a backend container image"
         run: docker compose -f docker-compose.yml build backend
+  build-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: echo "Build a backend container image"
+        run: docker compose -f docker-compose.yml build database
     env:
       DB_NAME: ft_trancendence
       DB_USERNAME: githubaction
       DB_PASSWORD: 424242
-  build-database:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Build a frontend container image"
-
