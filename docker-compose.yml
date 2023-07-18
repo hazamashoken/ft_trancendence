@@ -1,6 +1,22 @@
 version: "3.8"
 
 services:
+  frontend:
+    build:
+      context: frontend
+      target: development
+      dockerfile: Dockerfile
+    command: npm run dev
+    volumes:
+      - ./frontend/app:/app
+      - ./frontend/app/node_modules:/app/node_modules
+      - ./frontend/app/.env.local:/app/.env.local
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    networks:
+      - main
+
   # https://blog.logrocket.com/containerized-development-nestjs-docker/
   backend:
     container_name: nestjs
