@@ -9,6 +9,9 @@ run-database:
 run-frontend:
 	docker compose up --build --detach frontend
 
+seed-database:
+	cd database && npm run start
+
 re-backend: clean run-backend
 
 re-frontend: clean run-frontend
