@@ -6,31 +6,31 @@ on:
       - main
 
 jobs:
-  build-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: echo "Build a backend container image"
-        run: docker compose -f docker-compose.yml build backend
-  build-database:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: echo "Build a backend container image"
-        run: docker compose -f docker-compose.yml build database
-    env:
-      DB_NAME: ft_trancendence
-      DB_USERNAME: githubaction
-      DB_PASSWORD: 424242
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: echo "Build a frontend container image"
-        run: docker compose -f docker-compose.yml build frontend
+  # build-backend:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout the repo
+  #       uses: actions/checkout@v2
+  #     - name: echo "Build a backend container image"
+  #       run: docker compose -f docker-compose.yml build backend
+  # build-database:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout the repo
+  #       uses: actions/checkout@v2
+  #     - name: echo "Build a backend container image"
+  #       run: docker compose -f docker-compose.yml build database
+  #   env:
+  #     DB_NAME: ft_trancendence
+  #     DB_USERNAME: githubaction
+  #     DB_PASSWORD: 424242
+  # build-frontend:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout the repo
+  #       uses: actions/checkout@v2
+  #     - name: echo "Build a frontend container image"
+  #       run: docker compose -f docker-compose.yml build frontend
 
   e2e-test-backend:
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
       - name: build backend
-        run: make run-backend
+        run: make run-database
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -55,10 +55,10 @@ jobs:
       # - name: build project
       #   run: npm run build --if-present
       - name: reproduce
-        run: npm install --global jest ts-jest typescript
+        run: npm install
       - name: run e2e test
         run: |
           cd backend/app
           ls -al
           npm run test
-    needs: [build-backend, build-database]
+    # needs: [build-backend, build-database]
