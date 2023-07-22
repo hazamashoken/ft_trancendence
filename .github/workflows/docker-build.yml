@@ -39,7 +39,7 @@ jobs:
         node-version: [18.x]
     env:
       POSTGRES_PASSWORD: intra42
-      DB_HOST: postgres
+      DB_HOST: localhost
       DB_NAME: ft_trancendence
       DB_USERNAME: githubaction
       DB_PASSWORD: 424242
