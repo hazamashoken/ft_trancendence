@@ -11,8 +11,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    console.log('DB_USERNAME: ', this.configService.get('DB_USERNAME'));
-    console.log('NESTJS_PORT: ', this.configService.get('NESTJS_PORT'));
     return this.appService.getHello();
   }
 }
