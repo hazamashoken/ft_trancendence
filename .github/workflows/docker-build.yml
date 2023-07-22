@@ -41,7 +41,7 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v3
         with:
-          name: environment-file
+          name: env-file
           path: |
             .env
             .ci.env
@@ -91,6 +91,7 @@ jobs:
         uses: actions/download-artifact@v3
       - name: replace .ci.env to .env
         run: |
+          ls -l
           cp .ci.env .env
           cp .env ./backend/app/
       - name: run database
