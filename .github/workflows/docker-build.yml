@@ -50,16 +50,19 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      # - name: install dependencies
-      #   run: npm ci
-      # - name: build project
-      #   run: npm run build --if-present
+      - name: create .env file
+        run: |
+          touch .env
+          echo "DB_HOST=postgres"         >> .env
+          echo "DB_PORT=5432"             >> .env
+          echo "DB_USERNAME=root"         >> .env
+          echo "DB_PASSWORD=424242"       >> .env
+          echo "DB_NAME=ft_trancendence"  >> .env
+          cp .env ./backend/app/
       - name: install dependencies
         run: npm install
         working-directory: ./backend/app
       - name: run e2e test
         working-directory: ./backend/app
-        run: |
-          ls -al
-          npx jest --config ./test/jest-e2e.json --coverage --passWithNoTests
+        run: npx jest --config ./test/jest-e2e.json --coverage --passWithNoTests
     # needs: [build-backend, build-database]
