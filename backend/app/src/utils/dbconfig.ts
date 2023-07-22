@@ -1,13 +1,14 @@
 import entities from '@backend/typeorm';
 import { DataSource } from 'typeorm';
+import { env } from './envconfig';
 
 export const appDataSource = new DataSource({
-  type: 'postgres',
+  type: env.DB_HOST || 'postgress',
   host: 'localhost',
-  port: 5432,
-  username: 'root',
-  password: '424242',
-  database: 'ft_trancendence',
+  port: env.DB_PORT || 5432,
+  username: env.DB_USERNAME || 'root',
+  password: env.DB_PASSWORD || '424242',
+  database: env.DB_NAME || 'ft_trancendence',
   entities: entities,
   synchronize: true,
 });

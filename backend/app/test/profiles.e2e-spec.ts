@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
-import { Profile } from '@entities/profile.entity';
+import { AppModule } from '@backend/app.module';
 import { appDataSource } from '@backend/utils/dbconfig';
+// import { Profile } from '@entities/profile.entity';
 
 let app: INestApplication;
 
