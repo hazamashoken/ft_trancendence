@@ -54,6 +54,7 @@ jobs:
       #   run: npm ci
       # - name: build project
       #   run: npm run build --if-present
+      - run: cd backend/app
       - name: reproduce
         run: npm install
       - name: run e2e test
