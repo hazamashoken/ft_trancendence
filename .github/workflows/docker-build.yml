@@ -114,5 +114,8 @@ jobs:
         run: npm install && npm start
       - name: run e2e test
         working-directory: ./backend/app
-        run: npm run test:e2e
+        run: |
+          docker ps -a
+          ls -al
+          npm run test:e2e
     needs: [pre-build]
