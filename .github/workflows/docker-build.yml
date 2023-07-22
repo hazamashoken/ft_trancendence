@@ -61,5 +61,5 @@ jobs:
         working-directory: ./backend/app
         run: |
           ls -al
-          npm run test
+          npx jest --config ./test/jest-e2e.json --coverage --passWithNoTests
     # needs: [build-backend, build-database]
