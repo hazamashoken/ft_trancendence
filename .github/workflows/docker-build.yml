@@ -42,7 +42,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: environment-file
-          path: .env
+          path: |
+            .env
+            .ci.env
           retention-days: 7
 
   # 2nd stage
