@@ -51,7 +51,9 @@ jobs:
         with:
           node-version: '18.x'
       - name: move to service dir
-        run: cd backend/app
+        run: |
+          cd backend/app
+          ls -al
       # - name: install dependencies
       #   run: npm ci
       # - name: build project
