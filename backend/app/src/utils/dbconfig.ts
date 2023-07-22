@@ -3,8 +3,8 @@ import { DataSource } from 'typeorm';
 import { env } from './envconfig';
 
 export const appDataSource = new DataSource({
-  type: env.DB_HOST || 'postgres',
-  host: 'localhost',
+  type: 'postgres',
+  host: env.DB_HOST || 'localhost',
   port: +env.DB_PORT || 5432,
   username: env.DB_USERNAME || 'root',
   password: env.DB_PASSWORD || '424242',

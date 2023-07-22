@@ -4,31 +4,115 @@ on:
     branches:
       - dev
       - main
-
+env:
+  POSTGRES_PASSWORD: intra42
+  DB_HOST: postgres
+  DB_NAME: ft_trancendence
+  DB_USERNAME: githubaction
+  DB_PASSWORD: 424242
+  DB_PORT: 5432
 jobs:
+# 1st stage
+  pre-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+      - name: create .env file
+        run: |
+          touch .env
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+          echo "DB_PORT=$DB_PORT" >> .env
+          echo "DB_USERNAME=$DB_USERNAME" >> .env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+          echo "DB_NAME=$DB_NAME" >> .env
+          cat .env
+      - name: copy .env to .ci.env
+        run: cp .env .ci.env
+      - name: append .env for docker environment
+        run: |
+          echo "DB_HOST=$DB_HOST" >> .env
+      - name: append .ci.env for ci environment
+        run: |
+          echo "DB_HOST=localhost" >> .ci.env
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: env-file
+          path: |
+            .env
+            .ci.env
+          retention-days: 7
+
+  # 2nd stage
   build-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
       - name: echo "Build a backend container image"
         run: docker compose -f docker-compose.yml build backend
+    needs: [pre-build]
   build-database:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
       - name: echo "Build a backend container image"
         run: docker compose -f docker-compose.yml build database
-    env:
-      DB_NAME: ft_trancendence
-      DB_USERNAME: githubaction
-      DB_PASSWORD: 424242
-
+    needs: [pre-build]
   build-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
       - name: echo "Build a frontend container image"
         run: docker compose -f docker-compose.yml build frontend
+    needs: [pre-build]
+
+  e2e-test-backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    env:
+      DB_HOST: localhost
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
+      - name: replace .ci.env to .env
+        run: |
+          cp .ci.env .env
+          cp .env ./backend/app/
+      - name: run database
+        run: make run-database
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - name: install dependencies
+        working-directory: ./backend/app
+        run: npm install
+      - name: build nestjs
+        working-directory: ./backend/app
+        run: npm run build
+      - name: add database seed
+        working-directory: ./database
+        run: npm install && npm start
+      - name: run e2e test
+        working-directory: ./backend/app
+        run: npm run test:e2e
+    needs: [pre-build]
