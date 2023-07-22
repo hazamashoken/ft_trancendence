@@ -95,10 +95,8 @@ jobs:
           name: env-file
       - name: replace .ci.env to .env
         run: |
-          ls -al
           cp .ci.env .env
           cp .env ./backend/app/
-          cat .env
       - name: run database
         run: make run-database
       - name: Use Node.js
@@ -116,8 +114,5 @@ jobs:
         run: npm install && npm start
       - name: run e2e test
         working-directory: ./backend/app
-        run: |
-          docker ps -a
-          ls -al
-          npm run test:e2e
+        run: npm run test:e2e
     needs: [pre-build]
