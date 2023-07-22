@@ -38,6 +38,7 @@ jobs:
       matrix:
         node-version: [18.x]
     env:
+      POSTGRES_PASSWORD: intra42
       DB_HOST: postgres
       DB_NAME: ft_trancendence
       DB_USERNAME: githubaction
@@ -49,7 +50,8 @@ jobs:
       - name: create .env file
         run: |
           touch .env
-          echo "DB_HOST=postgres" >> .env
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+          echo "DB_HOST=$DB_HOST" >> .env
           echo "DB_PORT=$DB_PORT" >> .env
           echo "DB_USERNAME=$DB_USERNAME" >> .env
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
@@ -57,7 +59,7 @@ jobs:
           cat .env
           cp .env ./backend/app/
       - name: run database
-        run: make run-backend
+        run: make run-database
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -82,9 +84,9 @@ jobs:
       #   continue-on-error: true
       #   working-directory: ./backend/app
       #   run: npm list
-      # - name: install dependencies
-      #   run: npm install
-        # working-directory: ./backend/app
+      - name: install dependencies
+        run: npm install
+        working-directory: ./backend/app
       - name: run e2e test
         working-directory: ./backend/app
         run: |
