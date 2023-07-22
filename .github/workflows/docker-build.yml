@@ -60,5 +60,5 @@ jobs:
         run: |
           cd backend/app
           ls -al
-          npm run test:e2e
+          npm run test
     needs: [build-backend, build-database]
