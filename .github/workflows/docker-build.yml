@@ -84,6 +84,8 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x]
+    env:
+      DB_HOST: localhost
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
