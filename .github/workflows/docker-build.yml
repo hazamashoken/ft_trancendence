@@ -6,6 +6,32 @@ on:
       - main
 
 jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: echo "Build a backend container image"
+        run: docker compose -f docker-compose.yml build backend
+  build-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: echo "Build a backend container image"
+        run: docker compose -f docker-compose.yml build database
+    env:
+      DB_NAME: ft_trancendence
+      DB_USERNAME: githubaction
+      DB_PASSWORD: 424242
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: echo "Build a frontend container image"
+        run: docker compose -f docker-compose.yml build frontend
+
   e2e-test-backend:
     runs-on: ubuntu-latest
     strategy:
@@ -31,31 +57,5 @@ jobs:
       # - name: build project
       #   run: npm run build --if-present
       - name: run e2e test
-        run: npm test:e2e
-
-  build-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: echo "Build a backend container image"
-        run: docker compose -f docker-compose.yml build backend
-  build-database:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: echo "Build a backend container image"
-        run: docker compose -f docker-compose.yml build database
-    env:
-      DB_NAME: ft_trancendence
-      DB_USERNAME: githubaction
-      DB_PASSWORD: 424242
-
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: echo "Build a frontend container image"
-        run: docker compose -f docker-compose.yml build frontend
+        run: npm run test:e2e
+    needs: [build-backend, build-database]
