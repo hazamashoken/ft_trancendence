@@ -58,5 +58,5 @@ jobs:
         run: |
           cd backend/app
           ls -al
-          npm run test:e2e
+          npx jest --config ./test/jest-e2e.json
     needs: [build-backend, build-database]
