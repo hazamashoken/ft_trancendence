@@ -54,12 +54,12 @@ jobs:
       #   run: npm ci
       # - name: build project
       #   run: npm run build --if-present
-      - run: cd backend/app
-      - name: reproduce
+      - name: install dependencies
         run: npm install
+        working-directory: ./backend/app
       - name: run e2e test
+        working-directory: ./backend/app
         run: |
-          cd backend/app
           ls -al
           npm run test
     # needs: [build-backend, build-database]
