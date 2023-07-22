@@ -45,8 +45,10 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
-      - name: build backend
-        run: make run-database
+      - name: run database
+        run: |
+          make run-database
+          docker ps -a
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -59,6 +61,7 @@ jobs:
           echo "DB_USERNAME=$DB_USERNAME" >> .env
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "DB_NAME=$DB_NAME" >> .env
+          cat .env
           cp .env ./backend/app/
       - name: install dependencies
         run: npm install
