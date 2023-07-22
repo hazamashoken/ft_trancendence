@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "test": "npm run test:e2e",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -28,6 +28,8 @@
     "@nestjs/platform-express": "^9.4.3",
     "@nestjs/swagger": "^7.1.1",
     "@nestjs/typeorm": "^10.0.0",
+    "dotenv": "^16.3.1",
+    "module-alias": "^2.2.3",
     "pg": "^8.11.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
@@ -55,6 +57,10 @@
     "tsconfig-paths": "4.2.0",
     "typescript": "^5.0.0"
   },
+  "_moduleAliases": {
+    "@backend": "./dist/",
+    "@entities": "./dist/typeorm"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",
@@ -70,6 +76,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "@backend/(.*)$": "<rootDir>/$1",
+      "@entities/(.*)$": "<rootDir>/typeorm/$1"
+    }
   }
 }

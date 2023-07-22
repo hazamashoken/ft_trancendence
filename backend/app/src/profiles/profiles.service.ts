@@ -1,7 +1,9 @@
-import { Profile } from 'src/typeorm/profile.entity';
+
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { Profile } from '@entities/profile.entity';
+// import { Profile } from '../typeorm';
 
 @Injectable()
 export class ProfilesService {

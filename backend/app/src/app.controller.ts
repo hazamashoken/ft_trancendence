@@ -11,8 +11,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    console.log('POSTGRES_USER: ', this.configService.get('POSTGRES_USER'));
-    console.log('NESTJS_PORT: ', this.configService.get('NESTJS_PORT'));
     return this.appService.getHello();
   }
 }
