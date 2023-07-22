@@ -54,6 +54,8 @@ jobs:
       #   run: npm ci
       # - name: build project
       #   run: npm run build --if-present
+      - name: reproduce
+        run: npm install --global jest ts-jest typescript
       - name: run e2e test
         run: |
           cd backend/app
