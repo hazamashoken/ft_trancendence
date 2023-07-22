@@ -44,15 +44,7 @@ jobs:
       DB_PORT: 5432
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
-      - name: run database
-        run: |
-          make run-database
-          docker ps -a
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
+        uses: actions/checkout@v3
       - name: create .env file
         run: |
           touch .env
@@ -63,10 +55,37 @@ jobs:
           echo "DB_NAME=$DB_NAME" >> .env
           cat .env
           cp .env ./backend/app/
+      - name: run database
+        run: make run-database
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+  
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
       - name: install dependencies
         run: npm install
         working-directory: ./backend/app
       - name: run e2e test
         working-directory: ./backend/app
-        run: npx jest --config ./test/jest-e2e.json --coverage --passWithNoTests
+        run: |
+          docker ps -a
+          npx jest --config ./test/jest-e2e.json --coverage --passWithNoTests
     # needs: [build-backend, build-database]
