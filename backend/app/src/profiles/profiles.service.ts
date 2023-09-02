@@ -14,4 +14,13 @@ export class ProfilesService {
   findAll(): Promise<Profile[]> {
     return this.profileRepository.find();
   }
+
+  findOne(id: string) {
+    return this.profileRepository.findOneBy({ id: +id });
+  }
+
+  create(data: any) {
+    const profile = this.profileRepository.create(data);
+    return this.profileRepository.save(profile);
+  }
 }
