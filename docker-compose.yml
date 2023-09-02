@@ -31,8 +31,6 @@ services:
     networks:
       - main
     volumes:
-      - ./backend/app:/usr/src/app
-      - ./backend/app/node_modules:/usr/src/app/node_modules
       - .env:/usr/src/app/.env
     restart: unless-stopped
     depends_on:
