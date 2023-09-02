@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post, Body } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { Profile } from '@entities/profile.entity';
-import { ObjectUtil } from '@backend/utils/object.util';
+import { CreateUserDto } from './dto/create-profile.dto';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -18,9 +18,8 @@ export class ProfilesController {
   }
 
   @Post()
-  create(@Body() body: any): Promise<any> | any {
+  create(@Body() body: CreateUserDto): Promise<any> | any {
     console.log(body);
-    return ObjectUtil.toSnakeKey(body);
     return this.profilesService.create(body);
   }
 }
