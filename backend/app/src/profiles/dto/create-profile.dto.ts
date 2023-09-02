@@ -10,7 +10,7 @@ import {
 export class CreateUserDto {
   @IsNumber()
   @IsNotEmpty()
-  intraId: string;
+  intraId: number;
 
   @IsString()
   @IsNotEmpty()
