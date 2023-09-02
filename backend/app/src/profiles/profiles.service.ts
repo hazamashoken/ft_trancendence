@@ -44,4 +44,8 @@ export class ProfilesService {
     pBody.intraId = pData.intraId;
     return this.profileRepository.save(pBody);
   }
+
+  delete(id: number) {
+    return this.profileRepository.delete({ id });
+  }
 }
