@@ -104,12 +104,12 @@ jobs:
         with:
           node-version: '18.x'
       - name: install dependencies
-        working-directory: ./backend/app
+        working-directory: ./backend
         run: npm install
       - name: build nestjs
-        working-directory: ./backend/app
+        working-directory: ./backend
         run: npm run build
       - name: run e2e test
-        working-directory: ./backend/app
+        working-directory: ./backend
         run: npm run test:e2e
     needs: [pre-build]
