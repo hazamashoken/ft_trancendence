@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProfilesModule } from './profiles/profiles.module';
+import { UserModule } from './user/user.module';
 import entities from './typeorm';
 
 @Module({
@@ -27,7 +27,7 @@ import entities from './typeorm';
       }),
       inject: [ConfigService],
     }),
-    ProfilesModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
