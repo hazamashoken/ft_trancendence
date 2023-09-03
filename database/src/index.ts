@@ -1,19 +1,27 @@
 import 'module-alias/register';
 import { AppDataSource } from "./data-source"
-import { Profile } from "@entities/profile.entity"
-// import { Profile } from "@backend/typeorm/profile.entity"
-import profilesSeed from "./seeds/profiles";
+import { User } from "@entities/user.entity"
+import userSeed from "./seeds/user";
 
 AppDataSource.initialize().then(async () => {
 
   console.log("Inserting a new user into the database...")
-  await AppDataSource.createQueryBuilder()
-    .insert()
-    .into(Profile)
-    .values(profilesSeed)
-    .execute();
-
+  // await AppDataSource.createQueryBuilder()
+  //   .insert()
+  //   .into(User)
+  //   .values(userSeed)
+  //   .execute();
+  await setupUser();
   console.log("Loading profiles from the database...")
-  const profiles = await AppDataSource.manager.find(Profile)
-  console.log("Loaded profiles: ", profiles)
+  const users = await AppDataSource.manager.find(User)
+  console.log("Loaded users: ", users)
 }).catch(error => console.log(error))
+
+
+export async function setupUser() {
+  const userRepo = AppDataSource.manager.getRepository(User);
+  for (const user of userSeed) {
+    console.log(user);
+    await userRepo.insert(user);
+  }
+}
