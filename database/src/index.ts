@@ -6,11 +6,6 @@ import userSeed from "./seeds/user";
 AppDataSource.initialize().then(async () => {
 
   console.log("Inserting a new user into the database...")
-  // await AppDataSource.createQueryBuilder()
-  //   .insert()
-  //   .into(User)
-  //   .values(userSeed)
-  //   .execute();
   await setupUser();
   console.log("Loading profiles from the database...")
   const users = await AppDataSource.manager.find(User)
@@ -21,7 +16,6 @@ AppDataSource.initialize().then(async () => {
 export async function setupUser() {
   const userRepo = AppDataSource.manager.getRepository(User);
   for (const user of userSeed) {
-    console.log(user);
     await userRepo.insert(user);
   }
 }
