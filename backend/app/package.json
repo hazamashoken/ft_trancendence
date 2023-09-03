@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e-t": "jest --config ./test/jest-e2e.json -t 'POST /profiles/:id'"
   },
   "dependencies": {
     "@nestjs/common": "^9.4.3",
@@ -27,6 +28,8 @@
     "@nestjs/platform-express": "^9.4.3",
     "@nestjs/swagger": "^7.1.1",
     "@nestjs/typeorm": "^10.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
     "dotenv": "^16.3.1",
     "module-alias": "^2.2.3",
     "pg": "^8.11.1",

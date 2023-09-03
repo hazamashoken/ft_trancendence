@@ -1,7 +1,25 @@
+
+PWD := $(shell pwd)
 all: run-backend run-database run-frontend
 
 run-backend:
 	docker compose up --build --detach backend
+
+dev-backend:
+	npm install --prefix backend/app
+	echo $(PWD)
+	docker compose run \
+		--detach \
+		--rm \
+		--build \
+		--name nestjs \
+		--publish 3000:3000 \
+		--publish 9229:9229 \
+		--volume $(shell pwd)/backend/app:/usr/src/app \
+		backend
+
+dev-kill:
+	docker compose kill
 
 run-database:
 	docker compose up --build --detach database
@@ -35,4 +53,4 @@ fclean: clean
 	-sudo rm -rf database/node_modules
 	-sudo rm -rf frontend/app/node_modules
 
-.PHONY: run-backend re-backend run-frontend all stop down re clean
+.PHONY: dev-backend dev-kill run-backend re-backend run-frontend all stop down re clean

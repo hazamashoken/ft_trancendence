@@ -109,9 +109,6 @@ jobs:
       - name: build nestjs
         working-directory: ./backend/app
         run: npm run build
-      - name: add database seed
-        working-directory: ./database
-        run: npm install && npm start
       - name: run e2e test
         working-directory: ./backend/app
         run: npm run test:e2e

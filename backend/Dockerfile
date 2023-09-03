@@ -7,8 +7,11 @@ WORKDIR /usr/src/app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY ./app/package*.json ./
 
+# install nest/cli as global
+RUN npm i -g @nestjs/cli
+
 # Install app dependencies
-RUN npm install --only=development
+RUN npm install
 
 # Bundle app source
 COPY ./app .
