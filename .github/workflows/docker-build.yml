@@ -96,7 +96,7 @@ jobs:
       - name: replace .ci.env to .env
         run: |
           cp .ci.env .env
-          cp .env ./backend/app/
+          cp .env ./backend/
       - name: run database
         run: make run-database
       - name: Use Node.js
