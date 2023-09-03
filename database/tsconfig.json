@@ -14,8 +14,8 @@
       "experimentalDecorators": true,
       "sourceMap": true,
       "paths": {
-         "@backend/*": ["../backend/app/src/*"],
-         "@entities/*": ["../backend/app/src/typeorm/*"],
+         "@backend/*": ["../backend/src/*"],
+         "@entities/*": ["../backend/src/typeorm/*"],
       },
    }
 }

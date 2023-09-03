@@ -14,8 +14,8 @@
    "author": "tsomsa",
    "license": "ISC",
    "_moduleAliases": {
-      "@backend": "../backend/app/dist/",
-      "@entities": "../backend/app/dist/typeorm"
+      "@backend": "../backend/dist/",
+      "@entities": "../backend/dist/typeorm"
     },
    "devDependencies": {
       "@types/node": "^16.11.10",

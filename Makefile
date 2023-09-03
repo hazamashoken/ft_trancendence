@@ -6,7 +6,7 @@ run-backend:
 	docker compose up --build --detach backend
 
 dev-backend:
-	npm install --prefix backend/app
+	npm install --prefix backend
 	echo $(PWD)
 	docker compose run \
 		--detach \
@@ -15,7 +15,7 @@ dev-backend:
 		--name nestjs \
 		--publish 3000:3000 \
 		--publish 9229:9229 \
-		--volume $(shell pwd)/backend/app:/usr/src/app \
+		--volume $(PWD)/backend:/usr/src/app \
 		backend
 
 dev-kill:

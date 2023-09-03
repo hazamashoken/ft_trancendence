@@ -1,5 +1,5 @@
 import { IsEmpty } from 'class-validator';
-import { CreateUserDto } from './create-profile.dto';
+import { CreateUserDto } from './create-user.dto';
 
 // Detect only forbidden field
 export class SaveUserDto extends CreateUserDto {

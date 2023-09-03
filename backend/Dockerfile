@@ -5,7 +5,7 @@ FROM node:18 as development
 WORKDIR /usr/src/app
 
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
-COPY ./app/package*.json ./
+COPY ./package*.json ./
 
 # install nest/cli as global
 RUN npm i -g @nestjs/cli
@@ -14,7 +14,7 @@ RUN npm i -g @nestjs/cli
 RUN npm install
 
 # Bundle app source
-COPY ./app .
+COPY . .
 
 # Creates a "dist" folder with the production build
 RUN npm run build
@@ -28,9 +28,9 @@ WORKDIR /usr/src/app
 
 RUN npm install --only=production
 
-COPY ./app .
+COPY . .
 
-COPY --from=development ./app/dist ./dist
+COPY --from=development ./dist ./dist
 
 EXPOSE 3000
 
