@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '@backend/app.module';
 import { appDataSource } from '@backend/utils/dbconfig';
-import { Profile } from '@backend/typeorm';
-import { profiles } from './profiles/profiles.data';
+import { User } from '@backend/typeorm';
+import { users } from './user/users.data';
 
 let app: INestApplication;
 let server: any;
@@ -11,7 +11,7 @@ let server: any;
 export function testSetup() {
   beforeAll(async () => {
     await appDataSource.initialize();
-    await setupProfile();
+    await setupUser();
     await initServer();
   });
 
@@ -31,11 +31,12 @@ export async function initServer() {
 }
 
 // setup user
-export async function setupProfile() {
-  const profileRepo = appDataSource.manager.getRepository(Profile);
-  await appDataSource.query('TRUNCATE TABLE profile RESTART IDENTITY');
-  for (const profile of profiles) {
-    await profileRepo.insert(profile);
+export async function setupUser() {
+  const userRepo = appDataSource.manager.getRepository(User);
+  await appDataSource.query('TRUNCATE TABLE public."user" RESTART IDENTITY');
+  for (const user of users) {
+    console.log(user);
+    await userRepo.insert(user);
   }
 }
 export { app, server, appDataSource };

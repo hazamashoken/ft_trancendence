@@ -1,4 +1,4 @@
-export const profiles = [
+export const users = [
   {
     intraId: 1,
     firstName: 'Thitiwut',

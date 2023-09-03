@@ -1,15 +1,15 @@
 import * as request from 'supertest';
 import { app, appDataSource, server, testSetup } from '../test-setup';
 import { describe } from 'node:test';
-import { Profile } from '@backend/typeorm/profile.entity';
+import { User } from '@backend/typeorm/user.entity';
 
 testSetup();
 
-describe('ProfileController (e2e)', () => {
-  describe('GET /profiles', () => {
-    test('/profile (GET)', async () => {
+describe('UserController (e2e)', () => {
+  describe('GET /users', () => {
+    test('/users (GET)', async () => {
       return request(server)
-        .get('/profiles')
+        .get('/users')
         .expect(200)
         .then((res) => {
           expect(res.body).toEqual(
@@ -24,10 +24,10 @@ describe('ProfileController (e2e)', () => {
     });
   });
 
-  describe('GET /profiles/:id', () => {
-    test('GET /profile/:id Succeed', async () => {
+  describe('GET /users/:id', () => {
+    test('GET /users/:id Succeed', async () => {
       return request(app.getHttpServer())
-        .get('/profiles/1')
+        .get('/users/1')
         .expect(200)
         .then((res) => {
           expect(res.body).toEqual(
@@ -38,16 +38,16 @@ describe('ProfileController (e2e)', () => {
           );
         });
     });
-    test('GET /profile/:id NotFound', async () => {
-      return request(app.getHttpServer()).get('/profiles/500000').expect(404);
+    test('GET /users/:id NotFound', async () => {
+      return request(app.getHttpServer()).get('/users/500000').expect(404);
     });
-    test('GET /profile/:id BadRequest', async () => {
-      return request(app.getHttpServer()).get('/profiles/0').expect(400);
+    test('GET /users/:id BadRequest', async () => {
+      return request(app.getHttpServer()).get('/users/0').expect(400);
     });
   });
 
-  describe('POST /profiles/', () => {
-    const profileRepository = appDataSource.manager.getRepository(Profile);
+  describe('POST /users/', () => {
+    const userRepository = appDataSource.manager.getRepository(User);
     const inputBody = {
       intraId: 100,
       firstName: 'tester',
@@ -56,24 +56,24 @@ describe('ProfileController (e2e)', () => {
     };
 
     afterEach(async () => {
-      const profile = await profileRepository.findOne({
+      const user = await userRepository.findOne({
         where: { email: 'tester@student.42.bangkok.com' },
       });
-      if (profile) {
-        await profileRepository.remove(profile);
+      if (user) {
+        await userRepository.remove(user);
       }
     });
 
-    test('POST /profiles Succeed', async () => {
-      const req = await request(app.getHttpServer())
-        .post('/profiles')
+    test('POST /users Succeed', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
         .send(inputBody)
         .expect(201);
-      const profile = await profileRepository.findOne({
+      const user = await userRepository.findOne({
         where: { email: 'tester@student.42.bangkok.com' },
       });
-      expect(profile).toStrictEqual(expect.objectContaining(profile));
-      expect(profile).toBeInstanceOf(Profile);
+      expect(user).toStrictEqual(expect.objectContaining(user));
+      expect(user).toBeInstanceOf(User);
     });
   });
 });
