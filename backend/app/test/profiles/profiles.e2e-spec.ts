@@ -33,46 +33,47 @@ describe('ProfileController (e2e)', () => {
           expect(res.body).toEqual(
             expect.objectContaining({
               id: 1,
-              email: 'tsomsa@student.42bangkok.com',
-              login: 'tsomsa',
+              email: 'thitiwut@student.42bangkok.com',
             }),
           );
         });
     });
     test('GET /profile/:id NotFound', async () => {
-      return request(app.getHttpServer()).get('/profiles/0').expect(404);
+      return request(app.getHttpServer()).get('/profiles/500000').expect(404);
     });
     test('GET /profile/:id BadRequest', async () => {
       return request(app.getHttpServer()).get('/profiles/0').expect(400);
     });
   });
 
-  describe('POST /profiles/:id', () => {
+  describe('POST /profiles/', () => {
     const profileRepository = appDataSource.manager.getRepository(Profile);
     const inputBody = {
-      login: 'tester',
+      intraId: 100,
+      firstName: 'tester',
+      lastName: 'nestjs',
       email: 'tester@student.42.bangkok.com',
     };
 
     afterEach(async () => {
       const profile = await profileRepository.findOne({
-        where: { login: 'tester' },
+        where: { email: 'tester@student.42.bangkok.com' },
       });
-      console.log(profile);
       if (profile) {
         await profileRepository.remove(profile);
       }
     });
 
-    test('POST /profiles/:id Succeed', async () => {
-      await request(app.getHttpServer())
-        .post('/profiles/')
+    test('POST /profiles Succeed', async () => {
+      const req = await request(app.getHttpServer())
+        .post('/profiles')
         .send(inputBody)
         .expect(201);
       const profile = await profileRepository.findOne({
-        where: { login: 'tester' },
+        where: { email: 'tester@student.42.bangkok.com' },
       });
-      expect(profile).toBe(expect.objectContaining(profile));
+      expect(profile).toStrictEqual(expect.objectContaining(profile));
+      expect(profile).toBeInstanceOf(Profile);
     });
   });
 });

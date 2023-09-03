@@ -26,10 +26,12 @@ export class ProfilesController {
   }
 
   @Post()
-  create(@Body() body: CreateUserDto): Promise<any> {
-    const existedProfile = this.profilesService.getRepository().findOneBy({
-      intraId: +body.intraId,
-    });
+  async create(@Body() body: CreateUserDto): Promise<any> {
+    const existedProfile = await this.profilesService
+      .getRepository()
+      .findOneBy({
+        intraId: +body.intraId,
+      });
     if (existedProfile) {
       throw new BadRequestException('Existed intra user');
     }
