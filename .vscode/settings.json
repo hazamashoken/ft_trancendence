@@ -1,0 +1,9 @@
+{
+  "editor.insertSpaces": true,
+  "editor.renderWhitespace": "all",
+  "[typescript]": {
+    "editor.tabSize": 2,
+  },
+  "autoimport.useSemiColon": true,
+  "autoimport.doubleQuotes": false
+}
