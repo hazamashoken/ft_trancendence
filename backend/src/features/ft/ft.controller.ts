@@ -6,8 +6,8 @@ export class FtController {
   constructor(private readonly ftService: FtService) {}
 
   @Get('oauth/token')
-  oauthToken(code: string) {
-    return this.ftService.oauthToken(code);
+  oauthToken(@Query() query: any) {
+    return this.ftService.oauthToken(query.code);
   }
 
   @Get('oauth/token/info')
