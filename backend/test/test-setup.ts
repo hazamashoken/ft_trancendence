@@ -32,6 +32,13 @@ export async function initServer() {
 
 // setup user
 export async function setupUser() {
+  await appDataSource.query(`DROP TABLE banned;`);
+  await appDataSource.query(`DROP TABLE messages;`);
+  await appDataSource.query(`DROP TABLE muted;`);
+  await appDataSource.query(`DROP TABLE active_users;`);
+  await appDataSource.query(`DROP TABLE chat_admins;`);
+  await appDataSource.query(`DROP TABLE chat_users;`);
+  await appDataSource.query(`DROP TABLE chats;`);
   const userRepo = appDataSource.manager.getRepository(User);
   await appDataSource.query('TRUNCATE TABLE public."user" RESTART IDENTITY');
   for (const user of users) {
