@@ -6,11 +6,11 @@ import { ForbiddenException, HttpCode, HttpStatus, Injectable, Logger, NotFoundE
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@backend/typeorm';
-import { ChatUserDto } from '@backend/user/dto/chat-user.dto';
 import { ReturnChanelDto } from './dto/return-cnannel.dto';
 import { plainToClass } from 'class-transformer';
 import { ChannelCreatedTO } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
+import { ChatUserDto } from './dto/chat-user.dto';
 // import { BannedService } from '../banned/banned.service';
 // import { MessagesService } from '../messages/messages.service';
 // import { MutedService } from '../muted/muted.service';
