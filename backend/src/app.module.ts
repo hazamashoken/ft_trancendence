@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import entities from './typeorm';
+import { ChannelsModule } from './channels/channels.module';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import entities from './typeorm';
       }),
       inject: [ConfigService],
     }),
-    UserModule,
+    UserModule, ChannelsModule
   ],
   controllers: [AppController],
   providers: [AppService],
