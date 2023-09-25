@@ -1,12 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateChannelDto {
-	@ApiProperty({default: null})
-	chat_name: string;
+  @ApiProperty({ default: null })
+  chatName: string;
 
-	@ApiProperty({default: null})
-	password: string;
+  @ApiProperty({ default: null })
+  password: string;
 
-	@ApiProperty({default: null})
-	max_users: number;
+  @ApiProperty({ default: null })
+  maxUsers: number;
 }

@@ -1,19 +1,24 @@
-import { ChannelType } from "@backend/typeorm/channel.entity";
-import { ApiProperty } from "@nestjs/swagger";
+import { chatType } from '@backend/typeorm/channel.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
 
 export class ChannelCreatedTO {
-	@ApiProperty()
-	chat_name: string;
+  @ApiProperty({ default: null })
+  // @IsString()
+  chatName: string;
 
-	@ApiProperty()
-	chanel_owner: number;
+  @ApiProperty()
+  @IsNumber()
+  chatOwner: number;
 
-	@ApiProperty({default: null})
-	password: string;
+  @ApiProperty({ default: null })
+  // @IsString()
+  password: string;
 
-	@ApiProperty({default: null})
-	max_users: number;
+  @ApiProperty({ default: null })
+  // @IsNumber()
+  maxUsers: number;
 
-	@ApiProperty({default: ChannelType.PUBLIC})
-	chanel_type: ChannelType;
+  @ApiProperty({ default: chatType.PUBLIC })
+  chatType: chatType;
 }

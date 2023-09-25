@@ -1,73 +1,108 @@
-import { BaseEntity, Column, JoinColumn,CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, BeforeInsert, AfterInsert } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  JoinColumn,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  BeforeInsert,
+  AfterInsert,
+} from 'typeorm';
 import { MessagesEntity } from './messages.entity';
 import { MutedEntity } from './muted.entity';
 import { BannedEntity } from './banned.entity';
 import { User } from '@backend/typeorm/user.entity';
-// import { Logger } from '@nestjs/common';
+import { Exclude } from 'class-transformer';
 
-export enum ChannelType {
-	PUBLIC = 'public',
-	PROTECTED = 'protected',
-	PRIVATE = 'private',
-	DIRECT = 'direct'
-  }
+export enum chatType {
+  PUBLIC = 'public',
+  PROTECTED = 'protected',
+  PRIVATE = 'private',
+  DIRECT = 'direct',
+}
 
 @Entity('chats')
 export class ChannelsEntity extends BaseEntity {
-	@PrimaryGeneratedColumn()
-	chat_id: number;
+  @PrimaryGeneratedColumn({ name: 'chat_id' })
+  chatId: number;
 
-	@ManyToOne(() => User)
-	chanel_owner: User;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'chat_owner' })
+  chatOwner: User;
 
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'chat_admins' })
+  @JoinColumn({ name: 'chat_admins' })
+  @Exclude()
+  chatAdmins: User[];
 
-	@ManyToMany(() => User)
-	@JoinTable({name: 'chat_admins'})
-	chat_admins: User[];
+  @Column({ nullable: true, default: null, name: 'chat_name' })
+  chatName: string;
 
-	@Column({nullable: true, default: null})
-	chat_name: string;
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'chat_users' })
+  @JoinColumn({ name: 'chat_users' })
+  @Exclude()
+  chatUsers: User[];
 
-	@ManyToMany(() => User)
-	@JoinTable({name: 'chat_users'})
-	chat_users: User[];
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'active_users' })
+  @JoinColumn({ name: 'active_users' })
+  @Exclude()
+  activeUsers: User[];
 
-	@ManyToMany(() => User)
-	@JoinTable({name: 'active_users'})
-	active_users: User[];
+  @Column({
+    type: 'enum',
+    enum: chatType,
+    default: chatType.PUBLIC,
+    name: 'chat_type',
+  })
+  chatType: chatType;
 
-	@Column({
-		type: 'enum',
-		enum: ChannelType,
-		default: ChannelType.PUBLIC
-	})
-	chanel_type: ChannelType;
+  @Column({ nullable: true, default: null })
+  @JoinColumn({ name: 'max_users' })
+  maxUsers: number;
 
-	@Column({nullable: true, default: null})
-	max_users: number;
+  @OneToMany(() => MessagesEntity, (message) => message.channel, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @Exclude()
+  chatMessages: MessagesEntity[];
 
-	@OneToMany(() => MessagesEntity, message => message.channel)
-	chanel_messages: MessagesEntity[];
+  @OneToMany(() => BannedEntity, (banned) => banned.bannedAt, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({ name: 'banned' })
+  @JoinColumn({ name: 'banned_users' })
+  @Exclude()
+  bannedUsers: BannedEntity[];
 
-	@OneToMany(() => BannedEntity, (banned) => banned.banned_at, { cascade: true })
-	@JoinTable()
-	banned_users: BannedEntity[];
+  @OneToMany(() => MutedEntity, (muted) => muted.mutedAt, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({ name: 'muted' })
+  @JoinColumn({ name: 'muted_users' })
+  @Exclude()
+  mutedUsers: MutedEntity[];
 
-	@OneToMany(() => MutedEntity, muted => muted.muted_at)
-	@JoinTable()
-	muted_users: MutedEntity[];
+  @Column({ nullable: true, default: null })
+  @Exclude()
+  password: string;
 
-	@Column({ nullable: true, default: null})
-	password: string;
+  @Column({ type: 'timestamp', default: () => 'now()', name: 'creating_date' })
+  creatingDate: Date;
 
-	@Column({type: 'timestamp', default: () => 'now()'})
-	creating_date: Date;
-
-	@BeforeInsert()
-	setDefaultChatName() {
-		if (!this.chat_name) {
-			this.chat_name = `${this.chanel_type} ${this.chanel_owner.firstName} chat`;
-		  }
-	}
-
+  @BeforeInsert()
+  setDefaultChatName() {
+    if (this.chatName == null) {
+      this.chatName = `${this.chatType} ${this.chatOwner.firstName} chat`;
+    }
+  }
 }

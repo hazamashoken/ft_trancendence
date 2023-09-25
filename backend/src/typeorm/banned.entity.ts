@@ -1,26 +1,35 @@
-import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ChannelsEntity } from "./channel.entity";
-import { User } from "@backend/typeorm/user.entity";
-// import { User } from "src/user/entities/user.entity";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ChannelsEntity } from './channel.entity';
+import { User } from './user.entity';
 
 @Entity('banned')
 export class BannedEntity extends BaseEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'ban_id' })
   id: number;
 
   @ManyToOne(() => User)
-  @JoinTable({ name: 'user_id' })
-  banned_user: User;
+  @JoinColumn({ name: 'banned_user' })
+  bannedUser: User;
 
   @ManyToOne(() => User)
-  @JoinTable({ name: 'banned_by_user_id' })
-  banned_by: User;
+  @JoinColumn({ name: 'banned_by' })
+  bannedBy: User;
 
-  @Column({default: 'U desrve this ban'})
-  ban_reason: string;
+  @Column({ default: 'U desrve this ban', name: 'ban_reason' })
+  banReason: string;
 
-  @ManyToOne(() => ChannelsEntity, (channel) => channel.banned_users, {
+  @ManyToOne(() => ChannelsEntity, (channel) => channel.bannedUsers, {
     onDelete: 'CASCADE',
   })
-  banned_at: ChannelsEntity;
+  @JoinColumn({ name: 'banned_at' })
+  bannedAt: ChannelsEntity;
 }

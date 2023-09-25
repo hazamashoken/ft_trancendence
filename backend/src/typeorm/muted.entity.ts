@@ -1,23 +1,34 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ChannelsEntity } from './channel.entity';
 import { User } from '@backend/typeorm/user.entity';
 
 @Entity('muted')
 export class MutedEntity extends BaseEntity {
-	@PrimaryGeneratedColumn()
-	id: number;
+  @PrimaryGeneratedColumn({ name: 'mute_id' })
+  id: number;
 
-	@ManyToOne(()=> User)
-	user: User;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'muted_user' })
+  user: User;
 
-	@ManyToOne(() => ChannelsEntity, channel => channel.muted_users, {
-		onDelete: 'CASCADE',
-	  })
-	muted_at: ChannelsEntity;
+  @ManyToOne(() => ChannelsEntity, (channel) => channel.mutedUsers, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'muted_at' })
+  mutedAt: ChannelsEntity;
 
-	@ManyToOne(()=> User)
-	muted_by: User;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'banned_by' })
+  mutedBy: User;
 
-	@Column({type: 'timestamp', default: () => 'now()'})
-	muted_until: Date;
+  @Column({ type: 'timestamp', default: () => 'now()', name: 'muted_until' })
+  mutedUntill: Date;
 }

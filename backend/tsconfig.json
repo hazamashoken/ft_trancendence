@@ -1,4 +1,4 @@
-{
+  {
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@backend/*": ["./src/*"],
-      "@entities/*": ["./src/typeorm/*"],
-   },
+      "@entities/*": ["./src/typeorm/*"]
+    }
   }
 }

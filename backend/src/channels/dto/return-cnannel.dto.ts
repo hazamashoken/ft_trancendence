@@ -1,29 +1,20 @@
-import { User } from "@backend/typeorm";
-import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
+import { User } from '@backend/typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import { IsDate, IsNumber, IsObject, IsString } from 'class-validator';
 
 export class ReturnChanelDto {
-	@ApiProperty()
-	chat_id: number;
+  @IsNumber()
+  chatId: number;
 
-	@ApiProperty()
-	chat_name: string;
+  @IsString()
+  chatName: string;
 
-	@ApiProperty()
-	creationDate: Date;
+  @IsDate()
+  creationDate: Date;
 
-	@ApiProperty({default: null})
-	max_users: number;
+  maxUsers: number;
 
-	@Exclude() // Исключаем поле password из сериализации
-	password: string;
-	
-	@Exclude()
-	chanel_owner: User;
-
-	@Exclude()
-	chat_users: User[];
-
-	@Exclude()
-	chat_admins: User[];
+  @IsObject()
+  chatOwner: User;
 }
