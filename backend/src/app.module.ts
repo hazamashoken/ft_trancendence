@@ -6,6 +6,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import entities from './typeorm';
+import { ChannelsModule } from './channels/channels.module';
+import { BannedModule } from './banned/banned.module';
+import { MessgesModule } from './messages/messages.module';
+import { MutedModule } from './muted/muted.module';
 
 @Module({
   imports: [
@@ -28,6 +32,10 @@ import entities from './typeorm';
       inject: [ConfigService],
     }),
     UserModule,
+    ChannelsModule,
+    BannedModule,
+    MessgesModule,
+    MutedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
