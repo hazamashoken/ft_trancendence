@@ -18,6 +18,9 @@ dev-backend:
 		--volume $(PWD)/backend:/usr/src/app \
 		backend
 
+backend-start-dev:
+	docker exec -ti nestjs npm run start:dev
+
 dev-kill:
 	docker compose kill
 

@@ -6,6 +6,10 @@ import { AppService } from './app.service';
 import entities from './typeorm';
 import { FeaturesModule } from './features/features.module';
 import { SharedModule } from './shared/shared.module';
+import { ChannelsModule } from './channels/channels.module';
+import { BannedModule } from './banned/banned.module';
+import { MessgesModule } from './messages/messages.module';
+import { MutedModule } from './muted/muted.module';
 
 @Module({
   imports: [
@@ -29,6 +33,11 @@ import { SharedModule } from './shared/shared.module';
     }),
     SharedModule,
     FeaturesModule,
+    UserModule,
+    ChannelsModule,
+    BannedModule,
+    MessgesModule,
+    MutedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
