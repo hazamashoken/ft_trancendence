@@ -7,8 +7,6 @@ export class XKeyGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    // console.log(request);
-    // console.log(request.headers);
     const xkey = request.headers['x-api-key'] || request.headers['X-Api-Key'];
     return xkey && xkey === process.env.X_API_KEY;
   }

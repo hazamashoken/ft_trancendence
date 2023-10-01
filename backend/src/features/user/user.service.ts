@@ -21,12 +21,12 @@ export class UserService {
     return this.userRepository.findOneBy({ id });
   }
 
-  create(data: any) {
+  create(data: Partial<User>) {
     const user = this.userRepository.create(data);
     return this.userRepository.save(user);
   }
 
-  update(id: number, data: any): Promise<void | User> {
+  update(id: number, data: Partial<User>): Promise<void | User> {
     return this.userRepository
       .update({ id }, data)
       .then(() => this.findOne(id))
@@ -38,8 +38,8 @@ export class UserService {
       });
   }
 
-  async save(id: number, data: any): Promise<any> {
-    const uBody = this.userRepository.create(data as User);
+  async save(id: number, data: Partial<User>): Promise<any> {
+    const uBody = this.userRepository.create(data);
     const uData = await this.userRepository.findOneBy({ id });
     uBody.intraId = uData.intraId;
     return this.userRepository.save(uBody);

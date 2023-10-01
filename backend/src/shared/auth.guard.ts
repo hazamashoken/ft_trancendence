@@ -10,10 +10,7 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    // console.log(request);
-    const auth: string =
-      request.headers['authorization'] || request.headers['Authorization'];
-    // console.log(request.headers);
+    const auth: string = request.headers['authorization'] || request.headers['Authorization'];
     if (!auth || !auth.startsWith('Bearer ')) {
       return false;
     }
@@ -21,7 +18,7 @@ export class AuthGuard implements CanActivate {
     return this.ftService.oauthTokenInfo(token).pipe(
       switchMap(() => this.ftService.me(token)),
       map((me) => {
-        request.auth = me;
+        request.user = me;
         return true;
       }),
     );
