@@ -33,7 +33,6 @@ import { MutedModule } from './muted/muted.module';
     }),
     SharedModule,
     FeaturesModule,
-    UserModule,
     ChannelsModule,
     BannedModule,
     MessgesModule,

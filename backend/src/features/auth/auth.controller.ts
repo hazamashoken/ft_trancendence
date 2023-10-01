@@ -1,7 +1,15 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { XKeyGuard } from '@backend/shared/x-key.guard';
 
 @Controller('auth')
+@UseGuards(XKeyGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, map } from 'rxjs';
+import * as _ from 'lodash';
 
 @Injectable()
 export class FtService {
@@ -16,14 +17,16 @@ export class FtService {
   oauthToken(code: string) {
     const uri = `${FtService.baseUrl}/oauth/token`;
     const body = {
+      code,
       grant_type: code ? 'authorization_code' : 'client_credentials',
-      redirect_uri: code ? 'http://localhost' : undefined,
+      redirect_uri: 'http://localhost',
       client_id: this.configService.get('42_CLIENT_ID'),
       client_secret: this.configService.get('42_SECRET_ID'),
     };
     return this.httpService.post(uri, body).pipe(
       map((res) => res.data),
       catchError((e) => {
+        console.log(e);
         throw new HttpException(e.response.statusText, e.response.status);
       }),
     );
@@ -40,6 +43,7 @@ export class FtService {
       .pipe(
         map((res) => res.data),
         catchError((e) => {
+          console.error(e.response.data);
           throw new HttpException(e.response.statusText, e.response.status);
         }),
       );
@@ -54,10 +58,26 @@ export class FtService {
         },
       })
       .pipe(
-        map((res) => res.data),
+        map((res) => this.mapMeFields(res.data)),
         catchError((e) => {
           throw new HttpException(e.response.statusText, e.response.status);
         }),
       );
+  }
+
+  private mapMeFields(data: any) {
+    const fields = [
+      'id',
+      'email',
+      'login',
+      'first_name',
+      'last_name',
+      'url',
+      'displayName',
+      'kind',
+      'image',
+      'titles',
+    ];
+    return _.pick(data, fields);
   }
 }

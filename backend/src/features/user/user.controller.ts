@@ -9,19 +9,25 @@ import {
   NotFoundException,
   Put,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SaveUserDto } from './dto/save-user.dto';
+import { XKeyGuard } from '@backend/shared/x-key.guard';
+import { AuthGuard } from '@backend/shared/auth.guard';
 
 @Controller('users')
+@UseGuards(XKeyGuard, AuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  findAll(): Promise<User[]> {
+  findAll(@Req() req): Promise<User[]> {
+    console.log(req.auth);
     return this.userService.findAll();
   }
 
