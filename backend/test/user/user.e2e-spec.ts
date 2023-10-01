@@ -3,7 +3,7 @@ import { app, appDataSource, server, testSetup } from '../test-setup';
 import { describe } from 'node:test';
 import { User } from '@backend/typeorm/user.entity';
 
-testSetup();
+testSetup(true);
 
 describe('UserController (e2e)', () => {
   describe('GET /users', () => {
