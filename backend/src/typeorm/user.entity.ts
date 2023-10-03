@@ -32,8 +32,8 @@ export class User {
   @Column({ name: 'display_name' })
   displayName: string;
 
-  @Column({ name: 'avatar_url' })
-  avatarUrl: string;
+  @Column({ name: 'image_url' })
+  imageUrl: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -23,7 +23,7 @@ export class AccountService {
     user.lastName = data.last_name;
     user.email = data.email;
     user.displayName = data.login;
-    user.avatarUrl = data.image.link;
+    user.imageUrl = data.image.link;
     return this.userRepository.save(user);
   }
 
