@@ -9,6 +9,11 @@ export class AccountService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
+
+  get(id: number) {
+    return this.userRepository.findOneBy({ id });
+  }
+
   create(data: FtUser) {
     const user = new User();
     user.intraId = data.id;
@@ -17,7 +22,7 @@ export class AccountService {
     user.firstName = data.first_name;
     user.lastName = data.last_name;
     user.email = data.email;
-    user.displayName = data.displayName;
+    user.displayName = data.login;
     user.avatarUrl = data.image.link;
     return this.userRepository.save(user);
   }
