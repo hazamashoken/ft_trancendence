@@ -50,9 +50,13 @@ describe('UserController (e2e)', () => {
     const userRepository = appDataSource.manager.getRepository(User);
     const inputBody = {
       intraId: 100,
+      intraLogin: 'tester',
+      intraUrl: 'https://api.intra.42.fr/v2/users/tester',
+      displayName: 'tester',
       firstName: 'tester',
       lastName: 'nestjs',
       email: 'tester@student.42.bangkok.com',
+      imageUrl: 'https://google.com',
     };
 
     afterEach(async () => {

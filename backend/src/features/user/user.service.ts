@@ -21,6 +21,12 @@ export class UserService {
     return this.userRepository.findOneBy({ id });
   }
 
+  getByIntraId(intraId: number) {
+    return this.userRepository.findOneBy({
+      intraId: intraId,
+    });
+  }
+
   create(data: Partial<User>) {
     const user = this.userRepository.create(data);
     return this.userRepository.save(user);

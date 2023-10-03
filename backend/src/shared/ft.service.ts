@@ -3,7 +3,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, map } from 'rxjs';
 import * as _ from 'lodash';
-import { FtUserInteface } from '@backend/interfaces/ft-user.interface';
+import { FtUser } from '@backend/interfaces/ft-user.interface';
 
 @Injectable()
 export class FtService {
@@ -45,7 +45,7 @@ export class FtService {
         map((res) => res.data),
         catchError((e) => {
           console.error(e.response.data);
-          throw new HttpException(e.response.statusText, e.response.status);
+          throw new HttpException(e.response.data.error_description, e.response.status);
         }),
       );
   }
@@ -66,7 +66,7 @@ export class FtService {
       );
   }
 
-  private mapMeFields(data: any): FtUserInteface {
+  private mapMeFields(data: any): FtUser {
     const fields = [
       'id',
       'email',

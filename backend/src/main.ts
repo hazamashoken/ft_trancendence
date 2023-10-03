@@ -14,6 +14,14 @@ async function bootstrap() {
     .setTitle('Ft_Transencdence')
     .setDescription('Backend API')
     .setVersion('1.0')
+    .addServer('http://localhost:3000', 'localhost')
+    .addTag('Auth', 'Authentication service')
+    .addTag('Me', 'Self resource endpoint, use access_token to access only specific user data')
+    .addTag('Users', 'Users resource endpoint, access all users in database')
+    .addTag('Channels')
+    .addTag('FT', '42 resource endpoint, use to access 42 api without authentication')
+    .addBearerAuth()
+    .addApiKey({type: 'apiKey', name: 'x-api-key', in: 'header'})
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
