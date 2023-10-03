@@ -5,8 +5,10 @@ import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 import { AuthGuard } from '@backend/shared/auth.guard';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
-import { BadRequestException, Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
+import { User } from '@backend/typeorm';
+import { UpdateUserDto } from '@backend/features/user/dto/update-user.dto';
 
 @Controller('me/account')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -26,6 +28,14 @@ export class AccountController {
     if (authUser.user) {
       throw new BadRequestException('User has been created');
     }
-    return this.accountService.create(authUser.ft).then(res => );
+    return this.accountService.create(authUser.ft);
+  }
+
+  @Patch()
+  update(@AuthUser('user') user: User, @Body() body: UpdateUserDto) {
+    if (!user) {
+      throw new BadRequestException('User has not been created');
+    }
+    return this.accountService.update(user.id, body)
   }
 }

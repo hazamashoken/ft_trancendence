@@ -45,7 +45,7 @@ export class FtService {
         map((res) => res.data),
         catchError((e) => {
           console.error(e.response.data);
-          throw new HttpException(e.response.statusText, e.response.status);
+          throw new HttpException(e.response.data.error_description, e.response.status);
         }),
       );
   }
