@@ -14,6 +14,12 @@ export class User {
   @Column({ name: 'intra_id' })
   intraId: number;
 
+  @Column({ name: 'intra_login' })
+  intraLogin: string;
+
+  @Column({ name: 'intra_url' })
+  intraUrl: string;
+
   @Column({ nullable: true })
   email: string;
 
@@ -22,6 +28,12 @@ export class User {
 
   @Column({ name: 'last_name' })
   lastName: string;
+
+  @Column({ name: 'display_name' })
+  displayName: string;
+
+  @Column({ name: 'avatar_url' })
+  avatarUrl: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

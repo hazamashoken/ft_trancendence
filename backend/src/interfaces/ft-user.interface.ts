@@ -1,4 +1,4 @@
-export interface FtUserInteface {
+export interface FtUser {
   id: number;
   email: string;
   login: string;
