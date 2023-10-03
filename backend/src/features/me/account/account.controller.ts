@@ -9,9 +9,13 @@ import { BadRequestException, Body, Controller, Get, Patch, Post, Query, UseGuar
 import { AccountService } from './account.service';
 import { User } from '@backend/typeorm';
 import { UpdateUserDto } from '@backend/features/user/dto/update-user.dto';
+import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 @Controller('me/account')
 @UseGuards(XKeyGuard, AuthGuard)
+@ApiBearerAuth()
+@ApiSecurity('x-api-key')
+@ApiTags('Me')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 

@@ -42,7 +42,7 @@ import { UpdateMuteDto } from '@backend/muted/dto/update-mute.dto';
 // import { returnUserDto } from '../dto/userChannels.dto';
 
 @Controller('channels')
-@ApiTags('channels')
+@ApiTags('Channels')
 export class ChannelsController {
   constructor(
     private readonly channelsService: ChannelsService,
