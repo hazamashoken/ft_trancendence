@@ -14,6 +14,6 @@ export class SecurityController {
 
   @Get('2fa')
   getOtpSecret() {
-    return 'init'
+    return this.securityService.generatSecret();
   }
 }
