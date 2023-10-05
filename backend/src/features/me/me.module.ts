@@ -6,13 +6,17 @@ import { SharedModule } from '@backend/shared/shared.module';
 import { AccountService } from './account/account.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@backend/typeorm';
+import { SecurityController } from './security/security.controller';
+import { SecurityService } from './security/security.service';
 
 @Module({
   controllers: [
     AccountController,
+    SecurityController
   ],
   providers: [
-    AccountService
+    AccountService,
+    SecurityService
   ],
   imports: [UserModule, AuthModule, SharedModule],
   exports: [MeModule],
