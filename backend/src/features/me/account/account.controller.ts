@@ -1,15 +1,13 @@
-import { CreateUserDto } from '@backend/features/user/dto/create-user.dto';
-import { UserService } from '@backend/features/user/user.service';
-import { FtUser } from '@backend/interfaces/ft-user.interface';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 import { AuthGuard } from '@backend/shared/auth.guard';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
-import { BadRequestException, Body, Controller, Get, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, FileTypeValidator, Get, MaxFileSizeValidator, ParseFilePipe, Patch, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { User } from '@backend/typeorm';
 import { UpdateUserDto } from '@backend/features/user/dto/update-user.dto';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('me/account')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -41,5 +39,14 @@ export class AccountController {
       throw new BadRequestException('User has not been created');
     }
     return this.accountService.update(user.id, body)
+  }
+
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@AuthUser('user') user: User, @UploadedFile() file: Express.Multer.File) {
+    if (!this.accountService.validateAvatar(file)) {
+      throw new BadRequestException('File size or type is not valid');
+    }
+    return this.accountService.saveAvatar(user.id, file);
   }
 }
