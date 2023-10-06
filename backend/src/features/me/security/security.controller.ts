@@ -8,6 +8,7 @@ import {
   Post,
   Patch,
   Delete,
+  Body,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { SecurityService } from './security.service';
@@ -22,6 +23,31 @@ import { User } from '@backend/typeorm';
 export class SecurityController {
   constructor(private readonly securityService: SecurityService) {}
 
+  @Post('2fa/verify')
+  async verify2fa(@AuthUser('user') user: User, @Body('code') code: string) {
+    const tfa = await this.securityService.get2faDevice(user.id);
+    if (!tfa || tfa.status === 'INACTIVE') {
+      throw new BadRequestException('User has not activated device');
+    }
+    if (!code) {
+      throw new BadRequestException('Need code in body');
+    }
+    return this.securityService.verify2fa(user.id, code);
+  }
+
+  @Patch('2fa/activate')
+  async activate2faDevice(@AuthUser('user') user: User, @Body('code') code: string) {
+    const tfa = await this.securityService.get2faDevice(user.id);
+    console.log(tfa);
+    if (!tfa) {
+      throw new BadRequestException('User has not been registered device');
+    }
+    if (tfa.status === 'ACTIVE') {
+      throw new BadRequestException('User already activated device');
+    }
+    return this.securityService.activate2faDevice(user.id, code);
+  }
+
   @Get('2fa')
   get2faDevice(@AuthUser('user') user: User) {
     return this.securityService.get2faDevice(user.id);
@@ -34,19 +60,6 @@ export class SecurityController {
       throw new BadRequestException('User has been registered device');
     }
     return this.securityService.register2faDevice(user.id, user.email);
-  }
-
-  @Patch('2fa')
-  async activate2faDevice(@AuthUser('user') user: User) {
-    const tfa = await this.securityService.get2faDevice(user.id);
-    console.log(tfa);
-    if (!tfa) {
-      throw new BadRequestException('User has not been registered device');
-    }
-    if (tfa.status === 'ACTIVE') {
-      throw new BadRequestException('User already activated device');
-    }
-    return this.securityService.activate2faDevice(user.id);
   }
 
   @Delete('2fa')

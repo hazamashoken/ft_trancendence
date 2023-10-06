@@ -20,6 +20,12 @@ export class SecurityService {
     });
   }
 
+  async verify2fa(userId: number, code: string) {
+    const tfa = await this.get2faDevice(userId);
+    const token = authenticator.generate(tfa.secret);
+    return { success: token === code };
+  }
+
   register2faDevice(userId: number, username: string) {
     const projName = process.env.PROJECT_NAME;
     const secret = authenticator.generateSecret();
@@ -34,10 +40,13 @@ export class SecurityService {
       .then(() => authenticator.keyuri(username, projName, secret));
   }
 
-  async activate2faDevice(userId: number) {
+  async activate2faDevice(userId: number, code: string) {
     const tfa = await this.get2faDevice(userId);
     if (!tfa) {
       throw new BadRequestException("Device hasn't registered");
+    }
+    if (code !== authenticator.generate(tfa.secret)) {
+      return { success: false };
     }
     tfa.status = 'ACTIVE';
     await this.user2faRepository.save(tfa);
