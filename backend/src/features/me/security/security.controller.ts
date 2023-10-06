@@ -38,12 +38,14 @@ export class SecurityController {
   @Patch('2fa/activate')
   async activate2faDevice(@AuthUser('user') user: User, @Body('code') code: string) {
     const tfa = await this.securityService.get2faDevice(user.id);
-    console.log(tfa);
     if (!tfa) {
       throw new BadRequestException('User has not been registered device');
     }
     if (tfa.status === 'ACTIVE') {
       throw new BadRequestException('User already activated device');
+    }
+    if (!code) {
+      throw new BadRequestException('Need code in body');
     }
     return this.securityService.activate2faDevice(user.id, code);
   }

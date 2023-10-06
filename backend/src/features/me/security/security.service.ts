@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { User2fa } from '@backend/typeorm/user_2fa.entity';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
 import { User } from '@backend/typeorm';
@@ -46,7 +46,7 @@ export class SecurityService {
       throw new BadRequestException("Device hasn't registered");
     }
     if (code !== authenticator.generate(tfa.secret)) {
-      return { success: false };
+      throw new HttpException({ success: false }, HttpStatus.OK);
     }
     tfa.status = 'ACTIVE';
     await this.user2faRepository.save(tfa);
