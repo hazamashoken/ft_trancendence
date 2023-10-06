@@ -3,25 +3,15 @@ import { User } from '@entities/user.entity'
 const userSeed: Partial<User>[] = [
   {
     id: 1,
-    intraId: 1,
-    firstName: 'Thitiwut',
-    lastName: 'Somsa',
-    email: 'thitiwut@student.42bangkok.com',
-  },
-  {
-    id: 2,
-    intraId: 2,
-    firstName: 'Araiva',
-    lastName: 'Viruskizz',
-    email: 'viruskizz@student.42bangkok.com',
-  },
-  {
-    id: 3,
-    intraId: 3,
-    firstName: 'Araiva',
-    lastName: 'Leonhart',
-    email: 'araiva@student.42bangkok.com',
-  },
+    intraId: 103071,
+    intraLogin: "tsomsa",
+    intraUrl: "https://api.intra.42.fr/v2/users/tsomsa",
+    firstName: "Thitiwut",
+    lastName: "Somsa",
+    email: "tsomsa@student.42bangkok.com",
+    displayName: "tsomsa",
+    imageUrl: "https://cdn.intra.42.fr/users/419d49d85cb790463bc56724cb424880/tsomsa.png",
+  }
 ];
 
 export default userSeed;
