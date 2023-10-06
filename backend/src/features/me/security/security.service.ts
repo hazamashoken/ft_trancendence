@@ -23,7 +23,7 @@ export class SecurityService {
     const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
     const token = authenticator.generate(secret);
     const genSecret = authenticator.generateSecret();
-    const otpAuthUrl = authenticator.keyuri(username, process.env.PROJECT_NAME, secret);
+    const otpAuthUrl = authenticator.keyuri('araiva', process.env.PROJECT_NAME, secret);
     return { genSecret, token, otpAuthUrl };
   }
 
