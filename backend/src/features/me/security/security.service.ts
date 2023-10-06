@@ -1,8 +1,9 @@
 import { Repository } from 'typeorm';
 import { User2fa } from '@backend/typeorm/user_2fa.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
+import { User } from '@backend/typeorm';
 
 @Injectable()
 export class SecurityService {
@@ -12,22 +13,40 @@ export class SecurityService {
   ) {}
 
   // https://wanago.io/2021/03/08/api-nestjs-two-factor-authentication/
-  get2faDevices(userId: number) {
-    return this.user2faRepository.find({
+  get2faDevice(userId: number) {
+    return this.user2faRepository.findOne({
       relations: { user: true },
       where: { user: { id: userId } },
     });
   }
 
-  register2faDevice(userId: number) {
-    const secret = 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD';
-    const token = authenticator.generate(secret);
-    const genSecret = authenticator.generateSecret();
-    const otpAuthUrl = authenticator.keyuri('araiva', process.env.PROJECT_NAME, secret);
-    return { genSecret, token, otpAuthUrl };
+  register2faDevice(userId: number, username: string) {
+    const projName = process.env.PROJECT_NAME;
+    const secret = authenticator.generateSecret();
+    const user = new User();
+    user.id = userId;
+    const tfa = new User2fa();
+    tfa.secret = secret;
+    tfa.status = 'INACTIVE';
+    tfa.user = user;
+    return this.user2faRepository
+      .save(tfa)
+      .then(() => authenticator.keyuri(username, projName, secret));
   }
 
-  activate2faDevice(id: number) {
-    return '';
+  async activate2faDevice(userId: number) {
+    const tfa = await this.get2faDevice(userId);
+    if (!tfa) {
+      throw new BadRequestException("Device hasn't registered");
+    }
+    tfa.status = 'ACTIVE';
+    await this.user2faRepository.save(tfa);
+    return { success: true };
+  }
+
+  async remove2faDevice(userId: number) {
+    const tfa = await this.get2faDevice(userId);
+    await this.user2faRepository.remove(tfa);
+    return { success: true };
   }
 }

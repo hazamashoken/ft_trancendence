@@ -22,7 +22,7 @@ export class User2fa {
   @Column()
   secret: string;
 
-  @Column({ type: 'enum', enum: ['ACTIVE', 'INACTIVE'], default: 'INATIVE' })
+  @Column({ type: 'enum', enum: ['ACTIVE', 'INACTIVE'], default: 'INACTIVE' })
   status: User2faStatus;
 
   @CreateDateColumn({ name: 'created_at' })
