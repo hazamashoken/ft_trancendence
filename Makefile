@@ -47,7 +47,9 @@ down: stop
 
 clean: down
 	-docker rmi -f $$(docker images "ft_trancendence*" | awk 'NR!=1 {print}' | awk '{print $$1}')
-	-sudo rm -rf backend/app/dist
+	-sudo rm -rf backend/dist
+	-sudo rm -rf backend/node_modules
+	-sudo rm -rf backend/data
 	-sudo rm -rf frontend/app/.next
 	-sudo rm -rf database/data
 

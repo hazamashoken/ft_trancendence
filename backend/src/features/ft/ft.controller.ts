@@ -1,7 +1,7 @@
 import { FtService } from '@backend/shared/ft.service';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 @Controller('ft')
 @UseGuards(XKeyGuard)
