@@ -1,10 +1,14 @@
+import { Repository } from 'typeorm';
+import { Friends } from '@backend/typeorm';
 import { Injectable } from '@nestjs/common';
-
+import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class FriendsService {
-  constructor() {}
+  constructor(
+    @InjectRepository(Friends) private friendsRepository: Repository<Friends>,
+  ) {}
 
   list() {
-    return [];
+    return this.friendsRepository.find();
   }
 }
