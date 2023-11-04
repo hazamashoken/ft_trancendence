@@ -1,7 +1,7 @@
 .env
 database/data
-<<<<<<< HEAD
 backend/data
-=======
-backend/data
->>>>>>> dev
+*/app/node_modules
+backend/app/dist
+*/app/.env
+*/app/database/data

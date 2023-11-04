@@ -1,9 +1,10 @@
 "use client";
 
+import React from "react";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 type INextAuthProvider = {
   children?: React.ReactNode;
@@ -35,14 +36,11 @@ export const NextAuthProvider = ({ children }: INextAuthProvider) => {
  * @param client The `react-query` client to use.
  * @see https://tanstack.com/query/v4/docs/react/reference/QueryClientProvider
  */
-export const QueryProvider = ({
-  children,
-  client,
-}: {
-  children: React.ReactNode;
-  client: QueryClient;
-}) => {
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+export const QueryProvider = ({ children }: { children: React.ReactNode }) => {
+  const [queryClient] = React.useState(() => new QueryClient());
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 };
 
 /**
@@ -51,10 +49,9 @@ export const QueryProvider = ({
  * @param children The child components to render.
  */
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  const client = new QueryClient();
   return (
     <NextAuthProvider>
-      <QueryProvider client={client}>
+      <QueryProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>
