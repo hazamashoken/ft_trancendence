@@ -1,8 +1,8 @@
 .env
 database/data
 backend/data
+*/app/node_modules
+*/app/.env
 backend/app/dist
 backend/app/dist/*
-*/app/.env
-*/app/node_modules
 
