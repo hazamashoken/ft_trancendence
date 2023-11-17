@@ -1,0 +1,559 @@
+asyncapi: '2.6.0'
+
+info:
+  title: ft_trascendence 42 chat Websocket(socket-io)
+  version: '1.0'
+  contact:
+    name: ft_transcendence
+    url: http://localhost:8000
+  description: |
+    install socket-io in frontend
+
+    ```bash
+    npm install socket.io-client
+    ```
+    example of code
+    ```bash
+    import { useEffect } from 'react';
+    import io from 'socket.io-client';
+
+    const MyComponent = () => {
+      useEffect(() => {
+        // Create connection
+        const socket = io('http://localhost:3000');
+
+        socket.on('connect', () => {
+          console.log('Connected to the WebSocket server');
+          
+          // send an event
+          socket.emit('eventName', { your: 'data' });
+        });
+
+        socket.on('eventNameResponse', (data) => {
+          // Take a responce from the server
+          console.log(data);
+        });
+
+        // Clean socket
+        return () => socket.disconnect();
+      }, []);
+
+      return (
+        <div>
+          {UI component}
+        </div>
+      );
+    };
+
+    export default MyComponent;
+    ```
+
+servers:
+  public:
+    url: http://localhost:3000
+    protocol: ws
+    description: Development server for WebSocket API.
+
+channels:
+  FORALLEVENTS:
+   subscribe:
+      description: |
+        Clients can subscribe to receive updates on all public channels.
+        ```bash
+          socket.on('Event Name', () => {})
+        ```
+
+
+  findAllPublicChannels:
+      publish:
+        operationId: "findAllPublicChannels"
+        description: |
+          To request public channels, emit an event to the server. The payload should conform to the 'Channel' schema.
+          Example of emitting an event:
+          ```bash
+            socket.emit('findAllPublicChannels', {});
+          ```
+        summary: 'Request for Public Channels'
+        tags:
+          - name: chats
+        message:
+          name: "findAllPublicChannelsRequest"
+          title: "Request for Public Channels"
+          payload:
+            type: object
+            properties:
+              event:
+                type: string
+                const: findAllPublicChannels
+          examples:
+            - name: findAllPublicChannelsRequestExample
+              summary: Example request to find all public channels.
+              payload:
+                event: findAllPublicChannels
+          x-response:
+            oneOf:
+              - $ref: '#/components/messages/findAllPublicChannelsResponse'
+              - $ref: '#/components/messages/errorResponse'
+
+
+  findUserPrivateChats:
+    publish:
+      operationId: "findUserPrivateChats"
+      description: |
+        Requests a list of a user's private chats.
+        ```bash
+        socket.emit('findUserPrivateChats', { userId: <user_id> });
+        ```
+      summary: 'findUserPrivateChats'
+      tags:
+        - name: chats
+      message:
+        name: "findUserPrivateChatsRequest"
+        title: "Request for User's Private Chats"
+        payload:
+          type: object
+          properties:
+            userId:
+              type: integer
+              description: "User ID for whom the private chats are requested"
+          required:
+            - userId
+        examples:
+          - name: findUserPrivateChatsRequestExample
+            summary: Example request to find a user's private chats.
+            payload:
+              userId: 123
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findUserPrivateChatsResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+
+  findUserProtectedChats:
+    publish:
+      operationId: "findUserProtectedChats"
+      description: |
+        Запрос на получение списка защищенных чатов пользователя. Клиент должен отправить идентификатор пользователя в качестве данных запроса.
+        ```bash
+        socket.emit('findUserProtectedChats', { userId: <user_id> });
+        ```
+      summary: 'Запрос на защищенные чаты пользователя'
+      tags:
+        - name: chats
+      message:
+        name: "findUserProtectedChatsRequest"
+        title: "Request for User's Protected Chats"
+        payload:
+          type: object
+          properties:
+            userId:
+              type: integer
+              description: "Идентификатор пользователя"
+          required:
+            - userId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findUserProtectedChatsResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+
+  findUserDmChats:
+    publish:
+      operationId: "findUserDmChats"
+      description: |
+        Requests a list of a user's direct message (DM) chats. The client should provide the user's identifier in the request.
+        ```bash
+        socket.emit('findUserDmChats', { userId: <user_id> });
+        ```
+      summary: 'Request for User DM Chats'
+      tags:
+        - name: chats
+      message:
+        name: "findUserDmChatsRequest"
+        title: "Request for User's DM Chats"
+        payload:
+          type: object
+          properties:
+            userId:
+              type: integer
+              description: "User Identifier"
+          required:
+            - userId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findUserDmChatsResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  createChat:
+    publish:
+      operationId: "createChat"
+      description: |
+        Initiates the creation of a new chat. The client needs to provide the chat details as per the `ChannelCreatedTO` schema.
+        ```bash
+        socket.emit('createChat', { chatName: 'New Chat', chatOwner: 1, password: 'secret', maxUsers: 10, chatType: 'public' });
+        ```
+      summary: 'Create a New Chat'
+      tags:
+        - name: chats
+      message:
+        name: "createChatRequest"
+        title: "Request to Create Chat"
+        payload:
+          $ref: '#/components/schemas/ChannelCreatedTO'
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/createChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+
+  findChat:
+    publish:
+      operationId: "findChat"
+      description: |
+        Requests information about a specific chat using its chat ID.
+        ```bash
+        socket.emit('findChat', { chatId: 123 });
+        ```
+      summary: 'Find Chat by ID'
+      tags:
+        - name: chats
+      message:
+        name: "findChatRequest"
+        title: "Request to Find Chat by ID"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat to be retrieved
+          required:
+            - chatId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+
+  findChatOwner:
+      publish:
+        operationId: "findChatOwner"
+        description: |
+          Requests information about the owner of a specific chat. The client needs to provide the chat ID.
+          ```bash
+          socket.emit('findChatOwner', { chatId: 123 });
+          ```
+        summary: 'Find Chat Owner'
+        tags:
+          - name: chats
+        message:
+          name: "findChatOwnerRequest"
+          title: "Request to Find Chat Owner"
+          payload:
+            type: object
+            properties:
+              chatId:
+                type: integer
+                description: Identifier of the chat for which the owner is requested
+            required:
+              - chatId
+          x-response:
+            oneOf:
+              - $ref: '#/components/messages/findChatOwnerResponse'
+              - $ref: '#/components/messages/errorResponse'
+
+
+components:
+  messages:
+    findChatResponse:
+      summary: Response for Chat Information
+      description: Provides details about a specific chat.
+      payload:
+        $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: createChatResponseExample
+          summary: Example response for a successfully created chat.
+          payload:
+            chatId: 7
+            chatName: "New Chat"
+            chatType: "public"
+            maxUsers: 10
+            creatingDate: "2023-11-17T10:00:00.000Z"
+            chatOwner:
+              id: 2
+              intraId: 2
+              intraLogin: "tsomsaa"
+              intraUrl: "https://api.intra.42.fr/v2/users/tsomsaa"
+              email: "viruskizz@student.42bangkok.com"
+              firstName: "Araiva"
+              lastName: "Viruskizz"
+              displayName: "Araiva"
+              imageUrl: "https://google.com"
+              createdAt: "2023-11-16T08:21:44.743Z"
+              updatedAt: "2023-11-16T08:21:44.743Z"
+
+    createChatResponse:
+      summary: Response for Chat Creation
+      description: Confirmation of the chat creation along with the chat details.
+      payload:
+        $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: createChatResponseExample
+          summary: Example response for a successfully created chat.
+          payload:
+            chatId: 7
+            chatName: "New Chat"
+            chatType: "public"
+            maxUsers: 10
+            creatingDate: "2023-11-17T10:00:00.000Z"
+            chatOwner:
+              id: 2
+              intraId: 2
+              intraLogin: "tsomsaa"
+              intraUrl: "https://api.intra.42.fr/v2/users/tsomsaa"
+              email: "viruskizz@student.42bangkok.com"
+              firstName: "Araiva"
+              lastName: "Viruskizz"
+              displayName: "Araiva"
+              imageUrl: "https://google.com"
+              createdAt: "2023-11-16T08:21:44.743Z"
+              updatedAt: "2023-11-16T08:21:44.743Z"
+
+    findChatOwnerResponse:
+      summary: Response for Chat Owner Information
+      description: Provides details about the owner of a specific chat.
+      payload:
+        $ref: '#/components/schemas/UserEntity'
+      examples:
+        - name: findChatOwnerResponseExample
+          summary: Example response with chat owner details.
+          payload:
+            id: 1
+            intraId: 1
+            intraLogin: "johndoe"
+            intraUrl: "https://api.intra.42.fr/v2/users/johndoe"
+            email: "johndoe@example.com"
+            firstName: "John"
+            lastName: "Doe"
+            displayName: "John Doe"
+            imageUrl: "https://example.com/johndoe.jpg"
+            createdAt: "2023-01-01T00:00:00.000Z"
+            updatedAt: "2023-01-01T01:00:00.000Z"
+
+
+    findUserPrivateChatsResponse:
+      summary: Response for User's Private Chats
+      description: Provides a list of a user's private chats in response to the request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: findUserPrivateChatsResponseExample
+          summary: Example response with a list of user's private chats.
+          payload:
+            - chatId: 3
+              chatName: "public Araiva chat"
+              chatType: "public"
+              maxUsers: null
+              creatingDate: "2023-11-16T13:12:03.813Z"
+              chatOwner:
+                id: 2
+                intraId: 2
+                intraLogin: "tsomsaa"
+                intraUrl: "https://api.intra.42.fr/v2/users/tsomsaa"
+                email: "viruskizz@student.42bangkok.com"
+                firstName: "Araiva"
+                lastName: "Viruskizz"
+                displayName: "Araiva"
+                imageUrl: "https://google.com"
+                createdAt: "2023-11-16T08:21:44.743Z"
+                updatedAt: "2023-11-16T08:21:44.743Z"
+
+    findUserProtectedChatsResponse:
+      summary: Response for User's Protected Chats
+      description: Provides a list of a user's protected chats in response to the request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: findUserProtectedChatsResponseExample
+          summary: Response Example
+          payload:
+            - chatId: 4
+              chatName: "Protected anns chat"
+              chatType: "protected"
+              maxUsers: 10
+              creatingDate: "2023-11-16T14:00:00.000Z"
+              chatOwner:
+                id: 5
+                intraId: 5
+                intraLogin: "anna42"
+                intraUrl: "https://api.intra.42.fr/v2/users/anna42"
+                email: "anna@example.com"
+                firstName: "anna"
+                lastName: "ann42"
+                displayName: "anna43"
+                imageUrl: "https://example.com/anna.jpg"
+                createdAt: "2023-11-15T09:00:00.000Z"
+                updatedAt: "2023-11-15T09:30:00.000Z"
+
+    findUserDmChatsResponse:
+      summary: Response for User's DM Chats
+      description: Provides a list of a user's DM chats in response to the request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: findUserDmChatsResponseExample
+          summary: Example response with a list of user's DM chats.
+          payload:
+            - chatId: 5
+              chatName: "DM with Alex"
+              chatType: "direct"
+              maxUsers: 2
+              creatingDate: "2023-11-16T15:30:00.000Z"
+              chatOwner:
+                id: 6
+                intraId: 6
+                intraLogin: "alex42"
+                intraUrl: "https://api.intra.42.fr/v2/users/alex42"
+                email: "alex@example.com"
+                firstName: "Alex"
+                lastName: "Smith"
+                displayName: "Alex S."
+                imageUrl: "https://example.com/alex.jpg"
+                createdAt: "2023-11-14T11:00:00.000Z"
+                updatedAt: "2023-11-14T11:30:00.000Z"
+
+
+    errorResponse:
+      summary: Error response
+      description: Generic error response message format.
+      payload:
+        $ref: '#/components/schemas/Error'
+
+    findAllPublicChannelsResponse:
+        summary: findAllPublicChannelsResponse
+        description: Generic error response message format.
+        payload:
+         $ref: '#/components/schemas/ChannelEntity'
+
+  schemas:
+    Error:
+      properties:
+        status:
+          type: string
+          description: StatusCode
+        message:
+          type: string
+          description: Reason of Error
+    Channel:
+      id: number
+    ChannelEntity:
+      properties:
+        chatId:
+          type: integer
+          description: Unique identifier of the chat
+        chatName:
+          type: string
+          description: Name of the chat
+        chatType:
+          type: string
+          enum: [public, private, protected, direct]
+          description: Type of the chat
+        maxUsers:
+          type: integer
+          nullable: true
+          description: Maximum number of users in the chat
+        creatingDate:
+          type: string
+          format: date-time
+          description: Date and time when the chat was created
+        chatOwner:
+          $ref: '#/components/schemas/UserEntity'
+      required:
+        - chatId
+        - chatName
+        - chatType
+        - creatingDate
+        - chatOwner
+
+    UserEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the user
+        intraId:
+          type: integer
+          description: Intra identifier of the user
+        intraLogin:
+          type: string
+          description: Intra login of the user
+        intraUrl:
+          type: string
+          format: uri
+          description: URL to the intra profile
+        email:
+          type: string
+          format: email
+          description: Email of the user
+        firstName:
+          type: string
+          description: First name of the user
+        lastName:
+          type: string
+          description: Last name of the user
+        displayName:
+          type: string
+          description: Display name of the user
+        imageUrl:
+          type: string
+          format: uri
+          description: Image URL of the user
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date and time when the user was last updated
+      required:
+        - id
+        - intraId
+        - intraLogin
+        - email
+        - firstName
+        - lastName
+        - displayName
+        - imageUrl
+        - createdAt
+        - updatedAt
+    ChannelCreatedTO:
+      type: object
+      properties:
+        chatName:
+          type: string
+          description: Name of the new chat
+        chatOwner:
+          type: integer
+          description: Identifier of the chat owner
+        password:
+          type: string
+          nullable: true
+          description: Password for the chat, if any
+        maxUsers:
+          type: integer
+          nullable: true
+          description: Maximum number of users allowed in the chat
+        chatType:
+          type: string
+          enum: [public, private]
+          description: Type of the chat being created
+      required:
+        - chatName
+        - chatOwner
+        - chatType

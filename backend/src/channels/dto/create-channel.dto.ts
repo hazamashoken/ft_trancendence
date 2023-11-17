@@ -4,7 +4,6 @@ import { IsEnum, IsNumber, IsString } from 'class-validator';
 
 export class ChannelCreatedTO {
   @ApiProperty({ default: null })
-  // @IsString()
   chatName: string;
 
   @ApiProperty()
@@ -12,11 +11,9 @@ export class ChannelCreatedTO {
   chatOwner: number;
 
   @ApiProperty({ default: null })
-  // @IsString()
   password: string;
 
   @ApiProperty({ default: null })
-  // @IsNumber()
   maxUsers: number;
 
   @ApiProperty({ default: chatType.PUBLIC })
