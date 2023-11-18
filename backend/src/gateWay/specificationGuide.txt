@@ -6,5 +6,5 @@ Or u can paste this code in https://studio.asyncapi.com/ (asyncapi studio)
 28 events (8 is declorated now),
 
 18.11.2023
- - Finish events declaration.
+ - Finish events declaration. Done
  - Add types to frontend.

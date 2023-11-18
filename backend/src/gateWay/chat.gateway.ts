@@ -412,7 +412,7 @@ export class SocketGateway implements OnGatewayConnection {
    * Присоединяет пользователя к чату.
    * Joins a user to the chat.
    */
-   @SubscribeMessage('joinChat')
+  @SubscribeMessage('joinChat')
   async handleJoinChat(client: Socket, { chatId, userId }): Promise<any> {
     try {
       const users = await this.socketService.joinChannel(chatId, userId);
@@ -428,7 +428,7 @@ export class SocketGateway implements OnGatewayConnection {
     * Выходит пользователя из чата.
     * Quits a user from the chat.
     */
-   @SubscribeMessage('quitChat')
+  @SubscribeMessage('quitChat')
   async handleQuitChat(client: Socket, { chatId, userId }): Promise<any> {
     try {
       const users = await this.socketService.quitChannel(chatId, userId);
@@ -444,11 +444,11 @@ export class SocketGateway implements OnGatewayConnection {
     * Получает активных пользователей в чате.
     * Retrieves active users in the chat.
     */
-   @SubscribeMessage('getActiveUsers')
+  @SubscribeMessage('getActiveUsers')
   async handleGetActiveUsers(client: Socket, chatId: number): Promise<any> {
     try {
       const activeUsers = await this.socketService.getActiveUsers(chatId);
-      client.emit('getActiveUsersResponse', activeUsers);
+      this.server.emit('getActiveUsersResponse', activeUsers);
       return { status: 'success', activeUsers };
     } catch (error) {
       client.emit('errorResponse', { event: 'createMessage', error: error.message });
@@ -460,7 +460,7 @@ export class SocketGateway implements OnGatewayConnection {
     * Получает пароль чата.
     * Retrieves the chat's password.
     */
-   @SubscribeMessage('getChatPassword')
+  @SubscribeMessage('getChatPassword')
   async handleGetChatPassword(client: Socket, chatId: number): Promise<any> {
     try {
       const password = await this.socketService.getPassword(chatId);
