@@ -10,6 +10,7 @@ import { ChannelsModule } from './channels/channels.module';
 import { BannedModule } from './banned/banned.module';
 import { MessgesModule } from './messages/messages.module';
 import { MutedModule } from './muted/muted.module';
+import { ChatSocketModule } from './gateWay/chatSocket.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { MutedModule } from './muted/muted.module';
     BannedModule,
     MessgesModule,
     MutedModule,
+    ChatSocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

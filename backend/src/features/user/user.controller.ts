@@ -23,7 +23,7 @@ import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
-@UseGuards(XKeyGuard, AuthGuard)
+// @UseGuards(XKeyGuard, AuthGuard)
 @ApiTags('Users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

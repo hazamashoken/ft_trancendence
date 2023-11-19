@@ -47,7 +47,7 @@ export class ChannelsService {
       relations: ['chatOwner'],
     });
 
-    if (channels.length < 1) return null;
+    if (channels.length < 1) return [];
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
   }
 
@@ -58,7 +58,7 @@ export class ChannelsService {
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .getMany();
 
-    if (channels.length < 1) return null;
+    if (channels.length < 1) return [];
 
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
   }
@@ -126,14 +126,6 @@ export class ChannelsService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (chat.chatOwner.id != user.id)
       throw new ForbiddenException('User is not chat owner');
-    // chat.chatAdmins = [];
-    // chat.chatUsers = [];
-    // chat.chatMessages=[];
-    // chat.activeUsers=[];
-    // chat.mutedUsers=[];
-    // chat.bannedUsers=[];
-
-    // await this.channelsRepository.save(chat);
 
     await this.channelsRepository.remove(chat);
 
@@ -183,11 +175,13 @@ export class ChannelsService {
       .where('channel.chatType = :chatType', { chatType: chatType.PRIVATE })
       .getMany();
 
-    if (channels.length < 1) return null;
+    const user = await this.userRepository.findOne({where: {id: userId}})
+    if (!user)
+      throw new NotFoundException("User not found")
+
+    if (channels.length < 1) return [];
 
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
-
-    // const channelsDtos = plainToClass(ReturnChanelDto, channels);
   }
 
   async findUserProtectedChats(userId: number): Promise<ChannelsEntity[]> {
@@ -199,11 +193,11 @@ export class ChannelsService {
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .where('channel.chatType = :chatType', { chatType: chatType.PROTECTED })
       .getMany();
+    const user = await this.userRepository.findOne({where: {id: userId}})
 
-    // const channelsDTOs = plainToClass(ReturnChanelDto, channels);
-
-    // return channelsDTOs;
-    if (channels.length < 1) return null;
+    if (!user)
+        throw new NotFoundException("User not found")
+    if (channels.length < 1) return [];
 
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
   }
@@ -217,13 +211,13 @@ export class ChannelsService {
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .where('channel.chatType = :chatType', { chatType: chatType.DIRECT })
       .getMany();
+    const user = await this.userRepository.findOne({where: {id: userId}})
 
-    if (channels.length < 1) return null;
+    if (!user)
+        throw new NotFoundException("User not found")
+    if (channels.length < 1) return [];
 
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
-    // const channelsDTOs = plainToClass(ReturnChanelDto, channels);
-
-    // return channelsDTOs;
   }
 
   async getOwnerById(chatId: number): Promise<ChatUserDto> {
@@ -321,7 +315,7 @@ export class ChannelsService {
 
     const newChat = await this.channelsRepository.save(chat);
 
-    if (newChat.chatUsers.length < 1) return null;
+    if (newChat.chatUsers.length < 1) return [];
     return newChat.chatUsers.map((user) => plainToClass(ChatUserDto, user));
   }
 
@@ -368,7 +362,7 @@ export class ChannelsService {
 
     await this.channelsRepository.save(chat);
 
-    if (chat.chatAdmins.length < 1) return null;
+    if (chat.chatAdmins.length < 1) return [];
     return this.findAllAdmins(chatId);
   }
 

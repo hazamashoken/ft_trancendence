@@ -18,5 +18,6 @@ import {
     ]),
   ],
   providers: [MessagesService],
+  exports: [MessagesService],
 })
 export class MessgesModule {}

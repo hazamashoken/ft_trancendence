@@ -36,10 +36,6 @@ import { MessagesService } from '@backend/messages/messages.service';
 import { ReturnBannedDto } from '@backend/banned/dto/return-ban.dto';
 import { CreateMuteDto } from '@backend/muted/dto/create-muted.dto';
 import { UpdateMuteDto } from '@backend/muted/dto/update-mute.dto';
-// import { BannedDto } from '../dto/banned.dto';
-// import { MessagesEntity } from '../entities/messages.entity';
-// import { createMessageDto, returnMessageDto } from '../dto/messages.dto';
-// import { returnUserDto } from '../dto/userChannels.dto';
 
 @Controller('channels')
 @ApiTags('Channels')

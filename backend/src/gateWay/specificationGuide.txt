@@ -1,0 +1,10 @@
+To open documentation in VsCode indtall
+    extencion https://marketplace.visualstudio.com/items?itemName=asyncapi.asyncapi-preview (asyncapi-preview)
+Or u can paste this code in https://studio.asyncapi.com/ (asyncapi studio)
+
+17.11.2023
+28 events (8 is declorated now),
+
+18.11.2023
+ - Finish events declaration. Done
+ - Add types to frontend.

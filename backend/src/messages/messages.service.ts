@@ -78,7 +78,7 @@ export class MessagesService {
       relations: ['author'],
     });
 
-    if (messages.length < 1) return null;
+    if (messages.length < 1) return [];
 
     const formattedMessages: ReturnMessageDto[] = messages.map((message) => ({
       massageId: message.messageId,
