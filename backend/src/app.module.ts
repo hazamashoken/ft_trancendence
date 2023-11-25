@@ -11,6 +11,7 @@ import { BannedModule } from './banned/banned.module';
 import { MessgesModule } from './messages/messages.module';
 import { MutedModule } from './muted/muted.module';
 import { ChatSocketModule } from './gateWay/chatSocket.module';
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ChatSocketModule } from './gateWay/chatSocket.module';
     MessgesModule,
     MutedModule,
     ChatSocketModule,
+    PongModule,
   ],
   controllers: [AppController],
   providers: [AppService],
