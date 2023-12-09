@@ -1,9 +1,10 @@
 "use client";
 
+import { SocketProvider } from "@/components/providers/socket-provider";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 type INextAuthProvider = {
   children?: React.ReactNode;
@@ -55,9 +56,11 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <NextAuthProvider>
       <QueryProvider client={client}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+        <SocketProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </SocketProvider>
       </QueryProvider>
     </NextAuthProvider>
   );
