@@ -20,10 +20,11 @@ import { SaveUserDto } from './dto/save-user.dto';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { AuthGuard } from '@backend/shared/auth.guard';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
 // @UseGuards(XKeyGuard, AuthGuard)
+// @ApiSecurity('x-api-key')
 @ApiTags('Users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

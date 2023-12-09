@@ -33,6 +33,7 @@ services:
     volumes:
       - .env:/usr/src/app/.env
       - ./backend/data:/app/data
+      # - .backend/data:/app/node_modules
     restart: unless-stopped
     depends_on:
       - database
