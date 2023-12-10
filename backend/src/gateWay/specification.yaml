@@ -1,0 +1,1862 @@
+asyncapi: '2.6.0'
+
+info:
+  title: ft_trascendence 42 chat Websocket(socket-io)
+  version: '1.0'
+  contact:
+    name: ft_transcendence
+    url: http://localhost:8000
+  description: |
+    install socket-io in frontend
+
+    ```bash
+    npm install socket.io-client
+    ```
+    example of code
+    ```bash
+    import { useEffect } from 'react';
+    import io from 'socket.io-client';
+
+    const MyComponent = () => {
+      useEffect(() => {
+        // Create connection
+        const socket = io('http://localhost:3000');
+
+        socket.on('connect', () => {
+          console.log('Connected to the WebSocket server');
+          
+          // send an event
+          socket.emit('eventName', { your: 'data' });
+        });
+
+        socket.on('eventNameResponse', (data) => {
+          // Take a responce from the server
+          console.log(data);
+        });
+
+        // Clean socket
+        return () => socket.disconnect();
+      }, []);
+
+      return (
+        <div>
+          {UI component}
+        </div>
+      );
+    };
+
+    export default MyComponent;
+    ```
+
+servers:
+  public:
+    url: http://localhost:3000
+    protocol: ws
+    description: Development server for WebSocket API.
+
+channels:
+  FORALLEVENTS:
+   subscribe:
+      description: |
+        Clients can subscribe to receive updates on all public channels.
+        ```bash
+          socket.on('Event Name', () => {})
+        ```
+
+
+  findAllPublicChannels:
+      publish:
+        operationId: "findAllPublicChannels"
+        description: |
+          To request public channels, emit an event to the server. The payload should conform to the 'Channel' schema.
+          Example of emitting an event:
+          ```bash
+            socket.emit('findAllPublicChannels', {});
+          ```
+        summary: 'Request for Public Channels'
+        tags:
+          - name: chats
+        message:
+          name: "findAllPublicChannelsRequest"
+          title: "Request for Public Channels"
+          payload:
+            type: object
+            properties:
+              event:
+                type: string
+                const: findAllPublicChannels
+          examples:
+            - name: findAllPublicChannelsRequestExample
+              summary: Example request to find all public channels.
+              payload:
+                event: findAllPublicChannels
+          x-response:
+            oneOf:
+              - $ref: '#/components/messages/findAllPublicChannelsResponse'
+              - $ref: '#/components/messages/errorResponse'
+
+
+  findUserPrivateChats:
+    publish:
+      operationId: "findUserPrivateChats"
+      description: |
+        Requests a list of a user's private chats.
+        ```bash
+        socket.emit('findUserPrivateChats', { userId: <user_id> });
+        ```
+      summary: "Request for User's Private Chats"
+      tags:
+        - name: chats
+      message:
+        name: "findUserPrivateChatsRequest"
+        title: "Request for User's Private Chats"
+        payload:
+          type: object
+          properties:
+            userId:
+              type: integer
+              description: "User ID for whom the private chats are requested"
+          required:
+            - userId
+        examples:
+          - name: findUserPrivateChatsRequestExample
+            summary: Example request to find a user's private chats.
+            payload:
+              userId: 123
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findUserPrivateChatsResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+
+  findUserProtectedChats:
+    publish:
+      operationId: "findUserProtectedChats"
+      description: |
+        Request for list of protcted chats where user exist
+        ```bash
+        socket.emit('findUserProtectedChats', { userId: <user_id> });
+        ```
+      summary: 'Request for list of protcted chats where user exist'
+      tags:
+        - name: chats
+      message:
+        name: "findUserProtectedChatsRequest"
+        title: "Request for User's Protected Chats"
+        payload:
+          type: object
+          properties:
+            userId:
+              type: integer
+              description: "User id"
+          required:
+            - userId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findUserProtectedChatsResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+
+  findUserDmChats:
+    publish:
+      operationId: "findUserDmChats"
+      description: |
+        Requests a list of a user's direct message (DM) chats. The client should provide the user's identifier in the request.
+        ```bash
+        socket.emit('findUserDmChats', { userId: <user_id> });
+        ```
+      summary: 'Request for User DM Chats'
+      tags:
+        - name: chats
+      message:
+        name: "findUserDmChatsRequest"
+        title: "Request for User's DM Chats"
+        payload:
+          type: object
+          properties:
+            userId:
+              type: integer
+              description: "User Identifier"
+          required:
+            - userId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findUserDmChatsResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  createChat:
+    publish:
+      operationId: "createChat"
+      description: |
+        Initiates the creation of a new chat. The client needs to provide the chat details as per the [ChannelCreateDTO](#/components/schemas/ChannelCreateDTO) schema.
+        ```bash
+        socket.emit('createChat', {ChannelCreateDTO});
+        ```
+      summary: 'Create a New Chat'
+      tags:
+        - name: chats
+      message:
+        name: "createChatRequest"
+        title: "Request to Create Chat"
+        payload:
+          $ref: '#/components/schemas/ChannelCreateDTO'
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/createChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  findChat:
+    publish:
+      operationId: "findChat"
+      description: |
+        Requests information about a specific chat using its chat ID.
+        ```bash
+        socket.emit('findChat', { chatId: <chat_id> });
+        ```
+      summary: 'Find Chat by ID'
+      tags:
+        - name: chats
+      message:
+        name: "findChatRequest"
+        title: "Request to Find Chat by ID"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat to be retrieved"
+          required:
+            - chatId
+        examples:
+          - name: findChatRequestExample
+            summary: Example request to find a chat.
+            payload:
+              chatId: 123
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  findChatOwner:
+    publish:
+      operationId: "findChatOwner"
+      description: |
+        Requests the owner information of a specific chat using its chat ID.
+        ```bash
+        socket.emit('findChatOwner', { chatId: <chat_id> });
+        ```
+      summary: 'Find Chat Owner by Chat ID'
+      tags:
+        - name: chats
+      message:
+        name: "findChatOwnerRequest"
+        title: "Request to Find Chat Owner"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat for which the owner information is requested"
+          required:
+            - chatId
+        examples:
+          - name: findChatOwnerRequestExample
+            summary: Example request to find a chat owner.
+            payload:
+              chatId: 123
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findChatOwnerResponse'
+            - $ref: '#/components/messages/errorResponse'
+  
+  addUserToChat:
+    publish:
+      operationId: "addUserToChat"
+      description: |
+        Allows a client to add a user to a chat by specifying the chat ID and user ID.
+        ```bash
+        socket.emit('addUserToChat', { chatId: <chat_id>, userId: <user_id> });
+        ```
+      summary: 'Add User to Chat'
+      tags:
+        - name: user management
+      message:
+        name: "addUserToChatRequest"
+        title: "Request to Add User to Chat"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat to which the user is being added"
+            userId:
+              type: integer
+              description: "Identifier of the user being added to the chat"
+          required:
+            - chatId
+            - userId
+        examples:
+          - name: addUserToChatRequestExample
+            summary: Example request to add a user to a chat.
+            payload:
+              chatId: 123
+              userId: 456
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/addUserToChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  emoveUserFromChat:
+    publish:
+      operationId: removeUserFromChat
+      description: |
+        Removes a user from a specific chat. The client must provide both chat ID and user ID for this operation as per the request schema.
+        ```bash
+        socket.emit('removeUserFromChat', { chatId: <chat_id>, userId: <user_id> });
+        ```
+      summary: 'Remove User from Chat'
+      tags:
+        - name: chats
+      message:
+        name: "removeUserFromChatRequest"
+        title: "Request to Remove User from Chat"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat from which the user is to be removed"
+            userId:
+              type: integer
+              description: "Identifier of the user to be removed from the chat"
+          required:
+            - chatId
+            - userId
+        examples:
+          - name: removeUserFromChatRequestExample
+            summary: Example request to remove a user from a chat.
+            payload:
+              chatId: 123
+              userId: 456
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/removeUserFromChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  addAdminToChat:
+    publish:
+      operationId: addAdminToChat
+      description: |
+        Adds an administrator to a specific chat. Clients must provide the chat ID and user ID of the new admin.
+        ```bash
+        socket.emit('addAdminToChat', { chatId: <chat_id>, userId: <user_id> });
+        ```
+      summary: 'Add Admin to Chat'
+      tags:
+        - name: chats
+      message:
+        name: "addAdminToChatRequest"
+        title: "Request to Add Admin to Chat"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat to which an admin is being added"
+            userId:
+              type: integer
+              description: "Identifier of the user being added as an admin"
+          required:
+            - chatId
+            - userId
+        examples:
+          - name: addAdminToChatRequestExample
+            summary: Example request to add an admin to a chat.
+            payload:
+              chatId: 123
+              userId: 456
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/addAdminToChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  removeAdminFromChat:
+    publish:
+      operationId: removeAdminFromChat
+      description: |
+        Removes an administrator from a specific chat. Clients must provide the chat ID and the admin's user ID.
+        ```bash
+        socket.emit('removeAdminFromChat', { chatId: <chat_id>, adminId: <admin_id> });
+        ```
+      summary: 'Remove Admin from Chat'
+      tags:
+        - name: chats
+      message:
+        name: "removeAdminFromChatRequest"
+        title: "Request to Remove Admin from Chat"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat from which an admin is being removed"
+            adminId:
+              type: integer
+              description: "Identifier of the admin being removed"
+          required:
+            - chatId
+            - adminId
+        examples:
+          - name: removeAdminFromChatRequestExample
+            summary: Example request to remove an admin from a chat.
+            payload:
+              chatId: 123
+              adminId: 456
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/removeAdminFromChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  findChatAdmins:
+    publish:
+      operationId: findChatAdmins
+      description: |
+        Requests the list of administrators for a specific chat. Clients need to provide the chat ID.
+        ```bash
+        socket.emit('findChatAdmins', { chatId: <chat_id> });
+        ```
+      summary: 'Find Chat Administrators'
+      tags:
+        - name: chats
+      message:
+        name: "findChatAdminsRequest"
+        title: "Request for Chat Administrators"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat for which admins are requested"
+          required:
+            - chatId
+        examples:
+          - name: findChatAdminsRequestExample
+            summary: Example request to find admins of a chat.
+            payload:
+              chatId: 123
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findChatAdminsResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  getBannedUsers:
+    publish:
+      operationId: getBannedUsers
+      description: |
+        Requests a list of banned users for a specific chat. Clients need to provide the chat ID.
+        ```bash
+        socket.emit('getBannedUsers', { chatId: <chat_id> });
+        ```
+      summary: 'Get Banned Users'
+      tags:
+        - name: chats
+      message:
+        name: "getBannedUsersRequest"
+        title: "Request for Banned Users"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat for which banned users are requested"
+          required:
+            - chatId
+        examples:
+          - name: getBannedUsersRequestExample
+            summary: Example request to get a list of banned users in a chat.
+            payload:
+              chatId: 123
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/getBannedUsersResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  addBannedUser:
+    publish:
+      operationId: "addBannedUser"
+      description: |
+        Initiates the process of banning a user from a chat. The client needs to provide ban details as per the [BanUserDto](#components/schemas/BanUserDto) schema.
+        ```bash
+        socket.emit('addBannedUser', { chatId: <chat_id>, adminId: <admin_id>, BanUserDto });
+        ```
+      summary: 'Add Banned User'
+      tags:
+        - name: chats
+      message:
+        name: "addBannedUserRequest"
+        title: "Request to Ban User"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat"
+            adminId:
+              type: integer
+              description: "Identifier of the admin initiating the ban"
+            BanUserDto:
+              $ref: '#/components/schemas/BanUserDto'
+          required:
+            - chatId
+            - adminId
+            - BanUserDto
+        examples:
+          - name: addBannedUserRequestExample
+            summary: Example request to ban a user.
+            payload:
+              chatId: 1
+              adminId: 123
+              BanUserDto:
+                bannedUser: 456
+                banReason: "wtf"
+                bannedBy: 'Earth'
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/addBannedUserResponse'
+            - $ref: '#/components/messages/errorResponse'
+  
+  removeBannedUser:
+    publish:
+      operationId: "removeBannedUser"
+      description: |
+        Initiates the process of removing a banned user from a chat. The client must provide the chat ID and the banned user's ID.
+        ```bash
+        socket.emit('removeBannedUser', { chatId: <chat_id>, bannedId: <banned_user_id> });
+        ```
+      summary: 'Remove Banned User'
+      tags:
+        - name: chats
+      message:
+        name: "removeBannedUserRequest"
+        title: "Request to Remove Banned User"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: "Identifier of the chat"
+            bannedId:
+              type: integer
+              description: "Identifier of the banned user"
+          required:
+            - chatId
+            - bannedId
+        examples:
+          - name: removeBannedUserRequestExample
+            summary: Example request to remove a banned user.
+            payload:
+              chatId: 1
+              bannedId: 456
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/removeBannedUserResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  updateMessage:
+    publish:
+      operationId: "updateMessage"
+      description: |
+        Initiates the process of updating a message in a chat. The client needs to provide the message details as per the `UpdateMessageDto` schema.
+        ```bash
+        socket.emit('updateMessage', {UpdateMessageDto});
+        ```
+      summary: 'Update Message'
+      tags:
+        - name: messages
+      message:
+        name: "updateMessageRequest"
+        title: "Request to Update Message"
+        payload:
+          $ref: '#/components/schemas/UpdateMessageDto'
+        examples:
+          - name: updateMessageRequestExample
+            summary: Example request to update a message.
+            payload:
+              messageId: 123
+              message: "Updated message content"
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/updateMessageResponse'
+            - $ref: '#/components/messages/errorResponse'
+    
+  createMessage:
+    publish:
+      operationId: "createMessage"
+      description: |
+        Initiates the creation of a new message in a chat. The client needs to provide the message details as per the [CreateMessageDto](#components/schemas/CreateMessageDto) schema.
+        ```bash
+        socket.emit('createMessage', { chatId: <chat_id>, CreateMessageDto });
+        ```
+      summary: 'Create Message'
+      tags:
+        - name: messages
+      message:
+        name: "createMessageRequest"
+        title: "Request to Create Message"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat where the message is to be created
+            messageDetails:
+              $ref: '#/components/schemas/CreateMessageDto'
+          required:
+            - chatId
+            - messageDetails
+        examples:
+          - name: createMessageRequestExample
+            summary: Example request to create a message.
+            payload:
+              chatId: 1
+              messageDetails:
+                message: "Hello world!"
+                userId: 123
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/createMessageResponse'
+            - $ref: '#/components/messages/errorResponse'
+    
+  deleteMessage:
+    publish:
+      operationId: "deleteMessage"
+      description: |
+        Requests the deletion of a specific message in a chat. The client should provide the message ID and the chat ID.
+        ```bash
+        socket.emit('deleteMessage', { messageId: <message_id>, chatId: <chat_id> });
+        ```
+      summary: 'Delete Message'
+      tags:
+        - name: messages
+      message:
+        name: "deleteMessageRequest"
+        title: "Request to Delete Message"
+        payload:
+          type: object
+          properties:
+            messageId:
+              type: integer
+              description: Identifier of the message to be deleted
+            chatId:
+              type: integer
+              description: Identifier of the chat containing the message
+          required:
+            - messageId
+            - chatId
+        examples:
+          - name: deleteMessageRequestExample
+            summary: Example request to delete a message.
+            payload:
+              messageId: 123
+              chatId: 1
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/deleteMessageResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  findAllMessagesByChannel:
+    publish:
+      operationId: "findAllMessagesByChannel"
+      description: |
+        Retrieves all messages from a specified chat channel. The client must provide the chat ID.
+        ```bash
+        socket.emit('findAllMessagesByChannel', { chatId: <chat_id> });
+        ```
+      summary: 'Retrieve All Messages by Channel'
+      tags:
+        - name: messages
+      message:
+        name: "findAllMessagesByChannelRequest"
+        title: "Request for All Messages in a Channel"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat channel
+          required:
+            - chatId
+        examples:
+          - name: findAllMessagesByChannelRequestExample
+            summary: Example request to retrieve all messages from a channel.
+            payload:
+              chatId: 1
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findAllMessagesByChannelResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  findAllMutedAtChat:
+    publish:
+      operationId: "findAllMutedAtChat"
+      description: |
+        Requests a list of all users muted in a specific chat channel. The client needs to provide the chat ID for which the muted users list is requested.
+        ```bash
+        socket.emit('findAllMutedAtChat', { chatId: <chat_id> });
+        ```
+      summary: 'Retrieve All Muted Users in a Chat'
+      tags:
+        - name: chat-management
+      message:
+        name: "findAllMutedAtChatRequest"
+        title: "Request for Muted Users List"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat channel
+          required:
+            - chatId
+        examples:
+          - name: findAllMutedAtChatRequestExample
+            summary: Example request to retrieve muted users from a channel.
+            payload:
+              chatId: 1
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/findAllMutedAtChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  muteUser:
+    publish:
+      operationId: "muteUser"
+      description: |
+        Mutes a user in a chat channel. The client needs to provide user details as per the [CreateMuteDTO](#components/schemas/CreateMuteDTO) schema.
+        ```bash
+        socket.emit('muteUser', {CreateMuteDTO});
+        ```
+      summary: 'Mute a User in a Chat'
+      tags:
+        - name: chat management
+      message:
+        name: "muteUserRequest"
+        title: "Request to Mute a User"
+        payload:
+          $ref: '#/components/schemas/CreateMuteDTO'
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/muteUserResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  updateMute:
+    publish:
+      operationId: "updateMute"
+      description: |
+        Updates the mute status of a user in a chat channel. The client needs to provide mute details as per the [UpdateMuteDTO](#components/schemas/UpdateMuteDTO) schema.
+        ```bash
+        socket.emit('updateMute', {UpdateMuteDTO});
+        ```
+      summary: 'Update Mute Status of a User'
+      tags:
+        - name: chat management
+      message:
+        name: "updateMuteRequest"
+        title: "Request to Update Mute Status"
+        payload:
+          $ref: '#/components/schemas/UpdateMuteDTO'
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/updateMuteResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  unMute:
+    publish:
+      operationId: "unMute"
+      description: |
+        Unmutes a user in a specific chat channel. The client must provide the mute ID and chat ID in the request.
+        ```bash
+        socket.emit('unMute', { mutedId: <muted_id>, chatId: <chat_id> });
+        ```
+      summary: 'Unmute a User'
+      tags:
+        - name: chat management
+      message:
+        name: "unMuteRequest"
+        title: "Request to Unmute User"
+        payload:
+          type: object
+          properties:
+            mutedId:
+              type: integer
+              description: Identifier of the mute record to be removed
+            chatId:
+              type: integer
+              description: Identifier of the chat channel
+          required:
+            - mutedId
+            - chatId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/unMuteResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  joinChat:
+    publish:
+      operationId: "joinChat"
+      description: |
+        Joins a user to a specific chat. The client must provide both the chat ID and the user ID.
+        ```bash
+        socket.emit('joinChat', { chatId: <chat_id>, userId: <user_id> });
+        ```
+      summary: 'Join a User to a Chat'
+      tags:
+        - name: chat management
+      message:
+        name: "joinChatRequest"
+        title: "Request to Join Chat"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat to join
+            userId:
+              type: integer
+              description: Identifier of the user joining the chat
+          required:
+            - chatId
+            - userId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/joinChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  quitChat:
+    publish:
+      operationId: "quitChat"
+      description: |
+        Allows a user to quit a specific chat. The client must provide both the chat ID and the user ID.
+        ```bash
+        socket.emit('quitChat', { chatId: <chat_id>, userId: <user_id> });
+        ```
+      summary: 'Quit a User from a Chat'
+      tags:
+        - name: chat management
+      message:
+        name: "quitChatRequest"
+        title: "Request to Quit Chat"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat to quit
+            userId:
+              type: integer
+              description: Identifier of the user quitting the chat
+          required:
+            - chatId
+            - userId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/quitChatResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  getActiveUsers:
+    publish:
+      operationId: "getActiveUsers"
+      description: |
+        Retrieves a list of active users in a specific chat. The client needs to provide the chat ID.
+        ```bash
+        socket.emit('getActiveUsers', { chatId: <chat_id> });
+        ```
+      summary: 'Retrieve Active Users in a Chat'
+      tags:
+        - name: user management
+      message:
+        name: "getActiveUsersRequest"
+        title: "Request for Active Users"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat for which to retrieve active users
+          required:
+            - chatId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/getActiveUsersResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+  getChatPassword:
+    publish:
+      operationId: "getChatPassword"
+      description: |
+        Retrieves the password for a specified chat. The client must provide the chat ID.
+        ```bash
+        socket.emit('getChatPassword', { chatId: <chat_id> });
+        ```
+      summary: 'Retrieve Chat Password'
+      tags:
+        - name: chat management
+      message:
+        name: "getChatPasswordRequest"
+        title: "Request for Chat Password"
+        payload:
+          type: object
+          properties:
+            chatId:
+              type: integer
+              description: Identifier of the chat for which to retrieve the password
+          required:
+            - chatId
+        x-response:
+          oneOf:
+            - $ref: '#/components/messages/getChatPasswordResponse'
+            - $ref: '#/components/messages/errorResponse'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################################################
+components:
+  messages:
+    getChatPasswordResponse:
+      summary: Response for Chat Password
+      description: Provides the password of the specified chat.
+      payload:
+        type: string
+        properties:
+          password:
+            type: string
+            description: Password of the chat
+
+    getActiveUsersResponse:
+      summary: Response for Active Users
+      description: Provides a list of active users in the specified chat.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChatUser'
+
+    quitChatResponse:
+      summary: Response for Quitting Chat
+      description: Provides updated list of users in the chat after a user has quit.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChatUser'
+
+    joinChatResponse:
+      summary: Response for Joining Chat
+      description: Provides updated list of users in the chat after a user has joined.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChatUser'
+  
+    unMuteResponse:
+      summary: Response for Unmuting a User
+      description: Provides updated list of muted users after a user has been unmuted.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnMutedDto'
+
+    updateMuteResponse:
+      summary: Response for Updating Mute Status
+      description: Provides a list of muted users with updated statuses in response to the update request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnMutedDto'
+
+    muteUserResponse:
+      summary: Response for Muting a User
+      description: Provides a list of muted users in response to the mute request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnMutedDto'
+      examples:
+        - name: muteUserResponseExample
+          summary: Example response with a list of muted users.
+          payload:
+            - id: 123
+              user:
+                id: 456
+                intraId: 1
+                intraLogin: "aa"
+                firstName: "Jane"
+                lastName: "Doe"
+                displayName: "JaneD"
+              mutedAt: 
+                chatId: 1
+                chatName: "General Chat"
+                chatType: 'public'
+                creatingDate: "2023-12-01T00:00:00Z"
+                chatOwner:
+                  id: 789
+                  intraId: 1
+                  intraLogin: "aa"
+                  firstName: "Admin"
+                  lastName: "User"
+                  displayName: "AdminU"
+                  email: 'a@a.a'
+                  imageUrl: "http://a.a"
+                  createdAt: "2023-12-01T00:00:00Z"
+                  updatedAt: "2023-12-01T00:00:00Z"
+              mutedBy:
+                id: 789
+                intraId: 1
+                intraLogin: "aa"
+                firstName: "Admin"
+                lastName: "User"
+                displayName: "AdminU"
+              mutedUntil: "2023-12-01T00:00:00Z"
+  
+    findAllMutedAtChatResponse:
+      summary: Response for Muted Users List
+      description: Provides a list of users muted in the specified chat channel.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnMutedDto'
+      examples:
+        - name: findAllMutedAtChatResponseExample
+          summary: Example response with a list of muted users in a channel.
+          payload:
+            - id: 123
+              user:
+                id: 456
+                intraId: 1
+                intraLogin: "aa"
+                firstName: "Jane"
+                lastName: "Doe"
+                displayName: "JaneD"
+              mutedAt: 
+                chatId: 1
+                chatName: "General Chat"
+                chatType: 'public'
+                creatingDate: "2023-12-01T00:00:00Z"
+                chatOwner:
+                  id: 789
+                  intraId: 1
+                  intraLogin: "aa"
+                  firstName: "Admin"
+                  lastName: "User"
+                  displayName: "AdminU"
+                  email: 'a@a.a'
+                  imageUrl: "http://a.a"
+                  createdAt: "2023-12-01T00:00:00Z"
+                  updatedAt: "2023-12-01T00:00:00Z"
+              mutedBy:
+                id: 789
+                intraId: 1
+                intraLogin: "aa"
+                firstName: "Admin"
+                lastName: "User"
+                displayName: "AdminU"
+              mutedUntil: "2023-12-01T00:00:00Z"
+
+    findAllMessagesByChannelResponse:
+      summary: Response for All Messages in a Channel
+      description: Provides a list of all messages in the specified chat channel.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnMessageDto'
+      examples:
+        - name: findAllMessagesByChannelResponseExample
+          summary: Example response with a list of messages from a channel.
+          payload:
+            - messageId: 123
+              message: "Hello World"
+              author: 
+                id: 123
+                intraId: 1
+                intraLogin: "aa"
+                firstName: "John"
+                lastName: "Doe"
+                displayName: "JohnD"
+              my: "additional data 1"
+              hm: "additional data 2"
+            - messageId: 124
+              message: "Another message"
+              author: 
+                intraId: 2
+                intraLogin: "aa"
+                id: 456
+                firstName: "Jane"
+                lastName: "Doe"
+                displayName: "JaneD"
+              my: "additional data 1"
+              hm: "additional data 2"
+
+    deleteMessageResponse:
+      summary: Response for Deleting a Message
+      description: Provides the updated list of messages in the chat after deletion.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnMessageDto'
+      examples:
+        - name: deleteMessageResponseExample
+          summary: Example response with the updated list of messages after deletion.
+          payload:
+            - messageId: 124
+              message: "Another message"
+              author: 
+                id: 456
+                intraId: 1
+                intraLogin: "aa"
+                firstName: "Jane"
+                lastName: "Doe"
+                displayName: "JaneD"
+              my: "additional data 1"
+              hm: "additional data 2"
+
+    createMessageResponse:
+      summary: Response for Creating a Message
+      description: Provides details of the newly created message.
+      payload:
+        $ref: '#/components/schemas/ReturnMessageDto'
+      examples:
+        - name: createMessageResponseExample
+          summary: Example response with newly created message details.
+          payload:
+            messageId: 123
+            message: "Hello world!"
+            author: 
+              id: 123
+              intraId: 1
+              intraLogin: "aa"
+              firstName: "John"
+              lastName: "Doe"
+              displayName: "JohnD"
+            my: "additional data 1"
+            hm: "additional data 2"
+
+    updateMessageResponse:
+      summary: Response for Updating a Message
+      description: Provides details of the updated message.
+      payload:
+        $ref: '#/components/schemas/ReturnMessageDto'
+      examples:
+        - name: updateMessageResponseExample
+          summary: Example response with the updated message details.
+          payload:
+            messageId: 123
+            content: "Updated message content"
+            updatedAt: "2023-01-01T12:00:00Z"
+
+    removeBannedUserResponse:
+      summary: Response for Removing a Banned User
+      description: Provides the updated list of banned users in response to the remove request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnBannedDto'
+
+    addBannedUserResponse:
+      summary: Response for Adding a Banned User
+      description: Provides the updated list of banned users in response to the ban request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnBannedDto'
+
+    getBannedUsersResponse:
+      summary: Response for Banned Users
+      description: Provides a list of banned users for the requested chat.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReturnBannedDto'
+
+    findChatAdminsResponse:
+      summary: Response for Chat Administrators
+      description: Provides a list of administrators for the requested chat.
+      payload:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: [success, error]
+          chatAdmins:
+            type: array
+            items:
+              $ref: '#/components/schemas/ChatUser'
+  
+    removeAdminFromChatResponse:
+      summary: Response for Removing Admin from Chat
+      description: Provides the updated list of admins in the chat after removing an admin.
+      payload:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: [success, error]
+          updatedAdmins:
+            type: array
+            items:
+              $ref: '#/components/schemas/ChatUser'
+      examples:
+        - name: removeAdminFromChatResponseExample
+          summary: Example response showing the updated admin list after an admin is removed.
+          payload:
+            status: success
+            updatedUsers:
+              - id: 456
+                intraId: 789
+                firstName: "Alice"
+              - id: 678
+                intraId: 101
+                firstName: "Bob"
+
+    addAdminToChatResponse:
+      summary: Response for Adding Admin to Chat
+      description: Provides the updated list of admins in the chat after adding a new admin.
+      payload:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: [success, error]
+          updatedAdmins:
+            type: array
+            items:
+              $ref: '#/components/schemas/ChatUser'
+      examples:
+        - name: addAdminToChatResponseExample
+          summary: Example response showing the updated admin list after a new admin is added.
+          payload:
+            status: success
+            updatedUsers:
+              - id: 456
+                intraId: 789
+                firstName: "Alice"
+              - id: 678
+                intraId: 101
+                firstName: "Bob"
+
+    removeUserFromChatResponse:
+      summary: Response for Removing User from Chat
+      description: Provides the updated list of users in the chat after removing the specified user.
+      payload:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: [success, error]
+          updatedUsers:
+            type: array
+            items:
+              $ref: '#/components/schemas/ChatUser'
+      examples:
+        - name: removeUserFromChatResponseExample
+          summary: Example response showing the updated user list after a user is removed.
+          payload:
+            status: success
+            updatedUsers:
+              - id: 456
+                intraId: 789
+                firstName: "Alice"
+              - id: 678
+                intraId: 101
+                firstName: "Bob"
+
+    addUserToChatResponse:
+      summary: Response for Adding User to Chat
+      description: Confirms the addition of a user to a chat and provides the updated list of users.
+      payload:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: [success]
+          chatId:
+            type: integer
+            description: "Identifier of the chat"
+          updatedUsers:
+            type: array
+            items:
+              $ref: '#/components/schemas/ChatUser'
+      examples:
+        - name: addUserToChatResponseExample
+          summary: Example response with updated user list in a chat.
+          payload:
+            status: success
+            chatId: 123
+            updatedUsers:
+              - id: 456
+                intraId: 789
+                firstName: "Alice"
+              - id: 678
+                intraId: 101
+                firstName: "Bob"
+
+    findChatOwnerResponse:
+      summary: Response for Chat Owner Information
+      description: Provides details about the owner of a specific chat.
+      payload:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: [success]
+          user:
+            $ref: '#/components/schemas/ChatUser'
+      examples:
+        - name: findChatOwnerResponseExample
+          summary: Example response with chat owner details.
+          payload:
+            status: success
+            user:
+              id: 2
+              intraId: 42
+              firstName: "John"
+
+    findChatResponse:
+      summary: Response for Chat Information
+      description: Provides details about a specific chat.
+      payload:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: [success]
+          chat:
+            $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: findChatResponseExample
+          summary: Example response with chat details.
+          payload:
+            status: success
+            chat:
+              chatId: 7
+              chatName: "New Chat"
+              chatType: "public"
+              maxUsers: 10
+              creatingDate: "2023-11-17T10:00:00.000Z"
+              chatOwner:
+                id: 2
+                intraId: 2
+                intraLogin: "tsomsaa"
+                intraUrl: "https://api.intra.42.fr/v2/users/tsomsaa"
+                email: "viruskizz@student.42bangkok.com"
+                firstName: "Araiva"
+                lastName: "Viruskizz"
+                displayName: "Araiva"
+                imageUrl: "https://google.com"
+                createdAt: "2023-11-16T08:21:44.743Z"
+                updatedAt: "2023-11-16T08:21:44.743Z"
+
+    createChatResponse:
+      summary: Response for Chat Creation
+      description: Confirmation of the chat creation along with the chat details.
+      payload:
+         properties:
+          status:
+            type: string
+            enum: [success]
+          chat:
+            $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: createChatResponseExample
+          summary: Example response for a successfully created chat.
+          payload:
+            status: success
+            chat:
+              chatId: 7
+              chatName: "New Chat"
+              chatType: "public"
+              maxUsers: 10
+              creatingDate: "2023-11-17T10:00:00.000Z"
+              chatOwner:
+                id: 2
+                intraId: 2
+                intraLogin: "tsomsaa"
+                intraUrl: "https://api.intra.42.fr/v2/users/tsomsaa"
+                email: "viruskizz@student.42bangkok.com"
+                firstName: "Araiva"
+                lastName: "Viruskizz"
+                displayName: "Araiva"
+                imageUrl: "https://google.com"
+                createdAt: "2023-11-16T08:21:44.743Z"
+                updatedAt: "2023-11-16T08:21:44.743Z"
+
+    findUserPrivateChatsResponse:
+      summary: Response for User's Private Chats
+      description: Provides a list of a user's private chats in response to the request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: findUserPrivateChatsResponseExample
+          summary: Example response with a list of user's private chats.
+          payload:
+            - chatId: 3
+              chatName: "public Araiva chat"
+              chatType: "public"
+              maxUsers: null
+              creatingDate: "2023-11-16T13:12:03.813Z"
+              chatOwner:
+                id: 2
+                intraId: 2
+                intraLogin: "tsomsaa"
+                intraUrl: "https://api.intra.42.fr/v2/users/tsomsaa"
+                email: "viruskizz@student.42bangkok.com"
+                firstName: "Araiva"
+                lastName: "Viruskizz"
+                displayName: "Araiva"
+                imageUrl: "https://google.com"
+                createdAt: "2023-11-16T08:21:44.743Z"
+                updatedAt: "2023-11-16T08:21:44.743Z"
+
+    findUserProtectedChatsResponse:
+      summary: Response for User's Protected Chats
+      description: Provides a list of a user's protected chats in response to the request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: findUserProtectedChatsResponseExample
+          summary: Response Example
+          payload:
+            - chatId: 4
+              chatName: "Protected anns chat"
+              chatType: "protected"
+              maxUsers: 10
+              creatingDate: "2023-11-16T14:00:00.000Z"
+              chatOwner:
+                id: 5
+                intraId: 5
+                intraLogin: "anna42"
+                intraUrl: "https://api.intra.42.fr/v2/users/anna42"
+                email: "anna@example.com"
+                firstName: "anna"
+                lastName: "ann42"
+                displayName: "anna43"
+                imageUrl: "https://example.com/anna.jpg"
+                createdAt: "2023-11-15T09:00:00.000Z"
+                updatedAt: "2023-11-15T09:30:00.000Z"
+
+    findUserDmChatsResponse:
+      summary: Response for User's DM Chats
+      description: Provides a list of a user's DM chats in response to the request.
+      payload:
+        type: array
+        items:
+          $ref: '#/components/schemas/ChannelEntity'
+      examples:
+        - name: findUserDmChatsResponseExample
+          summary: Example response with a list of user's DM chats.
+          payload:
+            - chatId: 5
+              chatName: "DM with Alex"
+              chatType: "direct"
+              maxUsers: 2
+              creatingDate: "2023-11-16T15:30:00.000Z"
+              chatOwner:
+                id: 6
+                intraId: 6
+                intraLogin: "alex42"
+                intraUrl: "https://api.intra.42.fr/v2/users/alex42"
+                email: "alex@example.com"
+                firstName: "Alex"
+                lastName: "Smith"
+                displayName: "Alex S."
+                imageUrl: "https://example.com/alex.jpg"
+                createdAt: "2023-11-14T11:00:00.000Z"
+                updatedAt: "2023-11-14T11:30:00.000Z"
+
+
+    errorResponse:
+      summary: Error response
+      description: Generic error response message format.
+      payload:
+        $ref: '#/components/schemas/Error'
+
+    findAllPublicChannelsResponse:
+        summary: findAllPublicChannelsResponse
+        description: Generic error response message format.
+        payload:
+         $ref: '#/components/schemas/ChannelEntity'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################################################
+  schemas:
+    Error:
+      properties:
+        event:
+          type: string
+          description: eventName
+        message:
+          type: string
+          description: Reason of Error
+
+    ChannelEntity:
+      properties:
+        chatId:
+          type: integer
+          description: Unique identifier of the chat
+        chatName:
+          type: string
+          description: Name of the chat
+        chatType:
+          type: string
+          enum: [public, private, protected, direct]
+          description: Type of the chat
+        maxUsers:
+          type: integer
+          nullable: true
+          description: Maximum number of users in the chat
+        creatingDate:
+          type: string
+          format: date-time
+          description: Date and time when the chat was created
+        chatOwner:
+          $ref: '#/components/schemas/UserEntity'
+      required:
+        - chatId
+        - chatName
+        - chatType
+        - creatingDate
+        - chatOwner
+
+    UserEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the user
+        intraId:
+          type: integer
+          description: Intra identifier of the user
+        intraLogin:
+          type: string
+          description: Intra login of the user
+        intraUrl:
+          type: string
+          format: uri
+          description: URL to the intra profile
+        email:
+          type: string
+          format: email
+          description: Email of the user
+        firstName:
+          type: string
+          description: First name of the user
+        lastName:
+          type: string
+          description: Last name of the user
+        displayName:
+          type: string
+          description: Display name of the user
+        imageUrl:
+          type: string
+          format: uri
+          description: Image URL of the user
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date and time when the user was last updated
+      required:
+        - id
+        - intraId
+        - intraLogin
+        - email
+        - firstName
+        - lastName
+        - displayName
+        - imageUrl
+        - createdAt
+        - updatedAt
+    ChannelCreateDTO:
+      type: object
+      properties:
+        chatName:
+          type: string
+          description: Name of the new chat
+        chatOwner:
+          type: integer
+          description: Identifier of the chat owner
+        password:
+          type: string
+          nullable: true
+          description: Password for the chat, if any
+        maxUsers:
+          type: integer
+          nullable: true
+          description: Maximum number of users allowed in the chat
+        chatType:
+          type: string
+          enum: [public, private, protected, direct]
+          description: Type of the chat being created
+      required:
+        - chatName
+        - chatOwner
+        - chatType
+
+    ChatUser:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: Unique identifier of the user
+          intraId:
+            type: integer
+            description: Intra identifier of the user
+          firstName:
+            type: string
+            description: First name of the user
+        required:
+          - id
+          - intraId
+          - firstName
+
+    ReturnBannedDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifier of the ban record
+        bannedUser:
+          $ref: '#/components/schemas/User'
+        bannedBy:
+          type: string
+          description: The identifier of the user who issued the ban
+        banReason:
+          type: string
+          description: Reason for the ban
+        bannedAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the ban was issued
+      required:
+        - id
+        - bannedUser
+        - bannedBy
+        - banReason
+        - bannedAt
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier of the user
+        intraId:
+          type: integer
+          format: int64
+          description: Intra identifier of the user
+        intraLogin:
+          type: string
+          description: Intra login of the user
+        intraUrl:
+          type: string
+          format: uri
+          description: URL to the intra profile of the user
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Email address of the user
+        firstName:
+          type: string
+          description: First name of the user
+        lastName:
+          type: string
+          description: Last name of the user
+        displayName:
+          type: string
+          description: Display name of the user
+        imageUrl:
+          type: string
+          format: uri
+          description: URL of the user's profile image
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the user's record was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date and time when the user's record was last updated
+      required:
+        - id
+        - intraId
+        - intraLogin
+        - firstName
+        - lastName
+        - displayName
+
+    BanUserDto:
+        type: object
+        properties:
+          bannedUser:
+            type: integer
+            description: Identifier of the user being banned
+          banReason:
+            type: string
+            nullable: true
+            default: 'wtf'
+            description: Reason for the ban
+        required:
+          - bannedUser
+
+    BannedUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifier of the banned user
+        banReason:
+          type: string
+          description: Reason for the ban
+        bannedAt:
+          type: string
+          format: date-time
+          description: Date and time when the user was banned
+
+
+    UpdateMessageDto:
+      type: object
+      properties:
+        messageId:
+          type: integer
+          description: Identifier of the message to update
+        message:
+          type: string
+          description: New content of the message
+      required:
+        - messageId
+        - message
+
+    ReturnMessageDto:
+      type: object
+      properties:
+        messageId:
+          type: integer
+          description: Identifier of the message
+        message:
+          type: string
+          description: Content of the message
+        author:
+          $ref: '#/components/schemas/User'
+        my:
+          type: string
+          description: Additional data field 1
+        hm:
+          type: string
+          description: Additional data field 2
+
+    CreateMessageDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Content of the message to be created
+        userId:
+          type: integer
+          description: Identifier of the user creating the message
+
+    ReturnMutedDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the mute entry
+        user:
+          $ref: '#/components/schemas/User'
+          description: Details of the muted user
+        mutedAt:
+          $ref: '#/components/schemas/ChannelEntity'
+          description: Details of the chat in which the user is muted
+        mutedBy:
+          $ref: '#/components/schemas/User'
+          description: Details of the user who muted the other user
+        mutedUntil:
+          type: string
+          format: date-time
+          description: Timestamp until which the user is muted
+      required:
+        - id
+        - user
+        - mutedAt
+        - mutedBy
+
+    CreateMuteDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: Identifier of the user to be muted
+        channelId:
+          type: integer
+          description: Identifier of the channel where the user is to be muted
+        mutedById:
+          type: integer
+          description: Identifier of the user who is muting
+        mutedUntil:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp until which the user is muted (optional)
+      required:
+        - userId
+        - channelId
+        - mutedById
+
+    UpdateMuteDTO:
+      type: object
+      properties:
+        muteId:
+          type: integer
+          description: Identifier of the mute record to be updated
+        mutedUntil:
+          type: string
+          format: date-time
+          nullable: true
+          description: New timestamp until which the user is muted (optional)
+      required:
+        - muteId
