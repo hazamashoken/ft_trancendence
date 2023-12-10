@@ -1,7 +1,9 @@
 // import qs from "query-string";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { useSocket } from "@/components/providers/socket-provider";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 interface ChatQueryProps {
   queryKey: string;
@@ -10,6 +12,7 @@ interface ChatQueryProps {
   paramValue: string;
 };
 
+
 export const useChatQuery = ({
   queryKey,
   apiUrl,
@@ -17,40 +20,39 @@ export const useChatQuery = ({
   paramValue
 }: ChatQueryProps) => {
   const { isConnected } = useSocket();
-
-  const fetchMessages = async ({ pageParam = undefined }) => {
-    // const url = qs.stringifyUrl({
-    //   url: apiUrl,
-    //   query: {
-    //     cursor: pageParam,
-    //     [paramKey]: paramValue,
-    //   }
-    // }, { skipNull: true });
-    const url = apiUrl;
-
-    const res = await fetch(url);
-    return res.json();
-  };
-
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
-    initialPageParam: undefined,
+  // const [data, setData] = useState<any>([]);
+  const { data } = useQuery({
     queryKey: [queryKey],
-    queryFn: fetchMessages,
-    getNextPageParam: (lastPage) => lastPage?.nextCursor,
-    refetchInterval: isConnected ? false : 1000,
+    enabled: isConnected,
+    queryFn: () => fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => res.json()),
   });
 
-  return {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  };
+  return { data };
+
+  // const {
+  //   data,
+  //   fetchNextPage,
+  //   hasNextPage,
+  //   isFetchingNextPage,
+  //   status,
+  // } = useInfiniteQuery({
+  //   initialPageParam: undefined,
+  //   queryKey: [queryKey],
+  //   queryFn: fetchMessages,
+  //   getNextPageParam: (lastPage) => lastPage?.nextCursor,
+  //   refetchInterval: isConnected ? false : 1000,
+  // });
+
+  // return {
+  //   data,
+  //   fetchNextPage,
+  //   hasNextPage,
+  //   isFetchingNextPage,
+  //   status,
+  // };
 }

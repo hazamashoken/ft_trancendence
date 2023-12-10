@@ -115,13 +115,13 @@ export const ChatItem = ({
 
   const fileType = fileUrl?.split(".").pop();
 
-  const isAdmin = currentMember.role === "ADMIN"; // MemberRole.ADMIN;
-  const isModerator = currentMember.role === "MODERATOR"; // MemberRole.MODERATOR;
-  const isOwner = currentMember.id === member.id;
-  const canDeleteMessage = !deleted && (isAdmin || isModerator || isOwner);
-  const canEditMessage = !deleted && isOwner && !fileUrl;
-  const isPDF = fileType === "pdf" && fileUrl;
-  const isImage = !isPDF && fileUrl;
+  // const isAdmin = currentMember.role === "ADMIN"; // MemberRole.ADMIN;
+  // const isModerator = currentMember.role === "MODERATOR"; // MemberRole.MODERATOR;
+  // const isOwner = currentMember.id === member.id;
+  // const canDeleteMessage = !deleted && (isAdmin || isModerator || isOwner);
+  // const canEditMessage = !deleted && isOwner && !fileUrl;
+  // const isPDF = fileType === "pdf" && fileUrl;
+  // const isImage = !isPDF && fileUrl;
 
   return (
     <div className="relative flex items-center w-full p-4 transition group hover:bg-black/5">
@@ -130,7 +130,7 @@ export const ChatItem = ({
           onClick={onMemberClick}
           className="transition cursor-pointer hover:drop-shadow-md"
         >
-          <UserAvatar src={member.profile.imageUrl} />
+          {/* <UserAvatar src={member.profile.imageUrl} /> */}
         </div>
         <div className="flex flex-col w-full">
           <div className="flex items-center gap-x-2">
@@ -139,18 +139,18 @@ export const ChatItem = ({
                 onClick={onMemberClick}
                 className="text-sm font-semibold cursor-pointer hover:underline"
               >
-                {member.profile.name}
+                {member.intraLogin}
               </p>
-              <ActionTooltip label={member.role}>
-                {/* // @ts-ignore */}
-                {/* {roleIconMap[member.role]} */}
-              </ActionTooltip>
+              {/* <ActionTooltip label={member.role}>
+                // @ts-ignore
+                {roleIconMap[member.role]}
+              </ActionTooltip> */}
             </div>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
               {timestamp}
             </span>
           </div>
-          {isImage && (
+          {/* {isImage && (
             <a
               href={fileUrl}
               target="_blank"
@@ -164,8 +164,8 @@ export const ChatItem = ({
                 className="object-cover"
               />
             </a>
-          )}
-          {isPDF && (
+          )} */}
+          {/* {isPDF && (
             <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10">
               <FileIcon className="w-10 h-10 fill-indigo-200 stroke-indigo-400" />
               <a
@@ -177,7 +177,7 @@ export const ChatItem = ({
                 PDF File
               </a>
             </div>
-          )}
+          )} */}
           {!fileUrl && !isEditing && (
             <p
               className={cn(
@@ -229,7 +229,7 @@ export const ChatItem = ({
           )}
         </div>
       </div>
-      {canDeleteMessage && (
+      {/* {canDeleteMessage && (
         <div className="absolute items-center hidden p-1 bg-white border rounded-sm group-hover:flex gap-x-2 -top-2 right-5 dark:bg-zinc-800">
           {canEditMessage && (
             <ActionTooltip label="Edit">
@@ -251,7 +251,7 @@ export const ChatItem = ({
             />
           </ActionTooltip>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

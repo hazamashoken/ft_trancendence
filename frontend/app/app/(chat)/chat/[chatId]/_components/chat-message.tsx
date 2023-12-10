@@ -11,6 +11,8 @@ import { useChatQuery } from "@/lib/hooks/use-chat-query";
 
 import { ChatWelcome } from "./chat-welcome";
 import { ChatItem } from "./chat-item";
+import { useQuery } from "@tanstack/react-query";
+import { useSocket } from "@/components/providers/socket-provider";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -50,13 +52,27 @@ export const ChatMessages = ({
   const chatRef = useRef<ElementRef<"div">>(null);
   const bottomRef = useRef<ElementRef<"div">>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useChatQuery({
-      queryKey,
-      apiUrl,
-      paramKey,
-      paramValue,
-    });
+  // const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
+  //   useChatQuery({
+  //     queryKey,
+  //     apiUrl,
+  //     paramKey,
+  //     paramValue,
+  //   });
+
+  const { isConnected } = useSocket();
+
+  const { data } = useQuery({
+    queryKey: [queryKey],
+    enabled: isConnected,
+    queryFn: () =>
+      fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => res.json()),
+  });
   // useChatSocket({ queryKey, addKey, updateKey });
   // useChatScroll({
   //   chatRef,
@@ -90,7 +106,7 @@ export const ChatMessages = ({
 
   return (
     <div ref={chatRef} className="flex flex-col flex-1 py-4 overflow-y-auto">
-      {!hasNextPage && <div className="flex-1" />}
+      {/* {!hasNextPage && <div className="flex-1" />}
       {!hasNextPage && <ChatWelcome type={type} name={name} />}
       {hasNextPage && (
         <div className="flex justify-center">
@@ -105,26 +121,22 @@ export const ChatMessages = ({
             </button>
           )}
         </div>
-      )}
+      )} */}
       <div className="flex flex-col-reverse mt-auto">
-        {data?.pages?.map((group, i) => (
-          <Fragment key={i}>
-            {group.items.map((message: MessageWithMemberWithProfile) => (
-              <ChatItem
-                key={message.id}
-                id={message.id}
-                currentMember={member}
-                member={message.member}
-                content={message.content}
-                fileUrl={message.fileUrl}
-                deleted={message.deleted}
-                timestamp={format(new Date(message.createdAt), DATE_FORMAT)}
-                isUpdated={message.updatedAt !== message.createdAt}
-                socketUrl={socketUrl}
-                socketQuery={socketQuery}
-              />
-            ))}
-          </Fragment>
+        {data?.map((message: any, i: number) => (
+          <ChatItem
+            key={message.massageId}
+            id={message.massageId}
+            currentMember={message.athor}
+            member={message.athor}
+            content={message.message}
+            fileUrl={message.fileUrl}
+            deleted={message.deleted}
+            timestamp={format(new Date(message.createAt), DATE_FORMAT)}
+            isUpdated={message.updatedAt}
+            socketUrl={socketUrl}
+            socketQuery={socketQuery}
+          />
         ))}
       </div>
       <div ref={bottomRef} />

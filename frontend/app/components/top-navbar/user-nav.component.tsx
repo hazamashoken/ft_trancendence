@@ -1,13 +1,9 @@
-"use client"
+"use client";
 
-import { LogOut, LogIn, PlusCircle, Settings, User } from "lucide-react"
+import { LogOut, LogIn, PlusCircle, Settings, User } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { signOut, signIn, useSession } from "next-auth/react"
-import ftLogo from "@/public/42_logo.svg"
+} from "@/components/ui/dropdown-menu";
+import { signOut, signIn, useSession } from "next-auth/react";
+import ftLogo from "@/public/42_logo.svg";
 
 export function UserNav() {
   const { data, status } = useSession();
@@ -31,19 +27,19 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            {isSignedIn ?
-            <>
-              <AvatarImage src={avatarLink} alt="@shadcn" />
-              <AvatarFallback >{nameInitial}</AvatarFallback>
-            </>
-              :
-            <>
-              <AvatarImage src={ftLogo} alt="42 logo" />
-              <AvatarFallback >42</AvatarFallback>
-            </>
-            }
+        <Button variant="ghost" className="relative w-8 h-8 rounded-full">
+          <Avatar className="w-8 h-8">
+            {isSignedIn ? (
+              <>
+                <AvatarImage src={avatarLink} alt="@shadcn" />
+                <AvatarFallback>{nameInitial}</AvatarFallback>
+              </>
+            ) : (
+              <>
+                <AvatarImage src={ftLogo} alt="42 logo" />
+                <AvatarFallback>42</AvatarFallback>
+              </>
+            )}
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -61,35 +57,43 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
+            <User className="w-4 h-4 mr-2" />
             <span>Profile</span>
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
+            <Settings className="w-4 h-4 mr-2" />
             <span>Settings</span>
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <PlusCircle className="mr-2 h-4 w-4" />
+            <PlusCircle className="w-4 h-4 mr-2" />
             <span>New Team</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        {isSignedIn?
-          <DropdownMenuItem onClick={() => { signOut() }}>
-            <LogOut className="mr-2 h-4 w-4" />
+        {isSignedIn ? (
+          <DropdownMenuItem
+            onClick={() => {
+              signOut();
+            }}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
             <span>Log out</span>
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
-          :
-          <DropdownMenuItem onClick={() => { signIn("42-school") }}>
-            <LogIn className="mr-2 h-4 w-4" />
+        ) : (
+          <DropdownMenuItem
+            onClick={() => {
+              signIn("42-school");
+            }}
+          >
+            <LogIn className="w-4 h-4 mr-2" />
             <span>Log In</span>
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
-        }
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

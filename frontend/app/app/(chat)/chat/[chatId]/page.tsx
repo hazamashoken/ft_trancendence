@@ -29,7 +29,7 @@ export default async function ChatPage({
   return (
     <>
       <ListChannel data={channelListData} />
-      <MessageArea />
+      <MessageArea chatId={chatId} />
       {/* <UserArea /> */}
     </>
   );

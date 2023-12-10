@@ -2,31 +2,45 @@ import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-message";
 
-export function MessageArea() {
+const getChannel = async (chatId: string = "1") => {
+  const res = await fetch(`${process.env.BACKEND_URL}/channels/${chatId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch");
+  }
+
+  const data = await res.json();
+
+  return data;
+};
+
+export async function MessageArea(props: { chatId: string }) {
+  const { chatId } = props;
+  const data = await getChannel(chatId);
+
   const channel = {
-    id: "1",
-    name: "general",
-    serverId: "1",
+    id: data?.chatId,
+    name: data?.chatName,
     type: "text",
   };
 
   return (
     <>
-      <ChatHeader
-        name={channel.name}
-        serverId={channel.serverId}
-        type="channel"
-      />
+      <ChatHeader name={channel.name} type="channel" />
       <ChatMessages
         member={[]}
         name={channel.name}
         chatId={channel.id}
         type="channel"
-        apiUrl="/api/messages"
+        apiUrl={`${process.env.BACKEND_URL}/channels/${chatId}/messages`}
         socketUrl="/api/socket/messages"
         socketQuery={{
           channelId: channel.id,
-          serverId: channel.serverId,
         }}
         paramKey="channelId"
         paramValue={channel.id}
@@ -34,11 +48,11 @@ export function MessageArea() {
       <ChatInput
         name={channel.name}
         type="channel"
-        apiUrl="/api/socket/messages"
+        apiUrl={`${process.env.BACKEND_URL}/channels/${chatId}/createmessage`}
         query={{
           channelId: channel.id,
-          serverId: channel.serverId,
         }}
+        chatId={data?.chatId}
       />
     </>
   );
