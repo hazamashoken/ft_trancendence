@@ -466,7 +466,10 @@ export class ChannelsService {
       if (!await bcrypt.compare(password, chat.password))
         throw new ForbiddenException('Password is wrong!!')
     }
-
+    if(chat.chatType != 'public' && chat.chatUsers.some(user => user.id === userId))
+    {
+      throw new ForbiddenException('U are not in this chat')
+    }
     await this.channelsRepository.save(chat);
     return await this.getActiveUsers(channelId);
   }

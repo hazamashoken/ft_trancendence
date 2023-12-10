@@ -91,7 +91,7 @@ export class ChannelsController {
     return this.channelsService.findOneById(chatId);
   }
 
-  @Get('owner/:chatId')
+  @Get(':chatId/owner')
   async owner(@Param('chatId') chatId: number): Promise<ChatUserDto> {
     const owner = await this.channelsService.getOwnerById(chatId);
     if (!owner) throw new NotFoundException('UserNotFound');
@@ -104,7 +104,7 @@ export class ChannelsController {
     return this.channelsService.create(dto);
   }
 
-  @Post('delete/:chatId/:userId')
+  @Post(':chatId/delete/:userId')
   async deleteChat(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -113,7 +113,7 @@ export class ChannelsController {
     return await this.channelsService.delete(chatId, userId);
   }
 
-  @Post('update/:chatId')
+  @Post(':chatId/update')
   async update(
     @Param('chatId') chatId: number,
     @Body() dto: UpdateChannelDto,
@@ -144,10 +144,10 @@ export class ChannelsController {
     return await this.channelsService.removeUserFromChat(chatId, userId);
   }
 
-  @Get('users/:id')
-  async getUsers(@Param('id') id: number): Promise<ChatUserDto[]> {
+  @Get(':chatId/users')
+  async getUsers(@Param('chatId') chatId: number): Promise<ChatUserDto[]> {
     try {
-      return await this.channelsService.findAllUsers(id);
+      return await this.channelsService.findAllUsers(chatId);
     } catch (error) {
       throw new NotFoundException(error.message, 'Not Found');
     }
@@ -183,7 +183,7 @@ export class ChannelsController {
     }
   }
 
-  @Get('admins/:chatId')
+  @Get(':chatId/admins')
   async getAdmins(
     @Param('chatId') chatId: number,
   ): Promise<ChatUserDto[] | null> {
@@ -197,7 +197,7 @@ export class ChannelsController {
     }
   }
 
-  @Get('bannedUsers/:chatId')
+  @Get(':chatId/bannedUsers')
   async getBanned(@Param('chatId') chatId: number): Promise<ReturnBannedDto[]> {
     return await this.bannedService.findAllBannedUsersInChat(chatId);
   }
@@ -226,7 +226,7 @@ export class ChannelsController {
     return await this.bannedService.removeBannedById(bannedId, chatId);
   }
 
-  @Post('channels/:messageId/updateMessage')
+  @Post(':messageId/updateMessage')
   async updateMessage(
     @Body() dto: UpdateMessageDto,
   ): Promise<ReturnMessageDto> {
@@ -234,7 +234,7 @@ export class ChannelsController {
     return await this.messageService.updateMessage(dto.messageId, dto.message);
   }
 
-  @Post('channels/:chatId/createmessage')
+  @Post(':chatId/createmessage')
   async createMessage(
     @Param('chatId') chatId: number,
     @Body() dto: CreateMessageDto,
@@ -248,7 +248,7 @@ export class ChannelsController {
     );
   }
 
-  @Post('channels/:chatId/deleteMessage/:messageId')
+  @Post(':chatId/deleteMessage/:messageId')
   async deleteMessage(
     @Param('messageId') messageId: number,
     @Param('chatId') chatId: number,
@@ -258,7 +258,7 @@ export class ChannelsController {
   }
 
 
-  @Get('channels/:chatId/messages')
+  @Get(':chatId/messages')
   async chatMessages(
     @Param('chatId') chatId: number,
   ): Promise<ReturnMessageDto[]> {
@@ -272,7 +272,7 @@ export class ChannelsController {
     return await this.channelsService.getMute(chatId);
   }
 
-  @Post('channels/:chatId/mute/:muteId')
+  @Post('/muteUser')
   async muteuUser(@Body() dto: CreateMuteDto): Promise<ReturnMutedDto[]> {
     this.chatGateway.sendEvents({message: 'user muted', event: 'getChatMuted'});
     return await this.channelsService.muteUser(
@@ -283,7 +283,7 @@ export class ChannelsController {
     );
   }
 
-  @Post('muteUpdate/:chatId')
+  @Post(':chatId/muteUpdate')
   async updateMute(
     @Param('chatId') chatId: number,
     @Body() dto: UpdateMuteDto,
@@ -296,7 +296,7 @@ export class ChannelsController {
     );
   }
 
-  @Post('channels/:chatId/unmute/:mutedId')
+  @Post(':chatId/unmute/:mutedId')
   async unMute(
     @Param('mutedId') mutedId: number,
     @Param('chatId') chatId: number,
@@ -305,7 +305,7 @@ export class ChannelsController {
     return await this.channelsService.unMute(mutedId, chatId);
   }
 
-  @Post('channels/:chatId/joinChat/:userId')
+  @Post(':chatId/joinChat/:userId')
   async join(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -314,7 +314,7 @@ export class ChannelsController {
     return await this.channelsService.joinChannel(chatId, userId);
   }
 
-  @Post('channels/:chatId/quitChat/:userId')
+  @Post(':chatId/quitChat/:userId')
   async quit(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -323,7 +323,7 @@ export class ChannelsController {
     return await this.channelsService.quitChannel(chatId, userId);
   }
 
-  @Get('channels/:chatId/activeUsers')
+  @Get(':chatId/activeUsers')
   async active(@Param('chatId') chatId: number): Promise<ChatUserDto[]> {
     return await this.channelsService.getActiveUsers(chatId);
   }

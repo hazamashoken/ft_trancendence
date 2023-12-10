@@ -21,7 +21,7 @@ const fetchPost = async (path: string, body?: any): Promise<any> => {
   };
 
 // Fetch all channels
-export const findAllChannels = async (): Promise<any> => {
+export const findAllChannels = async (): Promise<ChannelsEntity[]> => {
   return await fetchGet('/all');
 };
 
@@ -52,7 +52,7 @@ export const findOneChannel = async (chatId: number): Promise<ChannelsEntity> =>
 
 // Fetch the owner of a channel
 export const findChannelOwner = async (chatId: number): Promise<ChatUserDto> => {
-  return await fetchGet(`/owner/${chatId}`);
+  return await fetchGet(`/${chatId}/owner`);
 };
 
 // Create a channel (WebSocket event: 'chat created')
@@ -62,12 +62,12 @@ export const createChannel = async (dto: ChannelCreatedTO): Promise<ChannelsEnti
 
 // Delete a channel (WebSocket event: {message: 'chat deleted', chatId: chatId})
 export const deleteChannel = async (chatId: number, userId: number): Promise<ChannelsEntity[]> => {
-  return await fetchPost(`/delete/${chatId}/${userId}`);
+  return await fetchPost(`/${chatId}/delete/${userId}`);
 };
 
 // Update a channel (WebSocket event: {event: 'chat updated', chatId: chatId})
 export const updateChannel = async (chatId: number, dto: ChannelCreatedTO): Promise<ChannelsEntity[]> => {
-  return await fetchPost(`/update/${chatId}`, dto);
+  return await fetchPost(`/${chatId}/update`, dto);
 };
 
 // Add a user to a channel (WebSocket event: {message: 'user added', chatId: chatId, event: 'getChatUsers'})
@@ -81,8 +81,8 @@ export const removeUserFromChannel = async (chatId: number, userId: number): Pro
 };
 
 // Fetch users of a channel
-export const getChannelUsers = async (id: number): Promise<ChatUserDto[]> => {
-  return await fetchGet(`/users/${id}`);
+export const getChannelUsers = async (chatId: number): Promise<ChatUserDto[]> => {
+  return await fetchGet(`/${chatId}/users`);
 };
 
 // Add an admin to a channel (WebSocket event: {message: 'admin added', chatId: chatId, event: 'getChatAdmins'})
@@ -97,12 +97,12 @@ export const removeAdminFromChannel = async (chatId: number, adminId: number): P
 
 // Fetch admins of a channel
 export const getChannelAdmins = async (chatId: number): Promise<ChatUserDto[]> => {
-  return await fetchGet(`/admins/${chatId}`);
+  return await fetchGet(`/${chatId}/admins`);
 };
 
 // Fetch banned users of a channel
 export const getBannedUsers = async (chatId: number): Promise<ReturnBannedDto[]> => {
-  return await fetchGet(`/bannedUsers/${chatId}`);
+  return await fetchGet(`/${chatId}/bannedUsers`);
 };
 
 // Ban a user in a channel (WebSocket event: {message: 'user banned', chatId: chatId, event: 'getChatBanned'})
@@ -117,22 +117,22 @@ export const unbanUserInChannel = async (bannedId: number, chatId: number): Prom
 
 // Update a message in a channel (WebSocket event: {message: 'message updated', event: 'getChatMessages'})
 export const updateChannelMessage = async (dto: UpdateMessageDto): Promise<ReturnMessageDto[]> => {
-  return await fetchPost('/channels/:messageId/updateMessage', dto);
+  return await fetchPost('/:messageId/updateMessage', dto);
 };
 
 // Create a message in a channel (WebSocket event: {message: 'message created', chatId: chatId, event: 'getChatMessages'})
 export const createChannelMessage = async (chatId: number, dto: CreateMessageDto): Promise<ReturnMessageDto[]> => {
-  return await fetchPost(`/channels/${chatId}/createmessage`, dto);
+  return await fetchPost(`/${chatId}/createmessage`, dto);
 };
 
 // Delete a message in a channel (WebSocket event: {message: 'message deleted', chatId: chatId, event: 'getChatMessages'})
 export const deleteChannelMessage = async (messageId: number, chatId: number): Promise<ReturnMessageDto[]> => {
-  return await fetchPost(`/channels/${chatId}/deleteMessage/${messageId}`);
+  return await fetchPost(`/${chatId}/deleteMessage/${messageId}`);
 };
 
 // Fetch messages of a channel
 export const getChannelMessages = async (chatId: number): Promise<ReturnMessageDto[]> => {
-  return await fetchGet(`/channels/${chatId}/messages`);
+  return await fetchGet(`/${chatId}/messages`);
 };
 
 // Fetch muted users in a channel
@@ -142,30 +142,30 @@ export const getMutedUsersInChannel = async (chatId: number): Promise<ReturnMute
 
 // Mute a user in a channel (WebSocket event: {message: 'user muted', event: 'getChatMuted'})
 export const muteUserInChannel = async (dto: CreateMuteDto): Promise<ReturnMutedDto[]> => {
-  return await fetchPost('/channels/:chatId/mute/:muteId', dto);
+  return await fetchPost(`/muteUser`, dto);
 };
 
 // Update a mute in a channel (WebSocket event: {message: 'mute updated', event: 'getChatMuted'})
 export const updateMuteInChannel = async (chatId: number, dto: UpdateMuteDto): Promise<ReturnMutedDto[]> => {
-  return await fetchPost(`/muteUpdate/${chatId}`, dto);
+  return await fetchPost(`/${chatId}/muteUpdate`, dto);
 };
 
 // Unmute a user in a channel (WebSocket event: {message: 'mute update', event: 'getChatMuted'})
 export const unmuteUserInChannel = async (mutedId: number, chatId: number): Promise<ReturnMutedDto[]> => {
-  return await fetchPost(`/channels/${chatId}/unmute/${mutedId}`);
+  return await fetchPost(`/${chatId}/unmute/${mutedId}`);
 };
 
 // Join a user to a channel (WebSocket event: {message: 'user joined chat', event: 'getActiveUsers'})
 export const joinChannel = async (chatId: number, userId: number): Promise<ChatUserDto[]> => {
-  return await fetchPost(`/channels/${chatId}/joinChat/${userId}`);
+  return await fetchPost(`/${chatId}/joinChat/${userId}`);
 };
 
 // User quits a channel (WebSocket event: {message: 'user quit chat', event: 'getActiveUsers'})
 export const quitChannel = async (chatId: number, userId: number): Promise<ChatUserDto[]> => {
-  return await fetchPost(`/channels/${chatId}/quitChat/${userId}`);
+  return await fetchPost(`/${chatId}/quitChat/${userId}`);
 };
 
 // Fetch active users in a channel
 export const getActiveUsersInChannel = async (chatId: number): Promise<ChatUserDto[]> => {
-  return await fetchGet(`/channels/${chatId}/activeUsers`);
+  return await fetchGet(`/${chatId}/activeUsers`);
 }
