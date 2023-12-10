@@ -16,7 +16,7 @@ const mockAuthUser = {
   login: 'tsomsa',
   first_name: 'Thitiwut',
   last_name: 'Somsa',
-  url: 'https://api.intra.42.fr/v2/users/tsomsa',
+  intra_url: 'https://api.intra.42.fr/v2/users/tsomsa',
   kind: 'student',
   image: {
     link: 'https://cdn.intra.42.fr/users/419d49d85cb790463bc56724cb424880/tsomsa.png',

@@ -96,3 +96,8 @@ export interface ReturnMutedDto {
   mutedBy: User;
   mutedUntil: Date;
 }
+
+export interface BanUserDto {
+  bannedUser: number;
+  banReason: string;
+}
