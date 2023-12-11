@@ -21,12 +21,12 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 'nestjs' })
   lastName: string;
 
   @IsEmail()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ example: 'tester@student.42.bangkok.com' })
   email: string;
 
   @IsUrl()
