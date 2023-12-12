@@ -11,22 +11,22 @@ import {
 export class CreateUserDto {
   @IsNumber()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 171793 })
   intraId: number;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 'tester' })
   firstName: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 'nestjs' })
   lastName: string;
 
   @IsEmail()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ example: 'tester@student.42.bangkok.com' })
   email: string;
 
   @IsUrl()

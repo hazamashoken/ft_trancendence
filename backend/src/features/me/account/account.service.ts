@@ -39,14 +39,14 @@ export class AccountService {
 
   update(id: number, data: Partial<User>) {
     return this.userRepository
-    .update({ id }, data)
-    .then(() => this.userRepository.findOneBy({ id }))
-    .catch((e) => {
-      console.log(e);
-      if (e.name === 'EntityPropertyNotFoundError') {
-        throw new BadRequestException(e.message);
-      }
-    });
+      .update({ id }, data)
+      .then(() => this.userRepository.findOneBy({ id }))
+      .catch((e) => {
+        console.log(e);
+        if (e.name === 'EntityPropertyNotFoundError') {
+          throw new BadRequestException(e.message);
+        }
+      });
   }
 
   saveAvatar(id: number, file: Express.Multer.File) {
