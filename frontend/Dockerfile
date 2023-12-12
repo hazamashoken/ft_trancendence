@@ -7,6 +7,7 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY ./app/package.json ./app/package-lock.json ./
 
+
 # Install app dependencies
 RUN npm install --only=development
 
@@ -14,6 +15,8 @@ RUN npm install --only=development
 COPY ./app .
 
 # Creates a ".next" folder with the production build
+RUN npm install socket.io-client
+
 RUN npm run build
 
 FROM node:18-alpine as production
