@@ -384,7 +384,7 @@ export function renderCanvas(canvas: HTMLCanvasElement, state: GameState, delta:
       drawSquare(canvas, state.multiball[i].position.x, state.multiball[i].position.y, "#ff0000");
   }
   let multiballs: string = ("").padStart(state.player1.balls, ".");
-  drawStringRev(canvas, -Pong.SCORE_OFFSET, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), multiballs);
+  drawStringRev(canvas, -Pong.SCORE_OFFSET, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), multiballs, "#ff0000");
   multiballs = ("").padStart(state.player2.balls, ".");
-  drawString(canvas, Pong.SCORE_OFFSET, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), multiballs);
+  drawString(canvas, Pong.SCORE_OFFSET, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), multiballs, "#ff0000");
 }
