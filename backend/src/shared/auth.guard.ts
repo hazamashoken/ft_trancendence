@@ -24,16 +24,16 @@ export class AuthGuard implements CanActivate {
     if (!auth || !auth.startsWith('Bearer ')) {
       throw new UnauthorizedException('jwt malformed');
     }
-    const token = auth.substring('Bearer '.length);
-    return this.ftService.oauthTokenInfo(token).pipe(
-      switchMap(() => this.ftService.me(token)),
+    const accessToken = auth.substring('Bearer '.length);
+    return this.ftService.oauthTokenInfo(accessToken).pipe(
+      switchMap(() => this.ftService.me(accessToken)),
       switchMap((ft) => {
         request.authUser = { ft };
         const userRepo = this.dataSource.getRepository(User);
         return userRepo.findOneBy({ intraId: ft.id });
       }),
       map((user) => {
-        request.authUser = { ...request.authUser, user };
+        request.authUser = { ...request.authUser, user, accessToken };
         return true;
       }),
       catchError((e) => {

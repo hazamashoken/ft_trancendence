@@ -66,6 +66,22 @@ export class FtService {
       );
   }
 
+  user(token: string, id: number) {
+    const uri = `${FtService.baseUrl}/${FtService.version}/users/${id}`;
+    return this.httpService
+      .get(uri, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .pipe(
+        map((res) => this.mapMeFields(res.data)),
+        catchError((e) => {
+          throw new HttpException(e.response.statusText, e.response.status);
+        }),
+      );
+  }
+
   private mapMeFields(data: any): FtUser {
     const fields = [
       'id',
