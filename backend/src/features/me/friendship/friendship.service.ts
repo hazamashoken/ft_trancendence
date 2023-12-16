@@ -1,19 +1,19 @@
 import { Repository } from 'typeorm';
-import { Friend } from '@backend/typeorm';
+import { Friendship } from '@backend/typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FriendStatus } from '@backend/typeorm/friend.entity';
+import { FriendshipStatus } from '@backend/typeorm/friendship.entity';
 @Injectable()
 export class FriendsService {
   constructor(
-    @InjectRepository(Friend) private friendsRepository: Repository<Friend>,
+    @InjectRepository(Friendship) private fsRepository: Repository<Friendship>,
   ) {}
 
   static isValidStatus(status: string) {
     return status === 'REQUESTED' || status === 'ACCEPTED';
   }
 
-  list(userId: number, status?: FriendStatus) {
+  list(userId: number, status?: FriendshipStatus) {
     let whereCondition = {
       user: {
         id: userId,
@@ -24,7 +24,7 @@ export class FriendsService {
         status,
       });
     }
-    return this.friendsRepository.find({
+    return this.fsRepository.find({
       relations: {
         user: true,
       },
@@ -33,13 +33,13 @@ export class FriendsService {
   }
 
   get(id: number) {
-    return this.friendsRepository.findOneBy({ id }).then((res) => {
+    return this.fsRepository.findOneBy({ id }).then((res) => {
       this.validateFriend(res);
       return res;
     });
   }
 
-  validateFriend(friend: Friend) {
+  validateFriend(friend: Friendship) {
     if (!friend) {
       throw new NotFoundException('Not found friend id');
     }

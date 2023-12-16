@@ -19,7 +19,7 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { FriendsService } from './friends.service';
+import { FriendsService } from './friendship.service';
 import { RequestFriendDto } from './dto/update-friend.dto';
 
 @Controller('me/friends')

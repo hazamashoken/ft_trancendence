@@ -6,6 +6,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -14,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CreateFriendDto } from './dto/create-friend.dto';
-import { FriendService } from './friend.service';
+import { FriendshipService } from './friendship.service';
 
 @Controller('friends')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -22,12 +23,11 @@ import { FriendService } from './friend.service';
 @ApiSecurity('x-api-key')
 @ApiTags('Friends')
 export class FriendsController {
-  constructor(private readonly friendService: FriendService) {}
+  constructor(private readonly fsService: FriendshipService) {}
 
   @Get()
-  list(@Query('user_id') userId) {
-    console.log(userId);
-    return userId;
+  list(@Query('userId') userId, @Query('status') status) {
+    return this.fsService.findAll(userId, status);
   }
 
   @Post()
@@ -41,11 +41,16 @@ export class FriendsController {
       }
       body.userId = authUser.user.id;
     }
-    if (!FriendService.isValidStatus(body.status)) {
+    if (!FriendshipService.isValidStatus(body.status)) {
       throw new BadRequestException(
-        'FriendStatus is not valid, REQUESTED or ACCEPTED',
+        'FriendshipStatus is not valid, REQUESTED or ACCEPTED',
       );
     }
-    return this.friendService.create(body.userId, body.friendId, body.status);
+    return this.fsService.create(body.userId, body.friendId, body.status);
+  }
+
+  @Delete()
+  removeFriendship() {
+
   }
 }

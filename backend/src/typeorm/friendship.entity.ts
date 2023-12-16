@@ -1,31 +1,36 @@
 import {
   Entity,
-  ManyToOne,
-  OneToMany,
+  Unique,
   Column,
+  ManyToOne,
+  RelationId,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('friend')
-export class Friend {
+@Entity('friendship')
+@Unique(['user', 'friend'])
+export class Friendship {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, user => user.id)
   user: User;
 
-  @OneToMany(() => User, (user) => user.id)
-  friends: User[];
+  @ManyToOne(() => User, user => user.id)
+  friend: User;
+
+  @RelationId((friend: Friendship) => friend.friend)
+  friendId: number;
 
   @Column({
     type: 'enum',
     enum: ['REQUESTED', 'ACCEPTED'],
     default: 'REQUESTED',
   })
-  status: FriendStatus;
+  status: FriendshipStatus;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -34,4 +39,4 @@ export class Friend {
   updatedAt: Date;
 }
 
-export type FriendStatus = 'REQUESTED' | 'ACCEPTED';
+export type FriendshipStatus = 'REQUESTED' | 'ACCEPTED';

@@ -1,4 +1,4 @@
-import { FriendStatus } from '@backend/typeorm/friend.entity';
+import { FriendshipStatus } from '@backend/typeorm/friendship.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsNumber, IsOptional } from 'class-validator';
 
@@ -12,7 +12,7 @@ export class CreateFriendDto {
   @ApiProperty({ example: '1' })
   userId: number;
 
-  @IsIn(['REQUESTED', 'ACCETPED'])
+  @IsIn(['REQUESTED', 'ACCEPTED'])
   @ApiProperty({ example: 'REQUESTED' })
-  status: FriendStatus;
+  status: FriendshipStatus;
 }
