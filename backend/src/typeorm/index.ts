@@ -1,6 +1,6 @@
 import { BannedEntity } from './banned.entity';
 import { ChannelsEntity } from './channel.entity';
-import { Friends } from './friends.entity';
+import { Friend } from './friend.entity';
 import { MessagesEntity } from './messages.entity';
 import { MutedEntity } from './muted.entity';
 import { User } from './user.entity';
@@ -8,7 +8,7 @@ import { User2fa } from './user_2fa.entity';
 
 const entities = [
   User,
-  Friends,
+  Friend,
   User2fa,
   ChannelsEntity,
   BannedEntity,
@@ -18,7 +18,7 @@ const entities = [
 
 export {
   User,
-  Friends,
+  Friend,
   User2fa,
   ChannelsEntity,
   BannedEntity,

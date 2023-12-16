@@ -1,12 +1,12 @@
 import { Repository } from 'typeorm';
-import { Friends } from '@backend/typeorm';
+import { Friend } from '@backend/typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FriendStatus } from '@backend/typeorm/friends.entity';
+import { FriendStatus } from '@backend/typeorm/friend.entity';
 @Injectable()
 export class FriendsService {
   constructor(
-    @InjectRepository(Friends) private friendsRepository: Repository<Friends>,
+    @InjectRepository(Friend) private friendsRepository: Repository<Friend>,
   ) {}
 
   static isValidStatus(status: string) {
@@ -39,7 +39,7 @@ export class FriendsService {
     });
   }
 
-  validateFriend(friend: Friends) {
+  validateFriend(friend: Friend) {
     if (!friend) {
       throw new NotFoundException('Not found friend id');
     }

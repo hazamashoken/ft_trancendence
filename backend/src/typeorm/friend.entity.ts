@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('friends')
-export class Friends {
+@Entity('friend')
+export class Friend {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BadRequestException, Body, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@entities/user.entity';
 import { FtUser } from '@backend/interfaces/ft-user.interface';
 
