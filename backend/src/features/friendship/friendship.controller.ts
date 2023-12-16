@@ -8,6 +8,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -16,14 +17,31 @@ import {
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CreateFriendDto } from './dto/create-friend.dto';
 import { FriendshipService } from './friendship.service';
+import { NotFoundError } from 'rxjs';
 
-@Controller('friends')
+@Controller('friendships')
 @UseGuards(XKeyGuard, AuthGuard)
 @ApiBearerAuth()
 @ApiSecurity('x-api-key')
-@ApiTags('Friends')
+@ApiTags('Friendship')
 export class FriendsController {
-  constructor(private readonly fsService: FriendshipService) {}
+  constructor(private readonly fsService: FriendshipService) { }
+
+  @Get(':id')
+  getFriendship(@Param('id') id) {
+    console.log(id);
+    return this.fsService.getRecord(id).then(res => {
+      if (!res) {
+        throw new NotFoundException();
+      }
+      return res;
+    });
+  }
+
+  @Delete(':id')
+  removeFriendship(@Param('id') id) {
+    return this.fsService.removeRecord(id);
+  }
 
   @Get()
   list(@Query('userId') userId, @Query('status') status) {
@@ -49,8 +67,5 @@ export class FriendsController {
     return this.fsService.create(body.userId, body.friendId, body.status);
   }
 
-  @Delete()
-  removeFriendship() {
 
-  }
 }

@@ -86,6 +86,10 @@ export class FriendshipService {
     return this.fsRepository.remove(record);
   }
 
+  getRecord(id: number) {
+    return this.fsRepository.findOneBy({ id });
+  }
+
   removeRecord(id: number) {
     return this.fsRepository.delete(id);
   }
