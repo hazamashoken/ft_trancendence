@@ -10,7 +10,7 @@ import {
   Delete,
   Body,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { SecurityService } from './security.service';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { User } from '@backend/typeorm';
@@ -24,6 +24,7 @@ export class SecurityController {
   constructor(private readonly securityService: SecurityService) {}
 
   @Post('2fa/verify')
+  @ApiOperation({ summary: 'verify 2fa code' })
   async verify2fa(@AuthUser('user') user: User, @Body('code') code: string) {
     const tfa = await this.securityService.get2faDevice(user.id);
     if (!tfa || tfa.status === 'INACTIVE') {
@@ -36,6 +37,7 @@ export class SecurityController {
   }
 
   @Patch('2fa/activate')
+  @ApiOperation({ summary: 'Activate 2fa device for first time' })
   async activate2faDevice(@AuthUser('user') user: User, @Body('code') code: string) {
     const tfa = await this.securityService.get2faDevice(user.id);
     if (!tfa) {
@@ -51,11 +53,13 @@ export class SecurityController {
   }
 
   @Get('2fa')
+  @ApiOperation({ summary: 'Get 2fa device for auth user' })
   get2faDevice(@AuthUser('user') user: User) {
     return this.securityService.get2faDevice(user.id);
   }
 
   @Post('2fa')
+  @ApiOperation({ summary: 'Register a 2fa device', description: 'Server will generate register code for first active.' })
   async register2faDevice(@AuthUser('user') user: User) {
     const tfa = await this.securityService.get2faDevice(user.id);
     if (tfa && tfa.status === 'ACTIVE') {
@@ -65,6 +69,7 @@ export class SecurityController {
   }
 
   @Delete('2fa')
+  @ApiOperation({ summary: 'Remove 2fa device' })
   async remove2faDevice(@AuthUser('user') user: User) {
     const tfa = await this.securityService.get2faDevice(user.id);
     if (!tfa) {
