@@ -18,7 +18,6 @@ export class UserService {
 
   findAll(option: TypeormQueryOption): Promise<User[]> {
     const findOption = TypeormUtil.setFindOption(option);
-    console.log(findOption);
     return this.userRepository.find({ ...findOption });
   }
 

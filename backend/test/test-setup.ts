@@ -124,6 +124,7 @@ export async function setupUser() {
   await appDataSource.query(`DROP TABLE chat_users;`);
   await appDataSource.query(`DROP TABLE chats;`);
   await appDataSource.query(`DROP TABLE user_2fa;`);
+  await appDataSource.query(`DROP TABLE friendship;`);
   const userRepo = appDataSource.manager.getRepository(User);
   await appDataSource.query('TRUNCATE TABLE public."user" RESTART IDENTITY');
   for (const user of users) {
