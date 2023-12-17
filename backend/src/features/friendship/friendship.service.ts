@@ -35,7 +35,7 @@ export class FriendshipService {
   list(
     userId?: number,
     status?: FriendshipStatus,
-    options?: TypeormQueryOption,
+    option?: TypeormQueryOption,
   ) {
     let where = {};
     if (userId) {
@@ -51,10 +51,7 @@ export class FriendshipService {
         status,
       };
     }
-    const findOptions = TypeormUtil.setFindOption({
-      fields: ['id'],
-    });
-    console.log(findOptions);
+    const findOptions = TypeormUtil.setFindOption(option);
     return this.fsRepository.find({
       relations: {
         friend: true,

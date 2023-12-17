@@ -6,6 +6,7 @@ import {
   FriendshipStatus,
 } from '@backend/typeorm/friendship.entity';
 import { FriendshipService as FsService } from '@backend/features/friendship/friendship.service';
+import { TypeormQueryOption } from '@backend/utils/typeorm.util';
 @Injectable()
 export class FriendshipService {
   constructor(
@@ -18,8 +19,12 @@ export class FriendshipService {
     return FsService.isValidStatus(status);
   }
 
-  list(userId: number, status?: FriendshipStatus) {
-    return this.fsService.list(userId, status);
+  list(
+    userId: number,
+    status?: FriendshipStatus,
+    options?: TypeormQueryOption,
+  ) {
+    return this.fsService.list(userId, status, options);
   }
 
   request(userId: number, friendId: number) {

@@ -21,6 +21,8 @@ import {
 } from '@nestjs/swagger';
 import { SaveFriendshipDto } from './dto/save-friendship.dto';
 import { FriendshipService } from './friendship.service';
+import { FriendshipStatus } from '@backend/typeorm/friendship.entity';
+import { QueryOption } from '@backend/pipe/query-option.decorator';
 
 @Controller('me/friends')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -32,14 +34,18 @@ export class FriendsController {
 
   @Get()
   @ApiOperation({ summary: 'list all friend request by user auth' })
-  list(@AuthUser() authUser: AuthUserInterface, @Query('status') status) {
-    console.log(status);
+  list(
+    @AuthUser() authUser: AuthUserInterface,
+    @Query('status') status: FriendshipStatus,
+    @QueryOption() option,
+  ) {
+    console.log(option);
     if (status && !FriendshipService.isValidStatus(status)) {
       throw new BadRequestException(
         'Friend status is not valid, REQUESTED or  ACCPETED',
       );
     }
-    return this.fsService.list(authUser.user.id);
+    return this.fsService.list(authUser.user.id, status, option);
   }
 
   @Post('request')
