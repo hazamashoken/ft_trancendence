@@ -1,8 +1,4 @@
-export interface TypeormQueryOption {
-  limit?: number;
-  offset?: number;
-  fields?: string[];
-}
+import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
 
 export class TypeormUtil {
   static setFindOption(options: TypeormQueryOption) {

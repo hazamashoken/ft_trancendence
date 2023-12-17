@@ -11,7 +11,8 @@ import {
 } from '@backend/typeorm/friendship.entity';
 import { User } from '@backend/typeorm';
 import { ResponseUtil } from '@backend/utils/response.util';
-import { TypeormQueryOption, TypeormUtil } from '@backend/utils/typeorm.util';
+import { TypeormUtil } from '@backend/utils/typeorm.util';
+import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
 
 @Injectable()
 export class FriendshipService {
@@ -51,13 +52,13 @@ export class FriendshipService {
         status,
       };
     }
-    const findOptions = TypeormUtil.setFindOption(option);
+    const findOption = TypeormUtil.setFindOption(option);
     return this.fsRepository.find({
       relations: {
         friend: true,
       },
       where,
-      ...findOptions,
+      ...findOption,
     });
   }
 

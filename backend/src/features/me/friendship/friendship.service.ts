@@ -6,7 +6,8 @@ import {
   FriendshipStatus,
 } from '@backend/typeorm/friendship.entity';
 import { FriendshipService as FsService } from '@backend/features/friendship/friendship.service';
-import { TypeormQueryOption } from '@backend/utils/typeorm.util';
+import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
+
 @Injectable()
 export class FriendshipService {
   constructor(

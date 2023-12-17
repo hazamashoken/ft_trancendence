@@ -1,14 +1,8 @@
-import { TypeormQueryOption } from '@backend/utils/typeorm.util';
-import {
-  BadRequestException,
-  createParamDecorator,
-  ExecutionContext,
-} from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const QueryOption = createParamDecorator(
   (data: string, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    console.log(request.query);
     const option = {
       fields:
         request.query.fields &&
