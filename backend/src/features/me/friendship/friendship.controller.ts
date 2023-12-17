@@ -43,7 +43,6 @@ export class FriendsController {
     @Query('status') status: FriendshipStatus,
     @QueryOption() option,
   ) {
-    console.log(option);
     if (status && !FriendshipService.isValidStatus(status)) {
       throw new BadRequestException(
         'Friend status is not valid, REQUESTED or  ACCPETED',

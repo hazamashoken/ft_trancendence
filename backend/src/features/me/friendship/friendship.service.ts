@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   Friendship,
   FriendshipStatus,
@@ -29,11 +29,25 @@ export class FriendshipService {
   }
 
   request(userId: number, friendId: number) {
-    return this.fsService.create(userId, friendId, 'REQUESTED');
+    return this.fsService.getFriend(userId, friendId).then(freindship => {
+      if (freindship.status === 'REQUESTED') {
+        throw new BadRequestException('User has beed sent request');
+      } else if (freindship.status === 'ACCEPTED') {
+        throw new BadRequestException('User has been friend');
+      }
+      return this.fsService.create(userId, friendId, 'REQUESTED');
+    });
   }
 
   accept(userId: number, friendId: number) {
-    return this.fsService.create(userId, friendId, 'ACCEPTED');
+    return this.fsService.getFriend(userId, friendId).then(freindship => {
+      if (!freindship) {
+        throw new BadRequestException('User has not relation');
+      } else if (freindship.status === 'ACCEPTED') {
+        throw new BadRequestException('User has been friend');
+      }
+      return this.fsService.create(userId, friendId, 'ACCEPTED');
+    });
   }
 
   remove(userId: number, friendId: number) {
