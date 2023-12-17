@@ -19,6 +19,9 @@ export class Friendship {
   @ManyToOne(() => User, user => user.id)
   user: User;
 
+  @RelationId((friend: Friendship) => friend.user)
+  userId: number;
+
   @ManyToOne(() => User, user => user.id)
   friend: User;
 
