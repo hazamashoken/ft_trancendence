@@ -1,48 +1,36 @@
 import { Repository } from 'typeorm';
-import { Friendship } from '@backend/typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FriendshipStatus } from '@backend/typeorm/friendship.entity';
+import { Injectable } from '@nestjs/common';
+import {
+  Friendship,
+  FriendshipStatus,
+} from '@backend/typeorm/friendship.entity';
+import { FriendshipService as FsService } from '@backend/features/friendship/friendship.service';
 @Injectable()
-export class FriendsService {
+export class FriendshipService {
   constructor(
-    @InjectRepository(Friendship) private fsRepository: Repository<Friendship>,
+    @InjectRepository(Friendship)
+    private readonly fsRepository: Repository<Friendship>,
+    private readonly fsService: FsService,
   ) {}
 
-  static isValidStatus(status: string) {
-    return status === 'REQUESTED' || status === 'ACCEPTED';
+  static isValidStatus(status: FriendshipStatus) {
+    return FsService.isValidStatus(status);
   }
 
   list(userId: number, status?: FriendshipStatus) {
-    let whereCondition = {
-      user: {
-        id: userId,
-      },
-    };
-    if (status) {
-      whereCondition = Object.assign(whereCondition, {
-        status,
-      });
-    }
-    return this.fsRepository.find({
-      relations: {
-        user: true,
-      },
-      where: whereCondition,
-    });
+    return this.fsService.list(userId, status);
   }
 
-  get(id: number) {
-    return this.fsRepository.findOneBy({ id }).then((res) => {
-      this.validateFriend(res);
-      return res;
-    });
+  request(userId: number, friendId: number) {
+    return this.fsService.create(userId, friendId, 'REQUESTED');
   }
 
-  validateFriend(friend: Friendship) {
-    if (!friend) {
-      throw new NotFoundException('Not found friend id');
-    }
-    return true;
+  accept(userId: number, friendId: number) {
+    return this.fsService.create(userId, friendId, 'ACCEPTED');
+  }
+
+  remove(userId: number, friendId: number) {
+    return this.fsService.remove(userId, friendId);
   }
 }

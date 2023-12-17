@@ -11,6 +11,7 @@ import {
 } from '@backend/typeorm/friendship.entity';
 import { User } from '@backend/typeorm';
 import { ResponseUtil } from '@backend/utils/response.util';
+import { TypeormQueryOption, TypeormUtil } from '@backend/utils/typeorm.util';
 
 @Injectable()
 export class FriendshipService {
@@ -19,7 +20,23 @@ export class FriendshipService {
     private fsRepository: Repository<Friendship>,
   ) {}
 
-  findAll(userId?: number, status?: FriendshipStatus) {
+  static isValidStatus(status: string) {
+    return status === 'REQUESTED' || status === 'ACCEPTED';
+  }
+
+  get(id: number) {
+    return this.fsRepository.findOneBy({ id });
+  }
+
+  delete(id: number) {
+    return this.fsRepository.delete(id);
+  }
+
+  list(
+    userId?: number,
+    status?: FriendshipStatus,
+    options?: TypeormQueryOption,
+  ) {
     let where = {};
     if (userId) {
       where = Object.assign(where, {
@@ -34,15 +51,20 @@ export class FriendshipService {
         status,
       };
     }
+    const findOptions = TypeormUtil.setFindOption({
+      fields: ['id'],
+    });
+    console.log(findOptions);
     return this.fsRepository.find({
       relations: {
         friend: true,
       },
       where,
+      ...findOptions,
     });
   }
 
-  getByFriend(userId: number, friendId: number) {
+  getFriend(userId: number, friendId: number) {
     return this.fsRepository.findOneBy({
       user: { id: userId },
       friend: { id: friendId },
@@ -53,7 +75,7 @@ export class FriendshipService {
     if (userId === friendId) {
       throw new BadRequestException('User cannot friend yourself');
     }
-    const record = await this.getByFriend(userId, friendId);
+    const record = await this.getFriend(userId, friendId);
     if (record) {
       // update record
       if (record.status !== status) {
@@ -78,23 +100,12 @@ export class FriendshipService {
     });
   }
 
-  async removeFriend(userId: number, friendId: number) {
-    const record = await this.getByFriend(userId, friendId);
-    if (!record) {
-      throw new NotFoundException('Not found friendship');
-    }
-    return this.fsRepository.remove(record);
-  }
-
-  getRecord(id: number) {
-    return this.fsRepository.findOneBy({ id });
-  }
-
-  removeRecord(id: number) {
-    return this.fsRepository.delete(id);
-  }
-
-  static isValidStatus(status: string) {
-    return status === 'REQUESTED' || status === 'ACCEPTED';
+  async remove(userId: number, friendId: number) {
+    return this.getFriend(userId, friendId).then(record => {
+      if (!record) {
+        throw new NotFoundException('Not found friendship');
+      }
+      return this.fsRepository.remove(record);
+    });
   }
 }

@@ -30,7 +30,7 @@ export class FriendsController {
   @Get(':id')
   getFriendship(@Param('id') id) {
     console.log(id);
-    return this.fsService.getRecord(id).then(res => {
+    return this.fsService.get(id).then(res => {
       if (!res) {
         throw new NotFoundException();
       }
@@ -40,12 +40,12 @@ export class FriendsController {
 
   @Delete(':id')
   removeFriendship(@Param('id') id) {
-    return this.fsService.removeRecord(id);
+    return this.fsService.delete(id);
   }
 
   @Get()
   list(@Query('userId') userId, @Query('status') status) {
-    return this.fsService.findAll(userId, status);
+    return this.fsService.list(userId, status);
   }
 
   @Post()
@@ -66,6 +66,4 @@ export class FriendsController {
     }
     return this.fsService.create(body.userId, body.friendId, body.status);
   }
-
-
 }
