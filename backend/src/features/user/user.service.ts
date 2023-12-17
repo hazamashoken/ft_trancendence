@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@entities/user.entity';
 import { FtUser } from '@backend/interfaces/ft-user.interface';
+import { TypeormUtil } from '@backend/utils/typeorm.util';
+import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
 
 @Injectable()
 export class UserService {
@@ -14,8 +16,10 @@ export class UserService {
     return this.userRepository;
   }
 
-  findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  findAll(option: TypeormQueryOption): Promise<User[]> {
+    const findOption = TypeormUtil.setFindOption(option);
+    console.log(findOption);
+    return this.userRepository.find({ ...findOption });
   }
 
   findOne(id: number) {
