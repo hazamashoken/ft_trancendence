@@ -14,10 +14,18 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateFriendDto } from './dto/create-friend.dto';
 import { FriendshipService } from './friendship.service';
 import { QueryOption } from '@backend/pipe/query-option.decorator';
+import { QueryOptionDto } from '@backend/dto/query-option.dto';
 
 @Controller('friendships')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -25,9 +33,11 @@ import { QueryOption } from '@backend/pipe/query-option.decorator';
 @ApiSecurity('x-api-key')
 @ApiTags('Friendship')
 export class FriendsController {
-  constructor(private readonly fsService: FriendshipService) { }
+  constructor(private readonly fsService: FriendshipService) {}
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get friendship record by id' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
   get(@Param('id') id) {
     return this.fsService.get(id).then(res => {
       if (!res) {
@@ -38,11 +48,17 @@ export class FriendsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete friendship record by id' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
   delete(@Param('id') id) {
     return this.fsService.delete(id);
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all friendship record with query filter' })
+  @ApiQuery({ name: 'userId', type: Number, required: false })
+  @ApiQuery({ name: 'status', enum: ['REQUESTED', 'ACCEPTED'], required: false}) // eslint-disable-line prettier/prettier
+  @ApiQuery({ name: 'option', type: QueryOptionDto, required: false })
   list(
     @Query('userId') userId,
     @Query('status') status,
@@ -52,6 +68,7 @@ export class FriendsController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create friendship relation with status `REQUESTED` or `ACCEPTED`' }) // eslint-disable-line prettier/prettier
   create(
     @AuthUser() authUser: AuthUserInterface,
     @Body() body: CreateFriendDto,

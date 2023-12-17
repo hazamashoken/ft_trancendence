@@ -16,6 +16,7 @@ import {
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
@@ -23,6 +24,7 @@ import { SaveFriendshipDto } from './dto/save-friendship.dto';
 import { FriendshipService } from './friendship.service';
 import { FriendshipStatus } from '@backend/typeorm/friendship.entity';
 import { QueryOption } from '@backend/pipe/query-option.decorator';
+import { QueryOptionDto } from '@backend/dto/query-option.dto';
 
 @Controller('me/friends')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -34,6 +36,8 @@ export class FriendsController {
 
   @Get()
   @ApiOperation({ summary: 'list all friend request by user auth' })
+  @ApiQuery({ name: 'status', enum: ['REQUESTED', 'ACCEPTED'], required: false}) // eslint-disable-line prettier/prettier
+  @ApiQuery({ name: 'option', type: QueryOptionDto, required: false })
   list(
     @AuthUser() authUser: AuthUserInterface,
     @Query('status') status: FriendshipStatus,
