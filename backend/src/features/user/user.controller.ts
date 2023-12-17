@@ -25,12 +25,14 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { FtService } from '@backend/shared/ft.service';
 import { lastValueFrom } from 'rxjs';
 import { QueryOption } from '@backend/pipe/query-option.decorator';
+import { QueryOptionDto } from '@backend/dto/query-option.dto';
 
 @Controller('users')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -45,6 +47,7 @@ export class UserController {
 
   @Get()
   @ApiOperation({ summary: 'List all user' })
+  @ApiQuery({ name: 'option', type: QueryOptionDto, required: false })
   findAll(@QueryOption() option): Promise<User[]> {
     return this.userService.findAll(option);
   }
