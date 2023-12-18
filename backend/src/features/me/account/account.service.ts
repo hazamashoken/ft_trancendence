@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@entities/user.entity';
 import { FtUser } from '@backend/interfaces/ft-user.interface';
-import * as fs from 'fs'
+import * as fs from 'fs';
+
 @Injectable()
 export class AccountService {
   constructor(
@@ -13,12 +14,8 @@ export class AccountService {
   avatarValid = {
     // size less than 2MB
     size: 2 * 1024 * 1024,
-    types: [
-      'image/jpeg',
-      'image/png',
-      'image/webp'
-    ]
-  }
+    types: ['image/jpeg', 'image/png', 'image/webp'],
+  };
 
   get(id: number) {
     return this.userRepository.findOneBy({ id });
@@ -57,12 +54,15 @@ export class AccountService {
     }
     fs.writeFileSync(`${path}/${filename}`, Buffer.from(file.buffer))
     const imageUrl = `${process.env.NESTJS_URL}:${process.env.NESTJS_PORT}/${path}/${filename}`;
-    return this.userRepository.update({ id }, { imageUrl })
+    return this.userRepository
+      .update({ id }, { imageUrl })
       .then(() => this.userRepository.findOneBy({ id }));
   }
 
   validateAvatar(file: Express.Multer.File) {
     const { size, types } = this.avatarValid;
-    return file.size <= size || types.findIndex(t => t === file.mimetype) > -1;
+    return (
+      file.size <= size || types.findIndex((t) => t === file.mimetype) > -1
+    );
   }
 }
