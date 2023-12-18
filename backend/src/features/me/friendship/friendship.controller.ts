@@ -10,6 +10,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -60,12 +61,21 @@ export class FriendsController {
     return this.fsService.request(authUser.user.id, body.userId);
   }
 
-  @Post('accept')
+  @Put('accept')
   @ApiOperation({ summary: 'accept friend request from other user' })
   accept(
     @AuthUser() authUser: AuthUserInterface,
     @Body() body: SaveFriendshipDto,
   ) {
     return this.fsService.accept(authUser.user.id, body.userId);
+  }
+
+  @Delete('remove')
+  @ApiOperation({ summary: 'accept friend request from other user' })
+  remove(
+    @AuthUser() authUser: AuthUserInterface,
+    @Body() body: SaveFriendshipDto,
+  ) {
+    return this.fsService.remove(authUser.user.id, body.userId);
   }
 }

@@ -1,5 +1,3 @@
-import { Friendship } from '@entities/friendship.entity'
-
 const friendshipSeed: any[] = [
   {
     id: 1,
@@ -13,12 +11,12 @@ const friendshipSeed: any[] = [
   },
   {
     id: 2,
-    status: 'REQUESTED',
+    status: 'ACCEPTED',
     user: {
-      id: 1
+      id: 2
     },
     friend: {
-      id: 3
+      id: 1
     },
   },
   {
@@ -33,7 +31,37 @@ const friendshipSeed: any[] = [
   },
   {
     id: 4,
+    status: 'ACCEPTED',
+    user: {
+      id: 5
+    },
+    friend: {
+      id: 1
+    },
+  },
+  {
+    id: 5,
     status: 'REQUESTED',
+    user: {
+      id: 1
+    },
+    friend: {
+      id: 9
+    },
+  },
+  {
+    id: 6,
+    status: 'WAITING',
+    user: {
+      id: 9
+    },
+    friend: {
+      id: 1
+    },
+  },
+  {
+    id: 5,
+    status: 'WAITING',
     user: {
       id: 1
     },
@@ -42,13 +70,13 @@ const friendshipSeed: any[] = [
     },
   },
   {
-    id: 5,
-    status: 'ACCEPTED',
+    id: 6,
+    status: 'REQUESTED',
     user: {
-      id: 1
+      id: 7
     },
     friend: {
-      id: 9
+      id: 1
     },
   },
 ];

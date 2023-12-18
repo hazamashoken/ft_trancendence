@@ -49,7 +49,7 @@ export class FriendshipService {
       }
       if (freindship.status !== 'WAITING') {
         throw new BadRequestException(
-          'User can accept friend only wating status',
+          'User can accept friend only waiting status',
         );
       }
       return Promise.all([
@@ -60,6 +60,9 @@ export class FriendshipService {
   }
 
   remove(userId: number, friendId: number) {
-    return this.fsService.remove(userId, friendId);
+    return Promise.all([
+      this.fsService.remove(userId, friendId),
+      this.fsService.remove(friendId, userId),
+    ]);
   }
 }
