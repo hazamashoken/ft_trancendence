@@ -5,4 +5,5 @@ export interface AuthUser {
   ft: FtUser;
   user: User;
   accessToken: string;
+  expiredTokenTimestamp: number;
 }

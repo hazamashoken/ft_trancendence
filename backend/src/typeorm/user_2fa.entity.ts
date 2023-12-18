@@ -13,7 +13,7 @@ export class User2fa {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, user => user.id)
   user: User;
 
   @Column({ type: 'enum', enum: ['MOBILE', 'ANY'], default: 'ANY' })

@@ -1,3 +1,4 @@
+import { AuthUser } from '@backend/interfaces/auth-user.interface';
 import { FtService } from '@backend/shared/ft.service';
 import { User } from '@backend/typeorm';
 import {
@@ -25,18 +26,28 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('jwt malformed');
     }
     const accessToken = auth.substring('Bearer '.length);
+    let authUser: AuthUser;
     return this.ftService.oauthTokenInfo(accessToken).pipe(
-      switchMap(() => this.ftService.me(accessToken)),
-      switchMap((ft) => {
-        request.authUser = { ft };
+      switchMap(tokenInfo => {
+        authUser = {
+          accessToken,
+          expiredTokenTimestamp: Date.now() + tokenInfo.expires_in_seconds * 1000,
+          ft: undefined,
+          user: undefined,
+        };
+        return this.ftService.me(accessToken);
+      }),
+      switchMap(ft => {
+        authUser.ft = ft;
         const userRepo = this.dataSource.getRepository(User);
         return userRepo.findOneBy({ intraId: ft.id });
       }),
-      map((user) => {
-        request.authUser = { ...request.authUser, user, accessToken };
+      map(user => {
+        authUser.user = user;
+        request.authUser = authUser;
         return true;
       }),
-      catchError((e) => {
+      catchError(e => {
         throw new UnauthorizedException(e.message);
       }),
     );
