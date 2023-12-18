@@ -30,7 +30,7 @@ export class Friendship {
 
   @Column({
     type: 'enum',
-    enum: ['REQUESTED', 'ACCEPTED'],
+    enum: ['REQUESTED', 'WAITING', 'ACCEPTED'],
     default: 'REQUESTED',
   })
   status: FriendshipStatus;
@@ -42,4 +42,4 @@ export class Friendship {
   updatedAt: Date;
 }
 
-export type FriendshipStatus = 'REQUESTED' | 'ACCEPTED';
+export type FriendshipStatus = 'REQUESTED' | 'WAITING' | 'ACCEPTED';

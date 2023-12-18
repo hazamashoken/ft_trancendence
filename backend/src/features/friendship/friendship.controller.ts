@@ -57,7 +57,7 @@ export class FriendsController {
   @Get()
   @ApiOperation({ summary: 'List all friendship record with query filter' })
   @ApiQuery({ name: 'userId', type: Number, required: false })
-  @ApiQuery({ name: 'status', enum: ['REQUESTED', 'ACCEPTED'], required: false}) // eslint-disable-line prettier/prettier
+  @ApiQuery({ name: 'status', enum: ['REQUESTED', 'WAITING', 'ACCEPTED'], required: false}) // eslint-disable-line prettier/prettier
   @ApiQuery({ name: 'option', type: QueryOptionDto, required: false })
   list(
     @Query('userId') userId,

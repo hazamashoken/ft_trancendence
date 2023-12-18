@@ -12,7 +12,7 @@ export class CreateFriendDto {
   @ApiProperty({ example: '1' })
   userId: number;
 
-  @IsIn(['REQUESTED', 'ACCEPTED'])
+  @IsIn(['REQUESTED', 'WAITING', 'ACCEPTED'])
   @ApiProperty({ example: 'REQUESTED' })
   status: FriendshipStatus;
 }

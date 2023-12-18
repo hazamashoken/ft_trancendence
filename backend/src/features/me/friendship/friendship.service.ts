@@ -35,7 +35,10 @@ export class FriendshipService {
       } else if (freindship.status === 'ACCEPTED') {
         throw new BadRequestException('User has been friend');
       }
-      return this.fsService.create(userId, friendId, 'REQUESTED');
+      return Promise.all([
+        this.fsService.create(userId, friendId, 'REQUESTED'),
+        this.fsService.create(friendId, userId, 'WAITING'),
+      ]).then(res => res[0]);
     });
   }
 
@@ -43,10 +46,16 @@ export class FriendshipService {
     return this.fsService.getFriend(userId, friendId).then(freindship => {
       if (!freindship) {
         throw new BadRequestException('User has not relation');
-      } else if (freindship.status === 'ACCEPTED') {
-        throw new BadRequestException('User has been friend');
       }
-      return this.fsService.create(userId, friendId, 'ACCEPTED');
+      if (freindship.status !== 'WAITING') {
+        throw new BadRequestException(
+          'User can accept friend only wating status',
+        );
+      }
+      return Promise.all([
+        this.fsService.create(userId, friendId, 'ACCEPTED'),
+        this.fsService.create(friendId, userId, 'ACCEPTED'),
+      ]).then(res => res[0]);
     });
   }
 

@@ -36,7 +36,7 @@ export class FriendsController {
 
   @Get()
   @ApiOperation({ summary: 'list all friend request by user auth' })
-  @ApiQuery({ name: 'status', enum: ['REQUESTED', 'ACCEPTED'], required: false}) // eslint-disable-line prettier/prettier
+  @ApiQuery({ name: 'status', enum: ['REQUESTED', 'WAITING', 'ACCEPTED'], required: false}) // eslint-disable-line prettier/prettier
   @ApiQuery({ name: 'option', type: QueryOptionDto, required: false })
   list(
     @AuthUser() authUser: AuthUserInterface,
@@ -45,7 +45,7 @@ export class FriendsController {
   ) {
     if (status && !FriendshipService.isValidStatus(status)) {
       throw new BadRequestException(
-        'Friend status is not valid, REQUESTED or  ACCPETED',
+        'Friend status is not valid, REQUESTED or WATING or ACCPETED',
       );
     }
     return this.fsService.list(authUser.user.id, status, option);

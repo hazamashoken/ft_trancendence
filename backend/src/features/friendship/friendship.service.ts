@@ -22,7 +22,9 @@ export class FriendshipService {
   ) {}
 
   static isValidStatus(status: string) {
-    return status === 'REQUESTED' || status === 'ACCEPTED';
+    return (
+      status === 'REQUESTED' || status === 'WAITING' || status === 'ACCEPTED'
+    );
   }
 
   get(id: number) {

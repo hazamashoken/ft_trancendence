@@ -1,7 +1,7 @@
-import { IsNumberString } from 'class-validator';
+import { IsNumber } from 'class-validator';
 
 // Detect only forbidden field
 export class SaveFriendshipDto {
-  @IsNumberString()
+  @IsNumber()
   userId: number;
 }
