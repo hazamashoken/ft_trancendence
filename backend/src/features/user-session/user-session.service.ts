@@ -28,4 +28,8 @@ export class UserSessionService {
     session.expiredTokenTimestamp = authUser.expiredTokenTimestamp;
     return this.usRepository.save(session);
   }
+
+  getSessionByToken(accessToken: string) {
+    return this.usRepository.findBy({ accessToken });
+  }
 }

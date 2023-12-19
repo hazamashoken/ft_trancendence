@@ -1,7 +1,9 @@
+import { FtUser } from '@backend/interfaces/ft-user.interface';
 import {
   Entity,
   PrimaryColumn,
   Column,
+  Index,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -21,10 +23,14 @@ export class UserSession {
   status: UserSessionStatusType;
 
   @Column({ name: 'access_token', nullable: true })
+  @Index()
   accessToken: string;
 
   @Column({ name: 'expired_token_timestamp', type: 'bigint', nullable: true })
   expiredTokenTimestamp: number;
+
+  @Column({ type: 'simple-json', name: 'ft_user', nullable: true })
+  ftUser: FtUser;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
