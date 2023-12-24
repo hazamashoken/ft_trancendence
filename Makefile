@@ -18,6 +18,17 @@ dev-backend:
 		--volume $(PWD)/backend:/usr/src/app \
 		backend
 
+dev-frontend:
+	npm install --prefix frontend/app
+	docker compose run \
+		--detach \
+		--rm \
+		--build \
+		--name nextjs \
+		--publish 8080:8080 \
+		--volume $(PWD)/frontend/app:/usr/src/app \
+		frontend
+
 backend-start-dev:
 	docker exec -ti nestjs npm run start:dev
 

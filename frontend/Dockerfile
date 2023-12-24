@@ -1,12 +1,11 @@
 # Base image
-FROM node:18-alpine as development
+FROM node:18 as development
 
 # Create app directory
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
 COPY ./app/package.json ./app/package-lock.json ./
-
 
 # Install app dependencies
 RUN npm install --only=development
@@ -15,11 +14,9 @@ RUN npm install --only=development
 COPY ./app .
 
 # Creates a ".next" folder with the production build
-RUN npm install socket.io-client
-
 RUN npm run build
 
-FROM node:18-alpine as production
+FROM node:18 as production
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
@@ -35,4 +32,4 @@ ENV NODE_ENV=production
 
 EXPOSE 8080
 
-ENTRYPOINT ["npm", "start"]
+CMD ["npm", "run", "start"]

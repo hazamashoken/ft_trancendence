@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   frontend:
+    container_name: nextjs
     build:
       context: frontend
       target: development
