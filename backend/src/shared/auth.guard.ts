@@ -83,9 +83,9 @@ export class AuthGuard implements CanActivate {
         return this.userRepo.findOneBy({ intraId: ft.id });
       }),
       switchMap(user => {
-        userSession.userId = user.id;
+        userSession.id = user.id;
         userSession.status = 'OFFLINE';
-        return this.usRepo.findOneBy({ userId: user.id });
+        return this.usRepo.findOneBy({ id: user.id });
       }),
       // Retrieve existed session and update only token and ftUser
       switchMap(session => {

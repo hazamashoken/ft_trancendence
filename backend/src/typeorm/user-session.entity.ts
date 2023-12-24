@@ -4,16 +4,23 @@ import {
   PrimaryColumn,
   Column,
   Index,
+  OneToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { User } from './user.entity';
 
 export type UserSessionStatusType = 'ONLINE' | 'IN_GAME' | 'OFFLINE';
 
 @Entity({ name: 'user_session' })
 export class UserSession {
-  @PrimaryColumn({ name: 'user_id' })
-  userId: number;
+  @PrimaryColumn()
+  id: number;
+
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'id' })
+  user: User;
 
   @Column({
     type: 'enum',

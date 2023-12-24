@@ -4,7 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@entities/user.entity';
 import { FtUser } from '@backend/interfaces/ft-user.interface';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
-import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
+import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 
 @Injectable()
 export class UserService {

@@ -5,11 +5,16 @@ import { UserSessionController } from './user-session.controller';
 import { UserSessionService } from './user-session.service';
 import { UserSession } from '@backend/typeorm/user-session.entity';
 import { User } from '@backend/typeorm/user.entity';
+import { UserSessionSubscriber } from './user-session.subscriber';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserSession]), SharedModule],
   controllers: [UserSessionController],
-  providers: [UserSessionService],
-  exports: [UserSessionService, TypeOrmModule.forFeature([User, UserSession])],
+  providers: [UserSessionService, UserSessionSubscriber],
+  exports: [
+    UserSessionService,
+    UserSessionSubscriber,
+    TypeOrmModule.forFeature([User, UserSession]),
+  ],
 })
 export class UserSessionModule {}

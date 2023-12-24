@@ -1,4 +1,4 @@
-import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
+import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 
 export class TypeormUtil {
   static setFindOption(options: TypeormQueryOption) {

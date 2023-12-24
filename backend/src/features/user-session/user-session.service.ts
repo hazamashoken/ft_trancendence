@@ -6,8 +6,9 @@ import {
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthUser } from '@backend/interfaces/auth-user.interface';
-import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
+import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
+import { BehaviorSubject, from } from 'rxjs';
 
 @Injectable()
 export class UserSessionService {
@@ -19,21 +20,26 @@ export class UserSessionService {
   list(option?: TypeormQueryOption) {
     const findOption = TypeormUtil.setFindOption(option);
     return this.usRepository.find({
+      relations: {
+        user: true,
+      },
       ...findOption,
+      order: {
+        status: 'ASC',
+      },
     });
   }
 
   get(userId: number) {
-    return this.usRepository.findOneBy({ userId });
+    return this.usRepository.findOneBy({ id: userId });
   }
 
   create(authUser: AuthUser, data: any) {
     const session = new UserSession();
-    const status = data.status ?? 'OFFLINE';
-    session.status = status;
-    session.userId = authUser.user.id;
-    session.accessToken = authUser.accessToken;
-    session.expiredTokenTimestamp = authUser.expiredTokenTimestamp;
+    session.id = data.id ?? authUser.user.id;
+    session.status = data.status ?? 'OFFLINE';
+    // session.accessToken = authUser.accessToken;
+    // session.expiredTokenTimestamp = authUser.expiredTokenTimestamp;
     return this.usRepository.save(session);
   }
 

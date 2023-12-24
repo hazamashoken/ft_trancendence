@@ -10,10 +10,6 @@ export class UpdateUserSessionDto {
 
   @IsEmpty()
   @ApiProperty({ description: 'Not allow to update in api' })
-  userId?: string;
-
-  @IsEmpty()
-  @ApiProperty({ description: 'Not allow to update in api' })
   accessToken?: string;
 
   @IsEmpty()
