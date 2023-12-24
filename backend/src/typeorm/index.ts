@@ -3,6 +3,7 @@ import { ChannelsEntity } from './channel.entity';
 import { Friendship } from './friendship.entity';
 import { MessagesEntity } from './messages.entity';
 import { MutedEntity } from './muted.entity';
+import { UserSession } from './user-session.entity';
 import { User } from './user.entity';
 import { User2fa } from './user_2fa.entity';
 
@@ -14,6 +15,7 @@ const entities = [
   BannedEntity,
   MessagesEntity,
   MutedEntity,
+  UserSession,
 ];
 
 export {
@@ -24,5 +26,6 @@ export {
   BannedEntity,
   MessagesEntity,
   MutedEntity,
+  UserSession,
 };
 export default entities;

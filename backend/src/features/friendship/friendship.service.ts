@@ -12,7 +12,7 @@ import {
 import { User } from '@backend/typeorm';
 import { ResponseUtil } from '@backend/utils/response.util';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
-import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
+import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 
 @Injectable()
 export class FriendshipService {
