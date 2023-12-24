@@ -38,6 +38,7 @@ export class SessionController {
   }
 
   @Post('status')
+  @ApiOperation({ summary: 'Update my user status' })
   updateStatus(
     @AuthUser() authUser: AuthUserInterface,
     @Body() body: UpdateUserSessionDto,

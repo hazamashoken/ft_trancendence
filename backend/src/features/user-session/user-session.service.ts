@@ -6,6 +6,8 @@ import {
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthUser } from '@backend/interfaces/auth-user.interface';
+import { TypeormQueryOption } from '@backend/interfaces/qeury-option.interface';
+import { TypeormUtil } from '@backend/utils/typeorm.util';
 
 @Injectable()
 export class UserSessionService {
@@ -14,8 +16,11 @@ export class UserSessionService {
     private usRepository: Repository<UserSession>,
   ) {}
 
-  list() {
-    return this.usRepository.find();
+  list(option?: TypeormQueryOption) {
+    const findOption = TypeormUtil.setFindOption(option);
+    return this.usRepository.find({
+      ...findOption,
+    });
   }
 
   get(userId: number) {
