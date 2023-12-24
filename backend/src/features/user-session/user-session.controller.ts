@@ -5,6 +5,7 @@ import { Body, Controller, Get, NotFoundException, Param, Post, UseGuards } from
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UserSessionService } from './user-session.service';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
+import { UpdateUserSessionDto } from './dto/update-user-session.dto';
 
 @Controller('user-sessions')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -30,7 +31,10 @@ export class UserSessionController {
   }
 
   @Post()
-  save(@AuthUser() authUser: AuthUserInterface, @Body() body) {
+  save(
+    @AuthUser() authUser: AuthUserInterface,
+    @Body() body: UpdateUserSessionDto,
+  ) {
     return this.usService.create(authUser, body);
   }
 }

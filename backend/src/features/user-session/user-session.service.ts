@@ -33,7 +33,6 @@ export class UserSessionService {
   }
 
   updateStatus(authUser: AuthUser, status: UserSessionStatusType) {
-    // const session = await this.get(authUser.user.id);
     return this.get(authUser.user.id).then(session => {
       if (!session) {
         return this.create(authUser, { status });
@@ -56,5 +55,9 @@ export class UserSessionService {
 
   getSessionByToken(accessToken: string) {
     return this.usRepository.findBy({ accessToken });
+  }
+
+  static isValidUserStatus(status: UserSessionStatusType | string) {
+    return status === 'ONLINE' || status === 'OFFLINE' || status === 'IN_GAME';
   }
 }
