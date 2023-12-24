@@ -84,11 +84,21 @@ export class AuthGuard implements CanActivate {
       }),
       switchMap(user => {
         userSession.userId = user.id;
+        userSession.status = 'OFFLINE';
+        return this.usRepo.findOneBy({ userId: user.id });
+      }),
+      // Retrieve existed session and update only token and ftUser
+      switchMap(session => {
+        if (session) {
+          session.ftUser = userSession.ftUser;
+          session.accessToken = userSession.accessToken;
+          session.expiredTokenTimestamp = userSession.expiredTokenTimestamp;
+          userSession.status = session.status;
+          return this.usRepo.save(session);
+        }
         return this.usRepo.save(userSession);
       }),
-      map(res => {
-        return userSession;
-      }),
+      map(() => userSession),
     );
   }
 }

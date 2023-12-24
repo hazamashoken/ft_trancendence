@@ -1,5 +1,8 @@
 import { Repository } from 'typeorm';
-import { UserSession } from '@backend/typeorm/user-session.entity';
+import {
+  UserSession,
+  UserSessionStatusType,
+} from '@backend/typeorm/user-session.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthUser } from '@backend/interfaces/auth-user.interface';
@@ -27,6 +30,28 @@ export class UserSessionService {
     session.accessToken = authUser.accessToken;
     session.expiredTokenTimestamp = authUser.expiredTokenTimestamp;
     return this.usRepository.save(session);
+  }
+
+  updateStatus(authUser: AuthUser, status: UserSessionStatusType) {
+    // const session = await this.get(authUser.user.id);
+    return this.get(authUser.user.id).then(session => {
+      if (!session) {
+        return this.create(authUser, { status });
+      }
+      session.status = status;
+      return this.usRepository.save(session);
+    });
+  }
+
+  updateAccessToken(authUser: AuthUser) {
+    return this.get(authUser.user.id).then(session => {
+      if (!session) {
+        return this.create(authUser, { status });
+      }
+      session.accessToken = authUser.accessToken;
+      session.expiredTokenTimestamp = authUser.expiredTokenTimestamp;
+      return this.usRepository.save(session);
+    });
   }
 
   getSessionByToken(accessToken: string) {
