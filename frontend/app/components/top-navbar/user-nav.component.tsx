@@ -24,10 +24,12 @@ import ftLogo from "@/public/42_logo.svg"
 export function UserNav() {
   const { data, status } = useSession();
 
+  console.log(data);
+
   const isSignedIn = status === "authenticated";
-  const profile = data?.user?.profile;
+  const profile = data?.ftUser;
   const avatarLink = isSignedIn ? profile.image?.link : "";
-  const nameInitial = isSignedIn ? profile.login[0] + profile.login[1] : "TMP";
+  const nameInitial = isSignedIn ? profile.login : "TMP";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,10 +53,10 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {data?.user?.profile?.login}
+              {profile?.login}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {data?.user?.profile?.email}
+              {profile?.email}
             </p>
           </div>
         </DropdownMenuLabel>

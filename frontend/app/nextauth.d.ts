@@ -1,13 +1,10 @@
 import { DefaultSession } from "next-auth";
+import { User , FtUser } from './app/api/me/interfaces'
 
 declare module "next-auth" {
-
-    interface User {
-        profile?: any
-    }
-
     interface Session extends DefaultSession {
-        user?: User
+        ftUser?: FtUser;
+        user: User;
+        accessToken: string;
     }
-
 }
