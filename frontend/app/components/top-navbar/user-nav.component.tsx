@@ -19,18 +19,11 @@ import ftLogo from "@/public/42_logo.svg";
 import React from "react";
 
 export function UserNav(props: any) {
-  // const { data, status } = useSession();
   const { session } = props;
+
   const profile = session?.user?.profile;
-  // const [profile, setProfile] = React.useState<any>({});
-  // const [profile, setProfile] = React.useState<any>({});
-  // const isSignedIn = status === "authenticated";
-
-  // React.useEffect(() => {
-  //   setProfile(data?.user?.profile);
-  // }, [data]);
-
   const nameInitial = profile?.login[0] + profile?.login[1];
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
