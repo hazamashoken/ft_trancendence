@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
-import { PongServerToClientEvents, PongClientToServerEvents, GameState } from '../../../backend/src/interfaces/pong.interface';
-import { newGameState } from '../../../backend/src/pong/pong.gamestate';
+import { PongServerToClientEvents, PongClientToServerEvents, GameState } from '@/lib/pong.interface';
+import { newGameState } from '@/lib/pong.gamestate';
 
 const _socket: Socket<PongServerToClientEvents, PongClientToServerEvents> = io('http://localhost:3000');
 

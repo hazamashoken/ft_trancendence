@@ -1,4 +1,4 @@
-import { Pong } from '../../../backend/src/pong/pong.enum';
+import { Pong } from '@/lib/pong.enum';
 
 export class Starburst
 {

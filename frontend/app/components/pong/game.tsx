@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button'
 import { getSocket } from '@/lib/GameState';
-import { GameInstruction } from '../../../../backend/src/interfaces/pong.interface';
-import { Phase, Team, Keypress } from '../../../../backend/src/pong/pong.enum';
+import { GameInstruction } from '@/lib/pong.interface';
+import { Phase, Team, Keypress } from '@/lib/pong.enum';
 
 export default function Game(props: any) {
   const [phase, setPhase] = useState(props.team == Team.player1 || props.team == Team.player2 ? Phase.ready : Phase.waiting);
