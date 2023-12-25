@@ -14,10 +14,10 @@ export class User {
   @Column({ name: 'intra_id' })
   intraId: number;
 
-  @Column({ name: 'intra_login' })
+  @Column({ name: 'intra_login', nullable: true })
   intraLogin: string;
 
-  @Column({ name: 'intra_url' })
+  @Column({ name: 'intra_url'})
   intraUrl: string;
 
   @Column({ nullable: true })
@@ -29,10 +29,10 @@ export class User {
   @Column({ name: 'last_name' })
   lastName: string;
 
-  @Column({ name: 'display_name' })
+  @Column({ name: 'display_name'})
   displayName: string;
 
-  @Column({ name: 'image_url' })
+  @Column({ name: 'image_url'})
   imageUrl: string;
 
   @CreateDateColumn({ name: 'created_at' })

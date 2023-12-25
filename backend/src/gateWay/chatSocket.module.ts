@@ -6,9 +6,11 @@ import { ChannelsModule } from '@backend/channels/channels.module';
 import { BannedModule } from '@backend/banned/banned.module';
 import { MutedModule } from '@backend/muted/muted.module';
 import { MessgesModule } from '@backend/messages/messages.module';
+import { SharedModule } from '@backend/shared/shared.module';
 
 @Module({
-  providers: [SocketGateway, SocketService],
-  imports: [ChannelsModule, BannedModule, MutedModule, MessgesModule]
+  providers: [SocketGateway, SocketService, ChannelsModule],
+  imports: [ChannelsModule, BannedModule, MutedModule, MessgesModule, SharedModule],
+  exports: [SocketGateway]
 })
 export class ChatSocketModule {}
