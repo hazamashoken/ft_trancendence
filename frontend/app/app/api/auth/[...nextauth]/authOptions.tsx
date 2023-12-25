@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from 'next-auth'
 import FortyTwoProvider from "next-auth/providers/42-school";
 import _ from 'lodash';
+import { MeApi } from '../../me/meApi';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -11,15 +12,12 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async redirect({url, baseUrl}: {url: string, baseUrl: string}) {
-      console.log('redirect');
-      return baseUrl;
+      // console.log('redirect');
+      return baseUrl + '/sign-in';
     },
     // returns token object to be consumed by session()
     async jwt({ token, user, account, profile }: { token: any, user: any, account: any, profile?: any }) {
       // console.log('JWT:', token);
-      // console.log('user:', user);
-      // console.log('account:', account);
-      // console.log('profile:', profile);
       if (account && user) {
         return {
           ...token,
@@ -32,11 +30,12 @@ export const authOptions: NextAuthOptions = {
     },
     // consumes token object; returns session object
     async session({ session, token }: { session: any, token: any }) {
-      console.log('Session');
+      const meApi = new MeApi(token.accessToken);
+      const user = await meApi.getAccount();
       session.accessToken = token.accessToken;
       session.ftUser = token.ftUser;
-      session.user = {};
-      console.log(session);
+      session.user = user;
+      // console.log('Session:', session);
       return session;
     },
   }
