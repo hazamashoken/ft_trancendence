@@ -1,6 +1,6 @@
-import { Phase, Pong } from '../../../backend/src/pong/pong.enum';
-import { GameState } from '../../../backend/src/interfaces/pong.interface';
-import { collision } from '../../../backend/src/pong/pong.collision';
+import { Phase, Pong } from '@/lib/pong.enum';
+import { GameState } from '@/lib/pong.interface';
+import { collision } from '@/lib/pong.collision';
 import { Starburst } from '@/lib/Starburst';
 
 let _starburst: Starburst = new Starburst(0, 0.5, 50);
