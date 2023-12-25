@@ -28,7 +28,7 @@ export default async function ChatPage({
   const channelMessageData = await channelMessageRes.json();
   return (
     <>
-      <ListChannel data={channelListData} />
+      {/* <ListChannel data={channelListData} /> */}
       <MessageArea chatId={chatId} />
       {/* <UserArea /> */}
     </>

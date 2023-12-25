@@ -16,41 +16,37 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut, signIn, useSession } from "next-auth/react";
 import ftLogo from "@/public/42_logo.svg";
+import React from "react";
 
-export function UserNav() {
-  const { data, status } = useSession();
+export function UserNav(props: any) {
+  // const { data, status } = useSession();
+  const { session } = props;
+  const profile = session?.user?.profile;
+  // const [profile, setProfile] = React.useState<any>({});
+  // const [profile, setProfile] = React.useState<any>({});
+  // const isSignedIn = status === "authenticated";
 
-  const isSignedIn = status === "authenticated";
-  const profile = data?.user?.profile;
-  const avatarLink = isSignedIn ? profile.image?.link : "";
-  const nameInitial = isSignedIn ? profile.login[0] + profile.login[1] : "TMP";
+  // React.useEffect(() => {
+  //   setProfile(data?.user?.profile);
+  // }, [data]);
+
+  const nameInitial = profile?.login[0] + profile?.login[1];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative w-8 h-8 rounded-full">
           <Avatar className="w-8 h-8">
-            {isSignedIn ? (
-              <>
-                <AvatarImage src={avatarLink} alt="@shadcn" />
-                <AvatarFallback>{nameInitial}</AvatarFallback>
-              </>
-            ) : (
-              <>
-                <AvatarImage src={ftLogo} alt="42 logo" />
-                <AvatarFallback>42</AvatarFallback>
-              </>
-            )}
+            <AvatarImage src={profile?.image?.link ?? ftLogo} alt="@shadcn" />
+            <AvatarFallback>{nameInitial}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {data?.user?.profile?.login}
-            </p>
+            <p className="text-sm font-medium leading-none">{profile?.login}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {data?.user?.profile?.email}
+              {profile?.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -72,7 +68,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        {isSignedIn ? (
+        {session ? (
           <DropdownMenuItem
             onClick={() => {
               signOut();

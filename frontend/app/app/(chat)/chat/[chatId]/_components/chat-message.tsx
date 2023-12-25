@@ -62,7 +62,7 @@ export const ChatMessages = ({
 
   const { isConnected } = useSocket();
 
-  const { data } = useQuery({
+  const { data, status } = useQuery({
     queryKey: [queryKey],
     enabled: isConnected,
     queryFn: () =>
@@ -132,7 +132,8 @@ export const ChatMessages = ({
             content={message.message}
             fileUrl={message.fileUrl}
             deleted={message.deleted}
-            timestamp={format(new Date(message.createAt), DATE_FORMAT)}
+            // add message.createAt later
+            timestamp={format(new Date(), DATE_FORMAT)}
             isUpdated={message.updatedAt}
             socketUrl={socketUrl}
             socketQuery={socketQuery}

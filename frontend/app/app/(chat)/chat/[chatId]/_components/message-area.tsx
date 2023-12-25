@@ -1,3 +1,4 @@
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-message";
@@ -11,7 +12,7 @@ const getChannel = async (chatId: string = "1") => {
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch");
+    throw new Error(`Failed to fetch ${res.url}`);
   }
 
   const data = await res.json();
@@ -30,21 +31,23 @@ export async function MessageArea(props: { chatId: string }) {
   };
 
   return (
-    <>
+    <div className="">
       <ChatHeader name={channel.name} type="channel" />
-      <ChatMessages
-        member={[]}
-        name={channel.name}
-        chatId={channel.id}
-        type="channel"
-        apiUrl={`${process.env.BACKEND_URL}/channels/${chatId}/messages`}
-        socketUrl="/api/socket/messages"
-        socketQuery={{
-          channelId: channel.id,
-        }}
-        paramKey="channelId"
-        paramValue={channel.id}
-      />
+      <ScrollArea className="h-[750px]">
+        <ChatMessages
+          member={[]}
+          name={channel.name}
+          chatId={channel.id}
+          type="channel"
+          apiUrl={`${process.env.BACKEND_URL}/channels/${chatId}/messages`}
+          socketUrl="/api/socket/messages"
+          socketQuery={{
+            channelId: channel.id,
+          }}
+          paramKey="channelId"
+          paramValue={channel.id}
+        />
+      </ScrollArea>
       <ChatInput
         name={channel.name}
         type="channel"
@@ -54,6 +57,6 @@ export async function MessageArea(props: { chatId: string }) {
         }}
         chatId={data?.chatId}
       />
-    </>
+    </div>
   );
 }

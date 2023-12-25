@@ -1,20 +1,15 @@
-"use client";
-import { usePathname } from "next/navigation";
 import { TopNavBar } from "@/components/top-navbar";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/authOptions";
 
-export function Protected({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const excludedRoutes = ["/sign-in", "/forget-password", "/change-password"];
+export async function Protected({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
   return (
     <>
-      {!excludedRoutes.includes(pathname) ? (
-        <>
-          <TopNavBar />
-          {children}
-        </>
-      ) : (
-        <>{children}</>
-      )}
+      <div className="h-screen">
+        {session && <TopNavBar />}
+        {children}
+      </div>
     </>
   );
 }
