@@ -24,6 +24,7 @@ import { ReturnMessageDto } from '@backend/messages/dto/return-message.dto';
 import { MessagesService } from '@backend/messages/messages.service';
 import { MutedService } from '../muted/muted.service';
 import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class ChannelsService {
@@ -101,12 +102,14 @@ export class ChannelsService {
       throw new ForbiddenException('Chanel with this name already exist');
     }
 
+    const salt = await bcrypt.genSalt();
+
     const newChannel = new ChannelsEntity();
     newChannel.chatUsers = [];
     newChannel.chatUsers.push(owner);
     newChannel.chatName = dto.chatName;
     newChannel.chatOwner = owner;
-    newChannel.password = dto.password || null;
+    newChannel.password = dto.password ? null : await bcrypt.hash(dto.password, salt);
     newChannel.maxUsers = dto.maxUsers || null;
     newChannel.chatType = dto.chatType;
 
@@ -433,7 +436,7 @@ export class ChannelsService {
     return await this.mutedService.updateMuted(muteId, muteDate, chatId);
   }
 
-  async joinChannel(channelId: number, userId: number): Promise<ChatUserDto[]> {
+  async joinChannel(channelId: number, userId: number, password?:string): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: channelId },
       relations: ['activeUsers', 'bannedUsers'],
@@ -458,6 +461,15 @@ export class ChannelsService {
     }
     chat.activeUsers.push(existingUser);
 
+    if(chat.password != null)
+    {
+      if (!await bcrypt.compare(password, chat.password))
+        throw new ForbiddenException('Password is wrong!!')
+    }
+    if(chat.chatType != 'public' && chat.chatUsers.some(user => user.id === userId))
+    {
+      throw new ForbiddenException('U are not in this chat')
+    }
     await this.channelsRepository.save(chat);
     return await this.getActiveUsers(channelId);
   }

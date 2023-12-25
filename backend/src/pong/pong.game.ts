@@ -33,25 +33,30 @@ export class PongGame
 
   public deleteUser(id: string)
   {
-    // get the room of the user
-    let room: string = this._users.get(id).room;
-    // delete the user
-    this._users.delete(id);
-    // delete the room if it is empty
-    for (let user of this._users.values())
+    if (this._users.has(id))
     {
-      if (user.room == room)
-        return;
+      // get the room of the user
+      let room: string = this._users.get(id).room;
+      // delete the user
+      this._users.delete(id);
+      // delete the room if it is empty
+      for (let user of this._users.values())
+      {
+        if (user.room == room)
+          return;
+      }
+      this._states.delete(room);
     }
-    this._states.delete(room);
   }
 
   public moveUser(id: string, room: string, team: string = Team.viewer)
   {
-    let name: string = this._users.get(id).name;
-
-    this.deleteUser(id);
-    this.addUser(this._server, id, name, room, team);
+    if (this._users.has(id))
+    {
+      let name: string = this._users.get(id).name;
+      this.deleteUser(id);
+      this.addUser(this._server, id, name, room, team);
+    }
   }
 
   public empty()

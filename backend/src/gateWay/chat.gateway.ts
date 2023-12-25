@@ -2,10 +2,11 @@ import { WebSocketGateway, OnGatewayConnection, WebSocketServer, SubscribeMessag
 import { Socket } from 'socket.io';
 import { SocketService } from './chatSocket.service';
 import { ChannelsEntity } from '@backend/typeorm';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Inject, Logger, forwardRef } from '@nestjs/common';
 import { ChannelCreatedTO } from '@backend/channels/dto/create-channel.dto';
 import { UpdateMessageDto } from '@backend/messages/dto/update-message.dto';
 import { CreateMuteDto } from '@backend/muted/dto/create-muted.dto';
+import * as bcrypt from 'bcrypt'
 
 @WebSocketGateway({
 	cors: {
@@ -16,7 +17,10 @@ export class SocketGateway implements OnGatewayConnection {
   @WebSocketServer()
   private server: Socket;
 
-  constructor(private readonly socketService: SocketService) {}
+  constructor(
+    @Inject(forwardRef(() => SocketService))
+    private socketService: SocketService
+    ) {}
 
   /**
    * Обрабатывает подключение нового клиента к WebSocket серверу и возвращает его идентификатор.
@@ -41,7 +45,7 @@ export class SocketGateway implements OnGatewayConnection {
   /**
    * Получает и отправляет список приватных чатов пользователя.
    * Retrieves and sends a list of a user's private chats.
-   */
+  */
   @SubscribeMessage('findUserPrivateChats')
   async handleFindUserPrivateChats(client: Socket, userId: number): Promise<any> {
     try {
@@ -304,9 +308,11 @@ export class SocketGateway implements OnGatewayConnection {
   async handleCreateMessage(client: Socket, { chatId, dto }): Promise<any>{
     try {
       const newMessage = await this.socketService.createMessage(chatId, dto);
-      this.server.emit('createMessageResponse', newMessage);
+      // this.server.emit('createMessageResponse', newMessage);
+      client.to(chatId).emit('createMessage', newMessage);
+      Logger.log(newMessage)
       return { status: 'success', newMessage };
-    } catch (error) {
+    } catch (error) { 
       client.emit('errorResponse', { event: 'createMessage', error: error.message });
       return { status: error.response.status, message: error.response.message };
     }
@@ -470,5 +476,11 @@ export class SocketGateway implements OnGatewayConnection {
       client.emit('errorResponse', { event: 'createMessage', error: error.message });
       return { status: error.response.status, message: error.response.message };
     }
+  }
+
+
+  sendEvents(event: any): Promise<any> {
+    this.server.emit('event', event);
+    return event;
   }
 }

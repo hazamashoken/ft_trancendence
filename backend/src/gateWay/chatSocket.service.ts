@@ -12,17 +12,24 @@ import { MessagesService } from '@backend/messages/messages.service';
 import { CreateMuteDto } from '@backend/muted/dto/create-muted.dto';
 import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
 import { UpdateMuteDto } from '@backend/muted/dto/update-mute.dto';
+import { AuthGuard } from '@backend/shared/auth.guard';
+import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { ChannelsEntity } from '@backend/typeorm';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, UseGuards, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { SocketGateway } from './chat.gateway';
 
 @Injectable()
+@UseGuards(XKeyGuard, AuthGuard)
 export class SocketService {
+
   private readonly connectedClients: Map<string, Socket> = new Map();
   constructor(
     private channelsService: ChannelsService,
     private bannedService: BannedService,
-    private messageService: MessagesService
+    private messageService: MessagesService,
+    @Inject(forwardRef(() => SocketGateway))
+    private chatGateway: SocketGateway,
 ) {}
 
   handleConnection(socket: Socket): void {
@@ -165,5 +172,9 @@ export class SocketService {
 
   async getPassword(chatId: number): Promise<string> {
     return this.channelsService.getPassword(chatId);
+  }
+  
+  sendWebSocketMessage(event: any): void {
+    this.chatGateway.sendEvents(event);
   }
 }

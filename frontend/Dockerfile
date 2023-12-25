@@ -5,10 +5,10 @@ FROM node:18 as development
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
-COPY ./app/package.json ./app/package-lock.json ./
+COPY ./app/package.json ./
 
 # Install app dependencies
-RUN npm install --only=development
+RUN npm install
 
 # Copy the rest of the application to the working directory
 COPY ./app .
@@ -22,7 +22,7 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY --from=builder /app/package*.json ./
 
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 # Copy the rest of the application to the working directory
 COPY --from=builder /app/.next ./.next
