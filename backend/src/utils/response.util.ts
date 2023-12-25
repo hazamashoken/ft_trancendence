@@ -6,4 +6,8 @@ export class ResponseUtil {
       data,
     };
   }
+
+  static errorDatabase({ code, message, detail }: any) {
+    return { code, message, detail };
+  }
 }

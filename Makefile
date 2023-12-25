@@ -31,7 +31,7 @@ run-frontend:
 	docker compose up --build --detach frontend
 
 seed-database:
-	cd database && npm run start
+	cd database && npm install && npm run start
 
 re-backend: clean run-backend
 

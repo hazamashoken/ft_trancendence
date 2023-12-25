@@ -49,7 +49,7 @@ describe('UserController (e2e)', () => {
   describe('POST /users/', () => {
     const userRepository = appDataSource.manager.getRepository(User);
     const inputBody = {
-      intraId: 100,
+      intraId: 171793,
       intraLogin: 'tester',
       intraUrl: 'https://api.intra.42.fr/v2/users/tester',
       displayName: 'tester',
