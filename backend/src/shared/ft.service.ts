@@ -25,8 +25,8 @@ export class FtService {
       client_secret: this.configService.get('42_SECRET_ID'),
     };
     return this.httpService.post(uri, body).pipe(
-      map((res) => res.data),
-      catchError((e) => {
+      map(res => res.data),
+      catchError(e => {
         console.log(e);
         throw new HttpException(e.response.statusText, e.response.status);
       }),
@@ -42,10 +42,13 @@ export class FtService {
         },
       })
       .pipe(
-        map((res) => res.data),
-        catchError((e) => {
+        map(res => res.data),
+        catchError(e => {
           console.error(e.response.data);
-          throw new HttpException(e.response.data.error_description, e.response.status);
+          throw new HttpException(
+            e.response.data.error_description,
+            e.response.status,
+          );
         }),
       );
   }
@@ -59,8 +62,24 @@ export class FtService {
         },
       })
       .pipe(
-        map((res) => this.mapMeFields(res.data)),
-        catchError((e) => {
+        map(res => this.mapMeFields(res.data)),
+        catchError(e => {
+          throw new HttpException(e.response.statusText, e.response.status);
+        }),
+      );
+  }
+
+  user(token: string, id: number) {
+    const uri = `${FtService.baseUrl}/${FtService.version}/users/${id}`;
+    return this.httpService
+      .get(uri, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .pipe(
+        map(res => this.mapMeFields(res.data)),
+        catchError(e => {
           throw new HttpException(e.response.statusText, e.response.status);
         }),
       );
