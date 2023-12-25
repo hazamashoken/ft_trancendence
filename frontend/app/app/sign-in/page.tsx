@@ -28,7 +28,7 @@ export default async function Page() {
     if (session.user) {
       redirect("/profile");
     }
-    redirect("/");
+    redirect("/sign-up");
   }
   return (
     <>

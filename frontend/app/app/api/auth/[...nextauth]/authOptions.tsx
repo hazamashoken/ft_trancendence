@@ -21,6 +21,7 @@ export const authOptions: NextAuthOptions = {
       if (account && user) {
         return {
           ...token,
+          user: undefined,
           accessToken: account.access_token,
           account: account,
           ftUser: mapFtProfile(profile),
@@ -30,11 +31,12 @@ export const authOptions: NextAuthOptions = {
     },
     // consumes token object; returns session object
     async session({ session, token }: { session: any, token: any }) {
-      const meApi = new MeApi(token.accessToken);
-      const user = await meApi.getAccount();
+      const meApi = new MeApi({accessToken: token.accessToken, isClient: false});
+      const user = await meApi.getAccount().catch(e => undefined);
       session.accessToken = token.accessToken;
       session.ftUser = token.ftUser;
       session.user = user;
+      // session.user = user;
       // console.log('Session:', session);
       return session;
     },

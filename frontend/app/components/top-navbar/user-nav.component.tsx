@@ -24,7 +24,7 @@ import ftLogo from "@/public/42_logo.svg"
 export function UserNav() {
   const { data, status } = useSession();
 
-  console.log(data);
+  // console.log(data);
 
   const isSignedIn = status === "authenticated";
   const profile = data?.ftUser;
