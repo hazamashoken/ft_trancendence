@@ -2,6 +2,8 @@
 PWD := $(shell pwd)
 all: run-backend run-database run-frontend
 
+dev: dev-frontend dev-backend 
+
 run-backend:
 	docker compose up --build --detach backend
 
