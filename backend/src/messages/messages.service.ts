@@ -28,7 +28,7 @@ export class MessagesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
-  ) {}
+  ) { }
 
   async createMessage(
     channelId: number,
@@ -89,12 +89,13 @@ export class MessagesService {
         .padStart(2, '0')}.${message.createAt.getFullYear()}`,
       hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
       createAt: message.createAt,
+      updateAt: message.updateAt,
       updatedAtmy: message.updateAt
         ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
-            message.updateAt.getMonth() + 1
-          )
-            .toString()
-            .padStart(2, '0')}.${message.updateAt.getFullYear()}`
+          message.updateAt.getMonth() + 1
+        )
+          .toString()
+          .padStart(2, '0')}.${message.updateAt.getFullYear()}`
         : null,
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
