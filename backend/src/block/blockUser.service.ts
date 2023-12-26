@@ -15,6 +15,8 @@ export class BlockService{
       where: { blockedBy: {id: myId} },
       relations: ["bannedUser"],
     });
+    if (!blockedRelations)
+      return [];
     return blockedRelations.map(relation => relation.blockedUser);
   }
 
