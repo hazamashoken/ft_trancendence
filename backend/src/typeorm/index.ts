@@ -6,6 +6,7 @@ import { MutedEntity } from './muted.entity';
 import { UserSession } from './user-session.entity';
 import { User } from './user.entity';
 import { User2fa } from './user_2fa.entity';
+import { Match } from './match.entity';
 
 const entities = [
   User,
@@ -16,6 +17,7 @@ const entities = [
   MessagesEntity,
   MutedEntity,
   UserSession,
+  Match,
 ];
 
 export {
@@ -27,5 +29,6 @@ export {
   MessagesEntity,
   MutedEntity,
   UserSession,
+  Match,
 };
 export default entities;

@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import entities from './typeorm';
+import entities, { Match } from './typeorm';
 import { FeaturesModule } from './features/features.module';
 import { SharedModule } from './shared/shared.module';
 import { ChannelsModule } from './channels/channels.module';
@@ -13,6 +13,7 @@ import { MutedModule } from './muted/muted.module';
 import { ChatSocketModule } from './gateWay/chatSocket.module';
 import { PongModule } from './pong/pong.module';
 import { GatewayModule } from './gateWay/gateway.module';
+import { MatchsModule } from './matchs/matchs.module';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { GatewayModule } from './gateWay/gateway.module';
         username: configService.get('DB_USERNAME') ?? 'root',
         password: configService.get('DB_PASSWORD') ?? '424242',
         database: configService.get('DB_NAME') ?? 'ft_trancendence',
-        entities: entities,
+        entities: entities, Match,
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -43,6 +44,7 @@ import { GatewayModule } from './gateWay/gateway.module';
     ChatSocketModule,
     PongModule,
     GatewayModule,
+    MatchsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
