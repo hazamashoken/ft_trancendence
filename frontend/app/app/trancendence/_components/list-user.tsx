@@ -31,9 +31,22 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { IChatStore, useChatStore } from "@/store/chat";
+import { useState } from "react";
 
-export function ListUser(props: { data: any; chatId: string }) {
-  const { data, chatId } = props;
+export function ListUser(props: { data: any }) {
+  const [open, setOpen] = useState(false);
+  const [chatId] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+  ]);
+  const { data } = props;
   const form = useForm({
     defaultValues: {
       username: "",
@@ -43,12 +56,14 @@ export function ListUser(props: { data: any; chatId: string }) {
   const handleSubmit = async (value: any) => {
     console.log(value);
     const res = await addChannelUserAction(chatId, value.username);
-    console.log(res);
+    if (res) {
+      setOpen(false);
+    }
   };
 
   function createAbbreviation(sentence: string) {
     // Split the sentence into words
-    const words = sentence.split(" ");
+    const words = sentence.trim().split(" ");
 
     // Initialize an empty string to store the abbreviation
     let abbreviation = "";
@@ -63,9 +78,9 @@ export function ListUser(props: { data: any; chatId: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      <ScrollArea>
-        <div className="container flex flex-col px-0 space-y-4">
+    <div className="flex flex-col justify-between h-full p-2 pt-12 space-y-2">
+      <ScrollArea className="h-[750px] pl-3" scrollHideDelay={10}>
+        <div className="container flex flex-col px-0 space-y-2">
           {data.map((user: any, index: number) => {
             return (
               <div key={index}>
@@ -87,13 +102,19 @@ export function ListUser(props: { data: any; chatId: string }) {
                       </ContextMenuTrigger>
                     </PopoverTrigger>
                     <ContextMenuContent>
+                      <ContextMenuItem>send message</ContextMenuItem>
                       <ContextMenuItem>invite to game</ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem>add friend</ContextMenuItem>
                       <ContextMenuItem>remove friend</ContextMenuItem>
+                      <ContextMenuItem>block user</ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem>kick</ContextMenuItem>
                       <ContextMenuItem>ban</ContextMenuItem>
+                      <ContextMenuItem>mute</ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem>make admin</ContextMenuItem>
+                      <ContextMenuItem>remove admin</ContextMenuItem>
                     </ContextMenuContent>
                     <PopoverContent className="w-[300px] space-y-10">
                       <div className="flex">
@@ -131,10 +152,21 @@ export function ListUser(props: { data: any; chatId: string }) {
           })}
         </div>
       </ScrollArea>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="w-10 h-10 rounded-full">+</Button>
-        </DialogTrigger>
+      <Dialog
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open);
+          form.reset();
+        }}
+      >
+        <Tooltip delayDuration={10}>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button className="w-10 h-10 rounded-full">+</Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Add User</TooltipContent>
+        </Tooltip>
         <DialogContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -144,9 +176,6 @@ export function ListUser(props: { data: any; chatId: string }) {
                 form={form}
                 isRequired
               />
-              {form.watch("chatType") === "private" && (
-                <InputForm label="Password" name="password" form={form} />
-              )}
               <Button>Create</Button>
             </form>
           </Form>

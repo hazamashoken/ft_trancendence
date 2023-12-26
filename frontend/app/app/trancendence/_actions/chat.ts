@@ -10,6 +10,7 @@ export async function getPublicChat() {
       headers: {
         "Content-Type": "application/json",
       },
+      cache: "no-cache",
     }
   );
 
@@ -32,7 +33,8 @@ export async function getUserChats(userId: string) {
       },
       next: {
         tags: [`user:chat`],
-      }
+      },
+      cache: "no-cache",
     }
   );
 
@@ -53,6 +55,7 @@ export async function getChatUser(chatId: string) {
       headers: {
         "Content-Type": "application/json",
       },
+      cache: "no-cache",
     }
   );
   const data = await response.json();
@@ -115,6 +118,7 @@ export const getChatMessage = async (chatId: string = "1") => {
       next: {
         tags: [`chat:${chatId}`],
       },
+      cache: "no-cache",
     }
   );
 
@@ -136,6 +140,7 @@ export const getChannelData = async (chatId: string = "1") => {
       headers: {
         "Content-Type": "application/json",
       },
+      cache: "no-cache",
     }
   );
 
@@ -147,3 +152,44 @@ export const getChannelData = async (chatId: string = "1") => {
 
   return data;
 };
+
+
+export const leaveChannelAction = async (chatId: string = "1", user: string) => {
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/quitChat/${user}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: null
+  });
+
+  const data = await response.json();
+
+  if (response.status !== 201) {
+    throw new Error(data.message);
+  }
+
+  revalidateTag(`user:chat`);
+
+  return data;
+}
+
+export const updateChannelAction = async (chatId: string = "1", payload: any) => {
+  console.log(payload)
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/update`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  console.log(data)
+  if (response.status !== 201) {
+    throw new Error(data.message);
+  }
+  return data;
+}

@@ -20,7 +20,13 @@ export function MainNav({
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
       {...props}
     >
-      <Image src={ftLogo} width={30} height={30} alt="42 logo" />
+      {/* <Image
+        src={ftLogo}
+        width={30}
+        height={30}
+        alt="42 logo"
+        className="bg-gray"
+      /> */}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost">
