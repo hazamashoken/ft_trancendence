@@ -150,7 +150,7 @@ export class ChannelsController {
     }
   }
 
-  @Post(':chatId/addUser/:userName')
+  @Post(':chatId/invite/:userName')
   async addUserByName(
     @Param('chatId') chatId: number,
     @Param('userName') userName: string,
