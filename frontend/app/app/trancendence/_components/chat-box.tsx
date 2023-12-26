@@ -6,7 +6,7 @@ import { ListUser } from "./list-user";
 
 import { useChatStore, IChatStore } from "@/store/chat";
 import { useEffect } from "react";
-import { getChatUser, getPublicChat } from "../_actions/chat";
+import { getChatUser, getPublicChat, getUserChats } from "../_actions/chat";
 
 export function ChatBox() {
   const [chatId, chatList, chatUserList, setChatList, setChatUserList] =
@@ -21,7 +21,7 @@ export function ChatBox() {
   useEffect(() => {
     const getChat = async () => {
       const [channelListData, channelUserData] = await Promise.all([
-        getPublicChat(),
+        getUserChats("4"),
         getChatUser(chatId),
       ]);
       setChatList(channelListData);

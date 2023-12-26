@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
+
 export async function getPublicChat() {
   const response = await fetch(
     `${process.env.BACKEND_URL}/channels/public`,
@@ -8,6 +10,29 @@ export async function getPublicChat() {
       headers: {
         "Content-Type": "application/json",
       },
+    }
+  );
+
+  const data = await response.json();
+
+  if (response.status !== 200) {
+    throw new Error(data.message);
+  }
+
+  return data;
+}
+
+export async function getUserChats(userId: string) {
+  const response = await fetch(
+    `${process.env.BACKEND_URL}/channels/${userId}/all`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: {
+        tags: [`user:chat`],
+      }
     }
   );
 
@@ -54,12 +79,12 @@ export async function createChannelAction(payload: any) {
   if (response.status !== 201) {
     throw new Error(data.message);
   }
-
+  revalidateTag(`user:chat`);
   return data;
 }
 
-export async function addChannelUserAction(chatId: string, userId: string) {
-  const url = `${process.env.BACKEND_URL}/channels/${chatId}/addUser/${userId}`;
+export async function addChannelUserAction(chatId: string, value: string) {
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/addUser/${value}`;
   const response = await fetch(url, {
     method: "POST",
     headers: {

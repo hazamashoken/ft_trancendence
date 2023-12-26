@@ -26,21 +26,23 @@ import {
 } from "@/components/ui/popover";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function ListUser(props: { data: any; chatId: string }) {
-  const { data } = props;
+  const { data, chatId } = props;
   const form = useForm({
     defaultValues: {
-      chatName: null,
-      chatOwner: 0,
-      password: null,
-      maxUsers: null,
-      chatType: "public" as "public" | "private",
+      username: "",
     },
   });
 
-  const handleSubmit = async (userId: any) => {
-    const res = await addChannelUserAction(chatId, userId);
+  const handleSubmit = async (value: any) => {
+    console.log(value);
+    const res = await addChannelUserAction(chatId, value.username);
     console.log(res);
   };
 
@@ -71,12 +73,17 @@ export function ListUser(props: { data: any; chatId: string }) {
                   <ContextMenu>
                     <PopoverTrigger asChild>
                       <ContextMenuTrigger>
-                        <Avatar>
-                          <AvatarImage src={user.imageUrl} />
-                          <AvatarFallback>
-                            {createAbbreviation(user.displayName)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <Tooltip delayDuration={10}>
+                          <TooltipTrigger>
+                            <Avatar>
+                              <AvatarImage src={user.imageUrl} />
+                              <AvatarFallback>
+                                {createAbbreviation(user.displayName)}
+                              </AvatarFallback>
+                            </Avatar>
+                          </TooltipTrigger>
+                          <TooltipContent>{user.displayName}</TooltipContent>
+                        </Tooltip>
                       </ContextMenuTrigger>
                     </PopoverTrigger>
                     <ContextMenuContent>

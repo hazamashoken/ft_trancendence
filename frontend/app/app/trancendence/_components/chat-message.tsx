@@ -59,23 +59,28 @@ export const ChatMessages = ({
 
   const { isConnected } = useSocket();
 
-  console.log(isConnected);
-
   const { data, status } = useQuery({
     queryKey: [queryKey],
     enabled: isConnected,
     queryFn: () =>
-      fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then((res) => res.json()),
+      fetch(
+        apiUrl +
+          "?" +
+          new URLSearchParams({
+            // limit: "100", //Why limit does not work check
+            offset: "0",
+          }).toString(),
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).then((res) => res.json()),
   });
 
   useEffect(() => {
     if (!data) return;
-    data.reverse();
     setChatMessages(data);
   }, [data]);
 
@@ -105,6 +110,8 @@ export const ChatMessages = ({
       </div>
     );
   }
+
+  console.log(chatMessages[0]);
 
   return (
     <div
