@@ -60,7 +60,11 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       <QueryProvider client={queryClient}>
         <SocketProvider>
           <TooltipProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem={false}
+            >
               {children}
             </ThemeProvider>
           </TooltipProvider>

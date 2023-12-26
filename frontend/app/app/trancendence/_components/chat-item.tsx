@@ -72,7 +72,7 @@ export const ChatItem = ({
   }, [content]);
 
   return (
-    <div className="relative flex items-center w-full p-4 transition group hover:bg-black/5">
+    <div className="relative flex items-center w-full p-4 transition group">
       <div className="flex items-start w-full group gap-x-2">
         <div className="flex flex-col w-full">
           <div className="flex items-center gap-x-2">

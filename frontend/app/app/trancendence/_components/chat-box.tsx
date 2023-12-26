@@ -7,6 +7,7 @@ import { ListUser } from "./list-user";
 import { useChatStore, IChatStore } from "@/store/chat";
 import { useEffect } from "react";
 import { getChatUser, getPublicChat, getUserChats } from "../_actions/chat";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function ChatBox() {
   const [chatId, chatList, chatUserList, setChatList, setChatUserList] =
@@ -31,10 +32,12 @@ export function ChatBox() {
   }, [setChatList, setChatUserList, chatId]);
 
   return (
-    <div className="flex">
-      <ListChannel data={chatList} />
-      <MessageArea chatId={chatId} />
-      <ListUser data={chatUserList} chatId={chatId} />
-    </div>
+    <Card className="m-1">
+      <CardContent className="flex h-[800px] p-1 space-x-1">
+        <ListChannel data={chatList} />
+        <MessageArea chatId={chatId} />
+        <ListUser data={chatUserList} chatId={chatId} />
+      </CardContent>
+    </Card>
   );
 }

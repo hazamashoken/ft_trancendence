@@ -28,22 +28,24 @@ export function MessageArea(props: { chatId: string }) {
   };
 
   return (
-    <div className="w-[350px]">
-      <ChatHeader name={channel.name} type="channel" />
-      <ChatMessages
-        member={[]}
-        name={channel.name}
-        chatId={channel.id}
-        type="channel"
-        apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`}
-        socketUrl="/api/socket/messages"
-        socketQuery={{
-          channelId: channel.id,
-        }}
-        // chatData={chatData}
-        paramKey="channelId"
-        paramValue={channel.id}
-      />
+    <div className="w-[350px] h-full flex flex-col justify-between">
+      <div className="flex flex-col h-full overflow-hidden">
+        <ChatHeader name={channel.name} type="channel" />
+        <ChatMessages
+          member={[]}
+          name={channel.name}
+          chatId={channel.id}
+          type="channel"
+          apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`}
+          socketUrl="/api/socket/messages"
+          socketQuery={{
+            channelId: channel.id,
+          }}
+          // chatData={chatData}
+          paramKey="channelId"
+          paramValue={channel.id}
+        />
+      </div>
       <ChatInput
         name={channel.name}
         type="channel"
