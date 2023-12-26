@@ -65,7 +65,8 @@ export class MessagesService {
     if (!channel) {
       throw new NotFoundException('Channel not found');
     }
-
+    if (!pagination.limit)
+      pagination.limit = 100;
     const messages = await this.messagesRepository.find({
       where: { channel: { chatId: channelId } },
       relations: ['author'],
