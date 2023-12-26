@@ -13,6 +13,7 @@ import { MutedModule } from './muted/muted.module';
 import { ChatSocketModule } from './gateWay/chatSocket.module';
 import { PongModule } from './pong/pong.module';
 import { GatewayModule } from './gateWay/gateway.module';
+import { BlockUserModule } from './block/blockUser.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { GatewayModule } from './gateWay/gateway.module';
     ChatSocketModule,
     PongModule,
     GatewayModule,
+    BlockUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
