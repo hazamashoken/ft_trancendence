@@ -84,6 +84,12 @@ export function collision(state: GameState, delta: number)
         state.ball.direction.x = state.ball.direction.x / mag * Pong.BALL_SPEED;
         state.ball.direction.y = state.ball.direction.y / mag * Pong.BALL_SPEED;
       }
+      if (state.player1.powerup)
+      {
+        state.ball.direction.x *= 2;
+        state.ball.direction.y *= 2;
+        state.player1.powerup = false;
+      }
       state.changed = true;
     }
   }
@@ -107,6 +113,12 @@ export function collision(state: GameState, delta: number)
         let mag = Math.sqrt(state.ball.direction.x ** 2 + state.ball.direction.y ** 2);
         state.ball.direction.x = state.ball.direction.x / mag * Pong.BALL_SPEED;
         state.ball.direction.y = state.ball.direction.y / mag * Pong.BALL_SPEED;
+      }
+      if (state.player2.powerup)
+      {
+        state.ball.direction.x *= 2;
+        state.ball.direction.y *= 2;
+        state.player2.powerup = false;
       }
       state.changed = true;
     }
@@ -135,6 +147,12 @@ export function collision(state: GameState, delta: number)
           state.multiball[i].direction.x = state.multiball[i].direction.x / mag * Pong.BALL_SPEED;
           state.multiball[i].direction.y = state.multiball[i].direction.y / mag * Pong.BALL_SPEED;
         }
+        if (state.player1.powerup)
+        {
+          state.multiball[i].direction.x *= 2;
+          state.multiball[i].direction.y *= 2;
+          state.player1.powerup = false;
+        }
         state.changed = true;
       }
     }
@@ -158,6 +176,12 @@ export function collision(state: GameState, delta: number)
           let mag = Math.sqrt(state.multiball[i].direction.x ** 2 + state.multiball[i].direction.y ** 2);
           state.multiball[i].direction.x = state.multiball[i].direction.x / mag * Pong.BALL_SPEED;
           state.multiball[i].direction.y = state.multiball[i].direction.y / mag * Pong.BALL_SPEED;
+        }
+        if (state.player2.powerup)
+        {
+          state.multiball[i].direction.x *= 2;
+          state.multiball[i].direction.y *= 2;
+          state.player2.powerup = false;
         }
         state.changed = true;
       }

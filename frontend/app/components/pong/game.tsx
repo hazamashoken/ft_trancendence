@@ -8,7 +8,7 @@ import { Phase, Team, Keypress } from "@/lib/pong.enum";
 
 export default function Game(props: any) {
   const [phase, setPhase] = useState(
-    props.team == Team.player1 || props.team == Team.player2
+    props.team == Team.player1 || props.team == Team.player2 || props.team == Team.spectator
       ? Phase.ready
       : Phase.waiting
   );
@@ -32,6 +32,12 @@ export default function Game(props: any) {
 
   const clickStart = (e: React.MouseEvent<HTMLElement>) => {
     let payload: GameInstruction = { keypress: Keypress.start };
+
+    getSocket().emit("pong_keypress", payload);
+  };
+
+  const clickSuper = (e: React.MouseEvent<HTMLElement>) => {
+    let payload: GameInstruction = { keypress: Keypress.super };
 
     getSocket().emit("pong_keypress", payload);
   };
@@ -65,16 +71,16 @@ export default function Game(props: any) {
       <div className="flex flex-row items-center m-1">
         <Button
           className="mt-1 mb-1 ml-4 mr-4"
-          variant={team != Team.player2 ? "default" : "outline"}
-          disabled={phase != Phase.waiting}
+          variant={team != Team.player2 && team != Team.spectator ? "default" : "outline"}
+          disabled={phase != Phase.waiting || team == Team.spectator}
           onClick={clickteam1}
         >
           Player 1
         </Button>
         <Button
           className="mt-1 mb-1 mr-4"
-          variant={team != Team.player1 ? "default" : "outline"}
-          disabled={phase != Phase.waiting}
+          variant={team != Team.player1 && team != Team.spectator ? "default" : "outline"}
+          disabled={phase != Phase.waiting || team == Team.spectator}
           onClick={clickteam2}
         >
           Player 2
@@ -88,7 +94,7 @@ export default function Game(props: any) {
       <div className="flex flex-row items-center m-1">
         <Button
           className="mt-1 mb-1 ml-4 mr-4"
-          disabled={phase == Phase.waiting}
+          disabled={phase == Phase.waiting || team == Team.spectator}
           onMouseDown={sendKeyUp}
           onMouseUp={sendKeyRelease}
         >
@@ -96,20 +102,29 @@ export default function Game(props: any) {
         </Button>
         <Button
           className="mt-1 mb-1 mr-4"
-          disabled={phase == Phase.waiting}
+          disabled={phase == Phase.waiting || team == Team.spectator}
           onMouseDown={sendKeyDown}
           onMouseUp={sendKeyRelease}
         >
           ↓
         </Button>
       </div>
-      <Button
-        className="mt-1 mb-1 ml-4 mr-4"
-        disabled={phase == Phase.waiting}
-        onClick={clickStart}
-      >
-        Start
-      </Button>
+      <div className="flex flex-row items-center m-1">
+        <Button
+          className="mt-1 mb-1 ml-4 mr-4"
+          disabled={phase == Phase.waiting || team == Team.spectator}
+          onClick={clickStart}
+        >
+          Start
+        </Button>
+        <Button
+          className="mt-1 mb-1 mr-4"
+          disabled={phase == Phase.waiting || team == Team.spectator}
+          onClick={clickSuper}
+        >
+          Super
+        </Button>
+      </div>
     </div>
   );
 }

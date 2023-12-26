@@ -29,6 +29,8 @@ export class PongGame
       this.keypress(id, Keypress.player1);
     else if (team == Team.player2)
       this.keypress(id, Keypress.player2);
+    else if (team == Team.spectator)
+      this._users.get(id).team = Team.spectator;
   }
 
   public deleteUser(id: string)
@@ -124,6 +126,12 @@ export class PongGame
     let user: PongUser = this._users.get(id);
     let state: PongState = this._states.get(user.room);
 
+    // if a spectator ignore key press
+    if (user.team == Team.spectator)
+    {
+      return;
+    }
+
     // lock the game state
     state.locked = true;
 
@@ -160,6 +168,12 @@ export class PongGame
     if (keypress == Keypress.start && state.phase == Phase.play && user.team != Team.viewer)
     {
       state.serveMultiBall(user.team);
+    }
+
+    // if user uses a powerup
+    if (keypress == Keypress.super && user.team != Team.viewer)
+    {
+      state.usePowerup(user.team);
     }
 
     // if user clicks start game
