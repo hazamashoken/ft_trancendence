@@ -99,7 +99,7 @@ export class MessagesService {
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
         : null,
-      updateAt: message.updateAt,
+      updateAt: !message.updateAt ? null : message.updateAt,
     }));
 
     return formattedMessages;
