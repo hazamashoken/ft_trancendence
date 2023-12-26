@@ -1,8 +1,8 @@
 "use server";
 
 export async function getPublicChat() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/public`,
+  const response = await fetch(
+    `${process.env.BACKEND_URL}/channels/public`,
     {
       method: "GET",
       headers: {
@@ -10,7 +10,33 @@ export async function getPublicChat() {
       },
     }
   );
-  return res;
+
+  const data = await response.json();
+
+  if (response.status !== 200) {
+    throw new Error(data.message);
+  }
+
+  return data;
+}
+
+export async function getChatUser(chatId: string) {
+  const response = await fetch(
+    `${process.env.BACKEND_URL}/channels/${chatId}/users`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  const data = await response.json();
+
+  if (response.status !== 200) {
+    throw new Error(data.message);
+  }
+
+  return data;
 }
 
 export async function createChannelAction(payload: any) {
@@ -51,9 +77,35 @@ export async function addChannelUserAction(chatId: string, userId: string) {
   return data;
 }
 
-export async function getChatUser(chatId: string) {
+
+
+export const getChatMessage = async (chatId: string = "1") => {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/users`,
+    `${process.env.BACKEND_URL}/channels/${chatId}/messages`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: {
+        tags: [`chat:${chatId}`],
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${res.url}`);
+  }
+
+  const data = await res.json();
+
+  return data;
+};
+
+
+export const getChannelData = async (chatId: string = "1") => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}`,
     {
       method: "GET",
       headers: {
@@ -61,5 +113,12 @@ export async function getChatUser(chatId: string) {
       },
     }
   );
-  return res;
-}
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${res.url}`);
+  }
+
+  const data = await res.json();
+
+  return data;
+};

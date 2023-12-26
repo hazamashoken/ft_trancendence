@@ -21,28 +21,21 @@ import React from "react";
 export function UserNav(props: any) {
   const { session } = props;
 
-  // console.log(data);
-
-  const isSignedIn = status === "authenticated";
   const profile = session?.ftUser;
-  const avatarLink = isSignedIn ? profile.image?.link : "";
-  const nameInitial = isSignedIn ? profile.login : "TMP";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative w-8 h-8 rounded-full">
           <Avatar className="w-8 h-8">
             <AvatarImage src={profile?.image?.link ?? ftLogo} alt="@shadcn" />
-            <AvatarFallback>{nameInitial}</AvatarFallback>
+            <AvatarFallback>{profile?.login ?? "42"}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {profile?.login}
-            </p>
+            <p className="text-sm font-medium leading-none">{profile?.login}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {profile?.email}
             </p>
