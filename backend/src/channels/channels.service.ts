@@ -556,6 +556,7 @@ export class ChannelsService {
     if (chat.activeUsers.length == 0)
     {
       await this.delete(chat.chatId, userId);
+      Logger.log(chat.chatName + ' is deleted');
       return [];
     }
     if (chat.chatOwner.id == userId)
