@@ -42,7 +42,7 @@ export class ChannelsService {
     private readonly bannedService: BannedService,
     private readonly messageService: MessagesService,
     private readonly mutedService: MutedService,
-  ) { }
+  ) {}
 
   async findAll(): Promise<ChannelsEntity[]> {
     const channels = await this.channelsRepository.find({
@@ -53,11 +53,12 @@ export class ChannelsService {
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
   }
 
-  async inviteUserToChat(userName: string, chatId: number): Promise<ChatUserDto[]> {
-    const user = await this.userRepository.findOne({ where: { displayName: userName } });
+  async inviteUserToChat(userName: string, chatId: number): Promise<ChatUserDto[]>
+  {
+    const user = await this.userRepository.findOne({where: {displayName: userName}});
     if (!user)
       throw new NotFoundException('User not found');
-    const chat = await this.channelsRepository.findOne({ where: { chatId: chatId } });
+    const chat = await this.channelsRepository.findOne({where: {chatId: chatId}});
     if (!chat)
       throw new NotFoundException('Chat not found');
 
@@ -74,7 +75,7 @@ export class ChannelsService {
       })
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .getMany();
-    return channels;
+      return channels;
   }
   async findAllPublicChannels(): Promise<ChannelsEntity[]> {
     const channels = await this.channelsRepository
@@ -133,7 +134,7 @@ export class ChannelsService {
     newChannel.chatUsers.push(owner);
     newChannel.chatName = dto.chatName;
     newChannel.chatOwner = owner;
-    newChannel.password = dto.password ? await bcrypt.hash(dto.password, salt) : null;
+    newChannel.password = dto.password ? null : await bcrypt.hash(dto.password, salt);
     newChannel.maxUsers = dto.maxUsers || null;
     newChannel.chatType = dto.chatType;
 
@@ -202,7 +203,7 @@ export class ChannelsService {
       .where('channel.chatType = :chatType', { chatType: chatType.PRIVATE })
       .getMany();
 
-    const user = await this.userRepository.findOne({ where: { id: userId } })
+    const user = await this.userRepository.findOne({where: {id: userId}})
     if (!user)
       throw new NotFoundException("User not found")
 
@@ -220,10 +221,10 @@ export class ChannelsService {
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .where('channel.chatType = :chatType', { chatType: chatType.PROTECTED })
       .getMany();
-    const user = await this.userRepository.findOne({ where: { id: userId } })
+    const user = await this.userRepository.findOne({where: {id: userId}})
 
     if (!user)
-      throw new NotFoundException("User not found")
+        throw new NotFoundException("User not found")
     if (channels.length < 1) return [];
 
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
@@ -238,10 +239,10 @@ export class ChannelsService {
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .where('channel.chatType = :chatType', { chatType: chatType.DIRECT })
       .getMany();
-    const user = await this.userRepository.findOne({ where: { id: userId } })
+    const user = await this.userRepository.findOne({where: {id: userId}})
 
     if (!user)
-      throw new NotFoundException("User not found")
+        throw new NotFoundException("User not found")
     if (channels.length < 1) return [];
 
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
@@ -446,7 +447,7 @@ export class ChannelsService {
     chatId: number,
     pagination: PaginationDto,
   ): Promise<ReturnMessageDto[] | undefined> {
-    return await this.messageService.findAllMessagesByChannel(chatId, pagination);
+    return await this.messageService.findAllMessagesByChannel(chatId);
   }
 
   async updateMessage(
@@ -461,7 +462,7 @@ export class ChannelsService {
     chatId: number,
     pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
-    return await this.messageService.deleteMessage(messageId, chatId, pagination);
+    return await this.messageService.deleteMessage(messageId, chatId);
   }
 
   async muteUser(
@@ -494,7 +495,7 @@ export class ChannelsService {
     return await this.mutedService.updateMuted(muteId, muteDate, chatId);
   }
 
-  async joinChannel(channelId: number, userId: number, password?: string): Promise<ChatUserDto[]> {
+  async joinChannel(channelId: number, userId: number, password?:string): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: channelId },
       relations: ['activeUsers', 'bannedUsers'],
@@ -519,11 +520,13 @@ export class ChannelsService {
     }
     chat.activeUsers.push(existingUser);
 
-    if (chat.password != null) {
+    if(chat.password != null)
+    {
       if (!await bcrypt.compare(password, chat.password))
         throw new ForbiddenException('Password is wrong!!')
     }
-    if (chat.chatType != 'public' && chat.chatUsers.some(user => user.id === userId)) {
+    if(chat.chatType != 'public' && chat.chatUsers.some(user => user.id === userId))
+    {
       throw new ForbiddenException('U are not in this chat')
     }
     await this.channelsRepository.save(chat);
@@ -533,7 +536,7 @@ export class ChannelsService {
   async quitChannel(channelId: number, userId: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: channelId },
-      relations: ['activeUsers'],
+      relations: ['activeUsers', 'chatOwner'],
     });
     if (!chat) {
       throw new NotFoundException('Chat not found');
@@ -547,10 +550,13 @@ export class ChannelsService {
       .of(chat)
       .remove(userId);
 
-    chat.activeUsers = chat.chatAdmins.filter((user) => user.id != userId);
+    if (chat.activeUsers.length < 1)
+      chat.activeUsers = [];
 
-    if (chat.activeUsers.length < 1) chat.activeUsers = null;
+    if (chat.chatOwner.id == userId)
+      throw new ForbiddenException('Please set new owner before quit the chat');
     await this.channelsRepository.save(chat);
+
     return await this.getActiveUsers(channelId);
   }
 

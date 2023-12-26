@@ -283,7 +283,7 @@ export class ChannelsController {
     @Query() pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
     this.chatGateway.sendEvents({ message: 'mesagre deleted', chatId: chatId, event: 'getChatMessages' });
-    return await this.messageService.deleteMessage(messageId, chatId, pagination);
+    return await this.messageService.deleteMessage(messageId, chatId);
   }
 
 
@@ -293,7 +293,7 @@ export class ChannelsController {
     @Query() paginationDto: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
     Logger.log(paginationDto)
-    return await this.messageService.findAllMessagesByChannel(chatId, paginationDto);
+    return await this.messageService.findAllMessagesByChannel(chatId);
   }
 
   @Get(':chatId/muted')
@@ -350,7 +350,7 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
   ): Promise<ChatUserDto[]> {
-    this.chatGateway.sendEvents({ message: 'user quitChat', event: 'getActiveUsers' });
+    this.chatGateway.sendEvents({ message: 'user quitChat', event: 'quitChat' });
     return await this.channelsService.quitChannel(chatId, userId);
   }
 
