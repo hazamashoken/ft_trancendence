@@ -186,6 +186,9 @@ export class ChannelsService {
       chat.maxUsers = dto.maxUsers;
     }
 
+    if (dto.chatType !+ null)
+      chat.chatType = dto.chatType;
+
     if (chat.password != null && dto.password == null) chat.password = null;
 
     const updatedChat = await this.channelsRepository.save(chat);

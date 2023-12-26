@@ -1,3 +1,4 @@
+import { chatType } from '@backend/typeorm/channel.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateChannelDto {
@@ -9,4 +10,7 @@ export class UpdateChannelDto {
 
   @ApiProperty({ default: null })
   maxUsers: number;
+
+  @ApiProperty({ default: null })
+  chatType: chatType;
 }
