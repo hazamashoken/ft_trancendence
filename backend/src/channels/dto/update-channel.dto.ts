@@ -12,5 +12,5 @@ export class UpdateChannelDto {
   maxUsers: number;
 
   @ApiProperty({ default: null })
-  chatType: chatType;
+  chatType: chatType | null;
 }
