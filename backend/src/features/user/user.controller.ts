@@ -35,15 +35,15 @@ import { QueryOption } from '@backend/pipe/query-option.decorator';
 import { QueryOptionDto } from '@backend/dto/query-option.dto';
 
 @Controller('users')
-@UseGuards(XKeyGuard, AuthGuard)
-@ApiBearerAuth()
-@ApiSecurity('x-api-key')
+// @UseGuards(XKeyGuard, AuthGuard)
+// @ApiBearerAuth()
+// @ApiSecurity('x-api-key')
 @ApiTags('Users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly ftService: FtService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'List all user' })

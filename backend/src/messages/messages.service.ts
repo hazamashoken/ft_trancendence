@@ -16,6 +16,8 @@ import { ReturnMessageDto } from './dto/return-message.dto';
 import { plainToClass } from 'class-transformer';
 import { take } from 'rxjs';
 import { PaginationDto } from './dto/pagination.dto';
+import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
+import { TypeormUtil } from '@backend/utils/typeorm.util';
 
 @Injectable()
 export class MessagesService {
@@ -57,7 +59,7 @@ export class MessagesService {
 
   async findAllMessagesByChannel(
     channelId: number,
-    pagination: PaginationDto,
+    option: TypeormQueryOption,
   ): Promise<ReturnMessageDto[]> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
@@ -65,16 +67,15 @@ export class MessagesService {
     if (!channel) {
       throw new NotFoundException('Channel not found');
     }
-    if (!pagination.limit)
-      pagination.limit = 100;
+
+    const findOption = TypeormUtil.setFindOption(option);
     const messages = await this.messagesRepository.find({
       where: { channel: { chatId: channelId } },
       relations: ['author'],
       order: {
         createAt: 'DESC', // Сортировка сообщений по дате создания в обратном порядке
       },
-      skip: (pagination.page - 1) * pagination.limit,
-      take: pagination.limit,
+      ...findOption,
     });
     if (messages.length < 1) return [];
 
@@ -89,7 +90,7 @@ export class MessagesService {
         .padStart(2, '0')}.${message.createAt.getFullYear()}`,
       hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
       createAt: message.createAt,
-      updateAt: message.updateAt,
+      updateAt: !message.updateAt ? null : message.updateAt,
       updatedAtmy: message.updateAt
         ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
           message.updateAt.getMonth() + 1
@@ -100,7 +101,6 @@ export class MessagesService {
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
         : null,
-      updateAt: !message.updateAt ? null : message.updateAt,
     }));
 
     return formattedMessages;
