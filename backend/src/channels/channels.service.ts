@@ -4,8 +4,8 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectRepository} from '@nestjs/typeorm';
+import { Repository, Not, Equal } from 'typeorm';
 import {
   BannedEntity,
   ChannelsEntity,
