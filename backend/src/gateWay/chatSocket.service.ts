@@ -18,6 +18,7 @@ import { ChannelsEntity } from '@backend/typeorm';
 import { Inject, Injectable, UseGuards, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { SocketGateway } from './chat.gateway';
+import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 
 @Injectable()
 @UseGuards(XKeyGuard, AuthGuard)
@@ -134,12 +135,12 @@ export class SocketService {
     return await this.messageService.createMessage(chatId, dto.message, dto.userId);
   }
 
-  async deleteMessage(messageId: number, chatId: number): Promise<ReturnMessageDto[]> {
-    return await this.messageService.deleteMessage(messageId, chatId);
+  async deleteMessage(messageId: number, chatId: number, pagination: PaginationDto): Promise<ReturnMessageDto[]> {
+    return await this.messageService.deleteMessage(messageId, chatId, pagination);
   }
 
-  async findAllMessagesByChannel(chatId: number): Promise<ReturnMessageDto[]> {
-    return await this.messageService.findAllMessagesByChannel(chatId);
+  async findAllMessagesByChannel(chatId: number, pagination: PaginationDto): Promise<ReturnMessageDto[]> {
+    return await this.messageService.findAllMessagesByChannel(chatId, pagination);
   }
 
   async findAllMutedAtChat(chatId: number): Promise<ReturnMutedDto[]> {

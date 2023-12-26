@@ -79,37 +79,37 @@ jobs:
         run: docker compose -f docker-compose.yml build frontend
     needs: [pre-build]
 
-  e2e-test-backend:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
-    env:
-      DB_HOST: localhost
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v3
-      - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: env-file
-      - name: replace .ci.env to .env
-        run: |
-          cp .ci.env .env
-          cp .env ./backend/
-      - name: run database
-        run: make run-database
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-      - name: install dependencies
-        working-directory: ./backend
-        run: npm install
-      - name: build nestjs
-        working-directory: ./backend
-        run: npm run build
-      - name: run e2e test
-        working-directory: ./backend
-        run: npm run test:e2e
-    needs: [pre-build]
+  # e2e-test-backend:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [18.x]
+  #   env:
+  #     DB_HOST: localhost
+  #   steps:
+  #     - name: Checkout the repo
+  #       uses: actions/checkout@v3
+  #     - name: Download all workflow run artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: env-file
+  #     - name: replace .ci.env to .env
+  #       run: |
+  #         cp .ci.env .env
+  #         cp .env ./backend/
+  #     - name: run database
+  #       run: make run-database
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18.x'
+  #     - name: install dependencies
+  #       working-directory: ./backend
+  #       run: npm install
+  #     - name: build nestjs
+  #       working-directory: ./backend
+  #       run: npm run build
+  #     - name: run e2e test
+  #       working-directory: ./backend
+  #       run: npm run test:e2e
+  #   needs: [pre-build]

@@ -7,6 +7,14 @@ const nextConfig = {
         // !! WARN !!
         ignoreBuildErrors: true,
     },
+    // experimental: {
+    //     turbo: {
+    //         resolveAlias: {
+    //             underscore: 'lodash',
+    //         },
+    //     },
+    // },
+    // transpilePackages: ['lodash-es'],
 }
 
 module.exports = nextConfig
