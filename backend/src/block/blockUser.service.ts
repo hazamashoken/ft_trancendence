@@ -8,6 +8,7 @@ import { User } from "@backend/typeorm/user.entity";
 export class BlockService{
   @InjectRepository(BlockUser)
   private readonly blockRepository: Repository<BlockUser>
+  @InjectRepository(User)
   private readonly userRepository: Repository<User>;
   async getAllBlockedUsers(myId: number): Promise<User[]> {
     const blockedRelations = await this.blockRepository.find({
