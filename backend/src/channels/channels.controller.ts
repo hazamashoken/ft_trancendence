@@ -10,6 +10,7 @@ import {
   Logger,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
@@ -40,6 +41,9 @@ import { UpdateMuteDto } from '@backend/muted/dto/update-mute.dto';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { AuthGuard } from '@backend/shared/auth.guard';
 import { SocketGateway } from '@backend/gateWay/chat.gateway';
+import { AuthUser } from '@backend/pipe/auth-user.decorator';
+import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
+import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 
 @Controller('channels')
 // @UseGuards(XKeyGuard, AuthGuard)
@@ -135,7 +139,20 @@ export class ChannelsController {
     }
   }
 
-  @Post(':chatId/removeUser/:userId')
+  @Post(':chatId/addUser/:userName')
+  async addUserByName(
+    @Param('chatId') chatId: number,
+    @Param('userName') userName: string,
+  ): Promise<ChatUserDto[]> {
+    try {
+      this.chatGateway.sendEvents({message: 'user added', chatId: chatId, event: 'getChatUsers'});
+      return await this.channelsService.addUserToChatByName(chatId, userName);
+    } catch (error) {
+      throw new NotFoundException(error.message, 'Not Found');
+    }
+  }
+
+  @Post(':chatId/removeUser/:userId',)
   async removeUser(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -252,17 +269,19 @@ export class ChannelsController {
   async deleteMessage(
     @Param('messageId') messageId: number,
     @Param('chatId') chatId: number,
+    @Query() pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
     this.chatGateway.sendEvents({message: 'mesagre deleted', chatId: chatId, event: 'getChatMessages'});
-    return await this.messageService.deleteMessage(messageId, chatId);
+    return await this.messageService.deleteMessage(messageId, chatId, pagination);
   }
 
 
   @Get(':chatId/messages')
   async chatMessages(
     @Param('chatId') chatId: number,
+    @Query()  paginationDto: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
-    return await this.messageService.findAllMessagesByChannel(chatId);
+    return await this.messageService.findAllMessagesByChannel(chatId, paginationDto);
   }
 
   @Get(':chatId/muted')

@@ -25,6 +25,7 @@ import { MessagesService } from '@backend/messages/messages.service';
 import { MutedService } from '../muted/muted.service';
 import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
 import * as bcrypt from 'bcryptjs';
+import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 
 @Injectable()
 export class ChannelsService {
@@ -296,6 +297,38 @@ export class ChannelsService {
     return chat.chatUsers;
   }
 
+  async addUserToChatByName(chatId: number, userName: string): Promise<ChatUserDto[]> {
+    const chat = await this.channelsRepository.findOne({
+      where: { chatId: chatId },
+      relations: ['chatUsers'],
+    });
+
+    const existingUser = await this.userRepository.findOne({
+      where: { displayName: userName, },
+    });
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
+    if (chat.chatUsers.find((userA) => userA.displayName == userName))
+      throw new ForbiddenException(`User already exist in this chat`);
+    if (chat.chatUsers.length >= chat.maxUsers && chat.maxUsers != null)
+      throw new ForbiddenException(
+        'Chat is full plese extend ur channel or remove user from it',
+      );
+    if (!chat.chatUsers) {
+      chat.chatUsers = [];
+      chat.chatUsers.push(chat.chatOwner);
+    }
+    chat.chatUsers.push(existingUser);
+
+    await this.channelsRepository.save(chat);
+    return chat.chatUsers;
+  }
+
   async removeUserFromChat(
     chatId: number,
     userId: number,
@@ -388,8 +421,9 @@ export class ChannelsService {
 
   async getAllMessages(
     chatId: number,
+    pagination: PaginationDto,
   ): Promise<ReturnMessageDto[] | undefined> {
-    return await this.messageService.findAllMessagesByChannel(chatId);
+    return await this.messageService.findAllMessagesByChannel(chatId, pagination);
   }
 
   async updateMessage(
@@ -402,8 +436,9 @@ export class ChannelsService {
   async deleteMessage(
     messageId: number,
     chatId: number,
+    pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
-    return await this.messageService.deleteMessage(messageId, chatId);
+    return await this.messageService.deleteMessage(messageId, chatId, pagination);
   }
 
   async muteUser(
