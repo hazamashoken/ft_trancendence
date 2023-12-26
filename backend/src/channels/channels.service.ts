@@ -447,7 +447,7 @@ export class ChannelsService {
     chatId: number,
     pagination: PaginationDto,
   ): Promise<ReturnMessageDto[] | undefined> {
-    return await this.messageService.findAllMessagesByChannel(chatId, pagination);
+    return await this.messageService.findAllMessagesByChannel(chatId);
   }
 
   async updateMessage(
@@ -462,7 +462,7 @@ export class ChannelsService {
     chatId: number,
     pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
-    return await this.messageService.deleteMessage(messageId, chatId, pagination);
+    return await this.messageService.deleteMessage(messageId, chatId);
   }
 
   async muteUser(
@@ -536,7 +536,7 @@ export class ChannelsService {
   async quitChannel(channelId: number, userId: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: channelId },
-      relations: ['activeUsers'],
+      relations: ['activeUsers', 'chatOwner'],
     });
     if (!chat) {
       throw new NotFoundException('Chat not found');
@@ -550,10 +550,13 @@ export class ChannelsService {
       .of(chat)
       .remove(userId);
 
-    chat.activeUsers = chat.chatAdmins.filter((user) => user.id != userId);
+    if (chat.activeUsers.length < 1)
+      chat.activeUsers = [];
 
-    if (chat.activeUsers.length < 1) chat.activeUsers = null;
+    if (chat.chatOwner.id == userId)
+      throw new ForbiddenException('Please set new owner before quit the chat');
     await this.channelsRepository.save(chat);
+
     return await this.getActiveUsers(channelId);
   }
 
