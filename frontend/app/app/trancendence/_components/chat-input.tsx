@@ -94,13 +94,13 @@ export const ChatInput = ({
                     }`}
                     {...field}
                   />
-                  <div className="absolute top-7 right-8">
-                    {/* <EmojiPicker
+                  {/* <div className="absolute top-7 right-8"> */}
+                  {/* <EmojiPicker
                       onChange={(emoji: string) =>
                         field.onChange(`${field.value} ${emoji}`)
                       }
                     /> */}
-                  </div>
+                  {/* </div> */}
                 </div>
               </FormControl>
             </FormItem>

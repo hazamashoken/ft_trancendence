@@ -63,9 +63,9 @@ export function ListUser(props: { data: any; chatId: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      <ScrollArea>
-        <div className="container flex flex-col px-0 space-y-4">
+    <div className="flex flex-col justify-between h-full p-2 pt-12 space-y-2">
+      <ScrollArea className="h-[750px] pl-3" scrollHideDelay={10}>
+        <div className="container flex flex-col px-0 space-y-2">
           {data.map((user: any, index: number) => {
             return (
               <div key={index}>
@@ -91,6 +91,7 @@ export function ListUser(props: { data: any; chatId: string }) {
                       <ContextMenuSeparator />
                       <ContextMenuItem>add friend</ContextMenuItem>
                       <ContextMenuItem>remove friend</ContextMenuItem>
+                      <ContextMenuItem>block user</ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem>kick</ContextMenuItem>
                       <ContextMenuItem>ban</ContextMenuItem>
@@ -132,9 +133,14 @@ export function ListUser(props: { data: any; chatId: string }) {
         </div>
       </ScrollArea>
       <Dialog>
-        <DialogTrigger asChild>
-          <Button className="w-10 h-10 rounded-full">+</Button>
-        </DialogTrigger>
+        <Tooltip delayDuration={10}>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button className="w-10 h-10 rounded-full">+</Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Add User</TooltipContent>
+        </Tooltip>
         <DialogContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
