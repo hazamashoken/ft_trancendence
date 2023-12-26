@@ -114,10 +114,7 @@ export const ChatMessages = ({
   console.log(chatMessages[0]);
 
   return (
-    <div
-      ref={chatRef}
-      className="flex flex-col flex-1 py-4 overflow-y-auto h-[750px]"
-    >
+    <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">
       <div className="flex flex-col-reverse mt-auto">
         {chatMessages?.map((message: any, i: number) => (
           <ChatItem
@@ -135,7 +132,7 @@ export const ChatMessages = ({
           />
         ))}
       </div>
-      <div ref={bottomRef} />
+      {/* <div ref={bottomRef} /> */}
     </div>
   );
 };

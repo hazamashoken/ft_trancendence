@@ -17,6 +17,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useState } from "react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
 
 export function ListChannel(props: { data: any }) {
   const { data } = props;
@@ -38,9 +45,9 @@ export function ListChannel(props: { data: any }) {
   const handleSubmit = async (values: any) => {
     const payload = {
       chatOwner: values.chatOwner,
-      chatName: values.chatName,
+      chatName: values.chatName?.trim(),
       chatType: values.chatType,
-      password: values.chatType == "private" ? values.password : null,
+      password: values.chatType == "private" ? values.password?.trim() : null,
     };
     console.log(payload);
     const res = await createChannelAction(payload);
@@ -53,7 +60,7 @@ export function ListChannel(props: { data: any }) {
 
   function createAbbreviation(sentence: string) {
     // Split the sentence into words
-    const words = sentence.split(" ");
+    const words = sentence.trim().split(" ");
 
     // Initialize an empty string to store the abbreviation
     let abbreviation = "";
@@ -68,29 +75,46 @@ export function ListChannel(props: { data: any }) {
   }
 
   return (
-    <div className="space-y-4">
-      <ScrollArea>
-        <div className="container flex flex-col px-0 space-y-4">
+    <div className="flex flex-col justify-between h-full p-2 pt-12 space-y-2">
+      <ScrollArea className="h-[750px] pr-3" scrollHideDelay={10}>
+        <div className="container flex flex-col px-0 space-y-2">
           {data.map((channel: any, index: number) => {
             return (
-              <Tooltip key={index} delayDuration={10}>
-                <TooltipTrigger>
-                  <Avatar onClick={() => setChatId(channel.chatId)}>
-                    <AvatarFallback>
-                      {createAbbreviation(channel.chatName)}
-                    </AvatarFallback>
-                  </Avatar>
-                </TooltipTrigger>
-                <TooltipContent>{channel.chatName}</TooltipContent>
-              </Tooltip>
+              <div key={index}>
+                <ContextMenu>
+                  <ContextMenuTrigger>
+                    <Tooltip delayDuration={10}>
+                      <TooltipTrigger>
+                        <Avatar onClick={() => setChatId(channel.chatId)}>
+                          <AvatarFallback>
+                            {createAbbreviation(channel.chatName)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>{channel.chatName}</TooltipContent>
+                    </Tooltip>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem>add admin</ContextMenuItem>
+                    <ContextMenuItem>remove admin</ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem>remove channel</ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              </div>
             );
           })}
         </div>
       </ScrollArea>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button className="w-10 h-10 rounded-full">+</Button>
-        </DialogTrigger>
+        <Tooltip delayDuration={10}>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button className="w-10 h-10 rounded-full">+</Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Create Channel</TooltipContent>
+        </Tooltip>
         <DialogContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
