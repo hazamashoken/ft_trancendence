@@ -13,7 +13,7 @@ export class BlockService{
   async getAllBlockedUsers(myId: number): Promise<User[]> {
     const blockedRelations = await this.blockRepository.find({
       where: { blockedBy: {id: myId} },
-      relations: ["bannedUser"],
+      relations: ["blockedUser"],
     });
     if (!blockedRelations)
       return [];
