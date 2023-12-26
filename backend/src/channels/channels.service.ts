@@ -160,39 +160,62 @@ export class ChannelsService {
     return await this.findAll();
   }
 
+  // async update(chatId: number, dto: UpdateChannelDto): Promise<ChannelsEntity> {
+  //   const chat = await this.channelsRepository.findOne({
+  //     where: { chatId: chatId },
+  //   });
+  //   if (!chat) throw new NotFoundException('Channel not found');
+
+  //   if (
+  //     await this.channelsRepository.findOne({
+  //       where: { chatName: dto.chatName },
+  //     })
+  //   )
+  //     throw new ForbiddenException(
+  //       `Channle with name ${dto.chatName} already exist`,
+  //     );
+  //   if (dto.chatName != null) {
+  //     chat.chatName = dto.chatName;
+  //   }
+
+  //   if (dto.password != null) {
+  //     chat.password = dto.password;
+  //   }
+
+  //   if (dto.maxUsers != null) {
+  //     chat.maxUsers = dto.maxUsers;
+  //   }
+
+  //   if (dto.chatType !+ null)
+  //     chat.chatType = dto.chatType;
+
+  //   if (chat.password != null && dto.password == null) chat.password = null;
+
+  //   const updatedChat = await this.channelsRepository.save(chat);
+
+  //   return plainToClass(ChannelsEntity, updatedChat);
+  // }
+
   async update(chatId: number, dto: UpdateChannelDto): Promise<ChannelsEntity> {
-    const chat = await this.channelsRepository.findOne({
-      where: { chatId: chatId },
-    });
+    const chat = await this.channelsRepository.findOne({ where: { chatId } });
     if (!chat) throw new NotFoundException('Channel not found');
-
-    if (
-      await this.channelsRepository.findOne({
-        where: { chatName: dto.chatName },
-      })
-    )
-      throw new ForbiddenException(
-        `Channle with name ${dto.chatName} already exist`,
-      );
-    if (dto.chatName != null) {
-      chat.chatName = dto.chatName;
+  
+    // Check if another channel with the same name exists (excluding the current channel)
+    if (dto.chatName) {
+      const existingChannel = await this.channelsRepository.findOne({
+        where: { chatName: dto.chatName, chatId: Not(Equal(chatId)) },
+      });
+      if (existingChannel) {
+        throw new ForbiddenException(`Channel with name ${dto.chatName} already exists`);
+      }
     }
-
-    if (dto.password != null) {
-      chat.password = dto.password;
-    }
-
-    if (dto.maxUsers != null) {
-      chat.maxUsers = dto.maxUsers;
-    }
-
-    if (dto.chatType !+ null)
-      chat.chatType = dto.chatType;
-
-    if (chat.password != null && dto.password == null) chat.password = null;
-
+  
+    chat.chatName = dto.chatName ?? chat.chatName;
+    chat.password = dto.password ?? chat.password;
+    chat.maxUsers = dto.maxUsers ?? chat.maxUsers;
+    chat.chatType = dto.chatType ?? chat.chatType;
+  
     const updatedChat = await this.channelsRepository.save(chat);
-
     return plainToClass(ChannelsEntity, updatedChat);
   }
 
