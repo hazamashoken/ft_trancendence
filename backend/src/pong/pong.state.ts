@@ -108,15 +108,15 @@ export class PongState
 
     if (team == Team.player1)
     {
-      if (this._state.player1.balls > 0)
-        this._state.player1.balls--;
+      if (this._state.player1.multiballs > 0)
+        this._state.player1.multiballs--;
       else
         return ;
     }
     else if (team == Team.player2)
     {
-      if (this._state.player2.balls > 0)
-        this._state.player2.balls--;
+      if (this._state.player2.multiballs > 0)
+        this._state.player2.multiballs--;
       else
         return ;
       serve = -1;
@@ -130,6 +130,22 @@ export class PongState
     ball.direction.y = serve * Math.sin(angle) * Pong.BALL_SPEED;
     this._state.multiball.push(ball);
     this._state.changed = true;
+  }
+
+  public usePowerup(team: string)
+  {
+    if (team == Team.player1 && this._state.player1.powerups > 0)
+    {
+      this._state.player1.powerup = true;
+      this._state.player1.powerups--;
+      this._state.changed = true;
+    }
+    if (team == Team.player2 && this._state.player2.powerups > 0)
+    {
+      this._state.player2.powerup = true;
+      this._state.player2.powerups--;
+      this._state.changed = true;
+    }
   }
 
   public incrementScore(team: string)

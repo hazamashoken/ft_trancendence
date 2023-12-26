@@ -7,26 +7,42 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { createChannelAction } from "../_actions/create-channel-action";
+import { createChannelAction, addChannelUserAction } from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { addChannelUserAction } from "../_actions/add-channel-user-action";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function ListUser(props: { data: any; chatId: string }) {
-  const { data } = props;
+  const { data, chatId } = props;
   const form = useForm({
     defaultValues: {
-      chatName: null,
-      chatOwner: 0,
-      password: null,
-      maxUsers: null,
-      chatType: "public" as "public" | "private",
+      username: "",
     },
   });
 
-  const handleSubmit = async (userId: any) => {
-    const res = await addChannelUserAction(chatId, userId);
+  const handleSubmit = async (value: any) => {
+    console.log(value);
+    const res = await addChannelUserAction(chatId, value.username);
     console.log(res);
   };
 
@@ -45,7 +61,6 @@ export function ListUser(props: { data: any; chatId: string }) {
 
     return abbreviation;
   }
-  console.log(data);
 
   return (
     <div className="space-y-4">
@@ -53,12 +68,65 @@ export function ListUser(props: { data: any; chatId: string }) {
         <div className="container flex flex-col px-0 space-y-4">
           {data.map((user: any, index: number) => {
             return (
-              <Avatar key={index}>
-                <AvatarImage src={user.imageUrl} />
-                <AvatarFallback>
-                  {createAbbreviation(user.displayName)}
-                </AvatarFallback>
-              </Avatar>
+              <div key={index}>
+                <Popover>
+                  <ContextMenu>
+                    <PopoverTrigger asChild>
+                      <ContextMenuTrigger>
+                        <Tooltip delayDuration={10}>
+                          <TooltipTrigger>
+                            <Avatar>
+                              <AvatarImage src={user.imageUrl} />
+                              <AvatarFallback>
+                                {createAbbreviation(user.displayName)}
+                              </AvatarFallback>
+                            </Avatar>
+                          </TooltipTrigger>
+                          <TooltipContent>{user.displayName}</TooltipContent>
+                        </Tooltip>
+                      </ContextMenuTrigger>
+                    </PopoverTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem>invite to game</ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem>add friend</ContextMenuItem>
+                      <ContextMenuItem>remove friend</ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem>kick</ContextMenuItem>
+                      <ContextMenuItem>ban</ContextMenuItem>
+                    </ContextMenuContent>
+                    <PopoverContent className="w-[300px] space-y-10">
+                      <div className="flex">
+                        <Avatar className="w-[70px] h-[70px]">
+                          <AvatarImage
+                            src={user.imageUrl}
+                            className="w-[70px] h-[70px]"
+                          />
+                          <AvatarFallback className="w-[70px] h-[70px]">
+                            {createAbbreviation(user.displayName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        status: {user.status}
+                      </div>
+                      <Card className="w-full">
+                        <CardContent>
+                          <p>{user.displayName}</p>
+                          <p># {user.id}</p>
+                          <Separator />
+                          <div className="flex gap-2">
+                            <p>win: {user?.stat?.win ?? "1"}</p>
+                            <p>lose: {user?.stat?.lose ?? "1"}</p>
+                            <p>
+                              ratio:{" "}
+                              {user?.stat?.win / user?.stat?.lose ?? "100"}%
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </PopoverContent>
+                  </ContextMenu>
+                </Popover>
+              </div>
             );
           })}
         </div>

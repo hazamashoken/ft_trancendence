@@ -19,7 +19,7 @@ export function UserCard(props: any){
           <CardTitle>User Info</CardTitle>
         </CardHeader>
         <CardContent>
-         <pre>{JSON.stringify(props.session.data.user.profile, null, 1)}</pre>
+         <pre>{JSON.stringify(props.session.data.user, null, 1)}</pre>
         </CardContent>
         <CardFooter>
           <Button onClick={() => signOut()}>Sign Out</Button>

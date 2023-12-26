@@ -1,69 +1,41 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getChannelData } from "../_actions/chat";
 import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-message";
 
-const getChannel = async (chatId: string = "1") => {
-  const res = await fetch(`${process.env.BACKEND_URL}/channels/${chatId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+export function MessageArea(props: { chatId: string }) {
+  const { chatId } = props;
+  const [chatMeta, setChatMeta] = useState({
+    chatId: "1",
+    chatName: "General",
   });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${res.url}`);
-  }
-
-  const data = await res.json();
-
-  return data;
-};
-
-const getChat = async (chatId: string = "1") => {
-  const res = await fetch(
-    `${process.env.BACKEND_URL}/channels/${chatId}/messages`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      next: {
-        tags: [`chat:${chatId}`],
-      },
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${res.url}`);
-  }
-
-  const data = await res.json();
-
-  return data;
-};
-
-export async function MessageArea(props: { chatId: string }) {
-  const { chatId } = props;
-  const data = await getChannel(chatId);
-  // const chatData = await getChat(chatId);
+  useEffect(() => {
+    const getChatMeta = async () => {
+      const data = await getChannelData(chatId);
+      setChatMeta(data);
+    };
+    getChatMeta();
+  }, [chatId]);
 
   const channel = {
-    id: data?.chatId,
-    name: data?.chatName,
+    id: chatMeta?.chatId,
+    name: chatMeta?.chatName,
     type: "text",
   };
 
   return (
     <div className="w-[350px]">
       <ChatHeader name={channel.name} type="channel" />
-      {/* <ScrollArea className="h-[750px]"> */}
       <ChatMessages
         member={[]}
         name={channel.name}
         chatId={channel.id}
         type="channel"
-        apiUrl={`${process.env.BACKEND_URL}/channels/${chatId}/messages`}
+        apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`}
         socketUrl="/api/socket/messages"
         socketQuery={{
           channelId: channel.id,
@@ -72,15 +44,14 @@ export async function MessageArea(props: { chatId: string }) {
         paramKey="channelId"
         paramValue={channel.id}
       />
-      {/* </ScrollArea> */}
       <ChatInput
         name={channel.name}
         type="channel"
-        apiUrl={`${process.env.BACKEND_URL}/channels/${chatId}/createmessage`}
+        apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/createmessage`}
         query={{
           channelId: channel.id,
         }}
-        chatId={data?.chatId}
+        chatId={chatMeta?.chatId}
       />
     </div>
   );

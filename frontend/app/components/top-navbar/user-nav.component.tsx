@@ -21,16 +21,14 @@ import React from "react";
 export function UserNav(props: any) {
   const { session } = props;
 
-  const profile = session?.user?.profile;
-  const nameInitial = profile?.login[0] + profile?.login[1];
-
+  const profile = session?.ftUser;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative w-8 h-8 rounded-full">
           <Avatar className="w-8 h-8">
             <AvatarImage src={profile?.image?.link ?? ftLogo} alt="@shadcn" />
-            <AvatarFallback>{nameInitial}</AvatarFallback>
+            <AvatarFallback>{profile?.login ?? "42"}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

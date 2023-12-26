@@ -15,7 +15,9 @@ export interface GamePlayer {
   position: Vector;
   direction: Vector;
   score: number;
-  balls: number;
+  powerup: boolean;
+  multiballs: number;
+  powerups: number;
 }
 
 export interface GameBall {
