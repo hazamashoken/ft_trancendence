@@ -53,6 +53,30 @@ export class ChannelsService {
     return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
   }
 
+  async inviteUserToChat(userName: string, chatId: number): Promise<ChatUserDto[]>
+  {
+    const user = await this.userRepository.findOne({where: {displayName: userName}});
+    if (!user)
+      throw new NotFoundException('User not found');
+    const chat = await this.channelsRepository.findOne({where: {chatId: chatId}});
+    if (!chat)
+      throw new NotFoundException('Chat not found');
+
+    chat.chatUsers.push(user);
+    await this.channelsRepository.save(chat);
+    return chat.chatUsers.map((user) => plainToClass(ChatUserDto, user));
+  }
+
+  async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
+    const channels = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoinAndSelect('channel.chatUsers', 'user', 'user.id = :userId', {
+        userId,
+      })
+      .leftJoinAndSelect('channel.chatOwner', 'owner')
+      .getMany();
+      return channels;
+  }
   async findAllPublicChannels(): Promise<ChannelsEntity[]> {
     const channels = await this.channelsRepository
       .createQueryBuilder('channel')

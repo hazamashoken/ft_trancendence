@@ -66,6 +66,18 @@ export class ChannelsController {
     return this.channelsService.findAll();
   }
 
+  @Get(':userId/all')
+  async findUserChats(@Param('userId') userId: number): Promise<ChannelsEntity[]> {
+    return this.channelsService.findAllUserChannels(userId);
+  }
+
+
+  @Post(':chatId/invite/:userName')
+  async invite(@Param('userName') userName: string, @Param('chatId') chatId: number): Promise<ChatUserDto[]>
+  {
+    return await this.channelsService.inviteUserToChat(userName, chatId);
+  }
+
   @Get('public')
   async findPublic(): Promise<ChannelsEntity[]> {
     return this.channelsService.findAllPublicChannels();
