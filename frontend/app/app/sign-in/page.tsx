@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const session = await getServerSession(authOptions);
   if (session?.accessToken) {
-    console.log('session:', session)
+    console.log("session:", session);
     if (session.user) {
       redirect("/profile");
     }

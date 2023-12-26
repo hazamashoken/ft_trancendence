@@ -87,6 +87,7 @@ export function ListUser(props: { data: any; chatId: string }) {
                       </ContextMenuTrigger>
                     </PopoverTrigger>
                     <ContextMenuContent>
+                      <ContextMenuItem>send message</ContextMenuItem>
                       <ContextMenuItem>invite to game</ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem>add friend</ContextMenuItem>
@@ -95,6 +96,10 @@ export function ListUser(props: { data: any; chatId: string }) {
                       <ContextMenuSeparator />
                       <ContextMenuItem>kick</ContextMenuItem>
                       <ContextMenuItem>ban</ContextMenuItem>
+                      <ContextMenuItem>mute</ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem>make admin</ContextMenuItem>
+                      <ContextMenuItem>remove admin</ContextMenuItem>
                     </ContextMenuContent>
                     <PopoverContent className="w-[300px] space-y-10">
                       <div className="flex">
@@ -150,6 +155,7 @@ export function ListUser(props: { data: any; chatId: string }) {
                 form={form}
                 isRequired
               />
+              {/* @ts-ignore */}
               {form.watch("chatType") === "private" && (
                 <InputForm label="Password" name="password" form={form} />
               )}

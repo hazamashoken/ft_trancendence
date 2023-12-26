@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { createChannelAction } from "../_actions/chat";
+import { createChannelAction, leaveChannelAction } from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -58,6 +58,11 @@ export function ListChannel(props: { data: any }) {
     console.log(res);
   };
 
+  const handleLeaveChannel = async () => {
+    const res = await leaveChannelAction(chatId, "4");
+    console.log(res);
+  };
+
   function createAbbreviation(sentence: string) {
     // Split the sentence into words
     const words = sentence.trim().split(" ");
@@ -95,10 +100,9 @@ export function ListChannel(props: { data: any }) {
                     </Tooltip>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
-                    <ContextMenuItem>add admin</ContextMenuItem>
-                    <ContextMenuItem>remove admin</ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem>remove channel</ContextMenuItem>
+                    <ContextMenuItem onClick={handleLeaveChannel}>
+                      leave channel
+                    </ContextMenuItem>
                   </ContextMenuContent>
                 </ContextMenu>
               </div>
