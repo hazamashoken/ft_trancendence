@@ -554,7 +554,10 @@ export class ChannelsService {
       chat.activeUsers = [];
 
     if (chat.activeUsers.length == 1)
+    {
       await this.channelsRepository.remove(chat);
+      return [];
+    }
     if (chat.chatOwner.id == userId)
       throw new ForbiddenException('Please set new owner before quit the chat');
     await this.channelsRepository.save(chat);
