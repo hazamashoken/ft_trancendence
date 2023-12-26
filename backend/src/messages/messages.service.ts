@@ -16,6 +16,8 @@ import { ReturnMessageDto } from './dto/return-message.dto';
 import { plainToClass } from 'class-transformer';
 import { take } from 'rxjs';
 import { PaginationDto } from './dto/pagination.dto';
+import { BlockUser } from '@backend/block/dto/BlockUser.dto';
+import { BlockService } from '@backend/block/blockUser.service';
 
 @Injectable()
 export class MessagesService {
@@ -28,6 +30,7 @@ export class MessagesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
+    private readonly blockUserService: BlockService,
   ) {}
 
   async createMessage(
@@ -57,6 +60,7 @@ export class MessagesService {
 
   async findAllMessagesByChannel(
     channelId: number,
+    userId?: number,
   ): Promise<ReturnMessageDto[]> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
@@ -64,6 +68,10 @@ export class MessagesService {
     if (!channel) {
       throw new NotFoundException('Channel not found');
     }
+
+    const blockedUsers = await this.blockUserService.getAllBlockedUsers(userId);
+    const blockedUserIds = new Set(blockedUsers.map(user => user.id));
+
     const messages = await this.messagesRepository.find({
       where: { channel: { chatId: channelId } },
       relations: ['author'],
@@ -72,9 +80,16 @@ export class MessagesService {
       },
       take: 100,
     });
-    if (messages.length < 1) return [];
 
-    const formattedMessages: ReturnMessageDto[] = messages.map((message) => ({
+    const filteredMessages = messages.filter(message => {
+      // Assuming 'message.author' has an 'id' property
+      return !blockedUserIds.has(message.author.id);
+    }); 
+
+    if (messages.length < 1)
+      return [];
+
+    const formattedMessages: ReturnMessageDto[] = filteredMessages.map((message) => ({
       massageId: message.messageId,
       message: message.message,
       athor: message.author, // Предполагается, что в MessageEntity есть связь с автором

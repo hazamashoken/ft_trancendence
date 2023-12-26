@@ -78,7 +78,7 @@ export const ChatItem = ({
           <div className="flex items-center gap-x-2">
             <div className="flex items-center">
               <p onClick={onMemberClick} className="text-sm font-semibold">
-                {member.intraLogin}
+                {member.displayName}
               </p>
             </div>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">

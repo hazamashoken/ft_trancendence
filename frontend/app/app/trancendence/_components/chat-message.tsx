@@ -27,7 +27,6 @@ type MessageWithMemberWithProfile = any & {
 interface ChatMessagesProps {
   name: string;
   member: any;
-  chatId: string;
   apiUrl: string;
   socketUrl: string;
   socketQuery: Record<string, string>;
@@ -35,12 +34,12 @@ interface ChatMessagesProps {
   paramValue: string;
   type: "channel" | "conversation";
   chatData?: any;
+  chatId: string;
 }
 
 export const ChatMessages = ({
   name,
   member,
-  chatId,
   apiUrl,
   socketUrl,
   socketQuery,
@@ -48,6 +47,7 @@ export const ChatMessages = ({
   paramValue,
   type,
   chatData,
+  chatId,
 }: ChatMessagesProps) => {
   const queryKey = `chat:${chatId}`;
   const addKey = `chat:${chatId}:messages`;
@@ -58,10 +58,9 @@ export const ChatMessages = ({
   const [chatMessages, setChatMessages] = React.useState([]);
 
   const { isConnected } = useSocket();
-
   const { data, status } = useQuery({
     queryKey: [queryKey],
-    enabled: isConnected,
+    enabled: isConnected && !!chatId,
     queryFn: () =>
       fetch(
         apiUrl +
@@ -82,12 +81,22 @@ export const ChatMessages = ({
   useEffect(() => {
     if (!data) return;
     setChatMessages(data);
-  }, [data]);
+  }, [data, chatId]);
 
   useEffect(() => {
     if (!chatRef.current) return;
     chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  });
+  }, [data, chatId]);
+
+  if (!chatId) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          No channel selected...
+        </p>
+      </div>
+    );
+  }
 
   if (status === "pending") {
     return (

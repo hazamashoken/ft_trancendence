@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { createChannelAction, addChannelUserAction } from "../_actions/chat";
+import {
+  createChannelAction,
+  addChannelUserAction,
+  kickChatUser,
+} from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,9 +35,23 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { IChatStore, useChatStore } from "@/store/chat";
+import { useState } from "react";
+import { blockUser, unblockUser } from "../_actions/user";
 
-export function ListUser(props: { data: any; chatId: string }) {
-  const { data, chatId } = props;
+export function ListUser(props: { data: any; userId: string }) {
+  const [open, setOpen] = useState(false);
+  const [chatId] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+  ]);
+  const { data } = props;
   const form = useForm({
     defaultValues: {
       username: "",
@@ -43,12 +61,14 @@ export function ListUser(props: { data: any; chatId: string }) {
   const handleSubmit = async (value: any) => {
     console.log(value);
     const res = await addChannelUserAction(chatId, value.username);
-    console.log(res);
+    if (res) {
+      setOpen(false);
+    }
   };
 
   function createAbbreviation(sentence: string) {
     // Split the sentence into words
-    const words = sentence.split(" ");
+    const words = sentence.trim().split(" ");
 
     // Initialize an empty string to store the abbreviation
     let abbreviation = "";
@@ -87,14 +107,45 @@ export function ListUser(props: { data: any; chatId: string }) {
                       </ContextMenuTrigger>
                     </PopoverTrigger>
                     <ContextMenuContent>
-                      <ContextMenuItem>invite to game</ContextMenuItem>
+                      <ContextMenuItem disabled>send message</ContextMenuItem>
+                      <ContextMenuItem disabled>invite to game</ContextMenuItem>
                       <ContextMenuSeparator />
-                      <ContextMenuItem>add friend</ContextMenuItem>
-                      <ContextMenuItem>remove friend</ContextMenuItem>
-                      <ContextMenuItem>block user</ContextMenuItem>
+                      <ContextMenuItem disabled>add friend</ContextMenuItem>
+                      <ContextMenuItem disabled>remove friend</ContextMenuItem>
                       <ContextMenuSeparator />
-                      <ContextMenuItem>kick</ContextMenuItem>
-                      <ContextMenuItem>ban</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          await blockUser({
+                            id: user.id,
+                            myId: props.userId,
+                          });
+                        }}
+                      >
+                        block user
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          await unblockUser({
+                            id: user.id,
+                            myId: props.userId,
+                          });
+                        }}
+                      >
+                        unblock user
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem disabled>mute</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          kickChatUser(chatId, user.id);
+                        }}
+                      >
+                        kick
+                      </ContextMenuItem>
+                      <ContextMenuItem disabled>ban</ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem disabled>make admin</ContextMenuItem>
+                      <ContextMenuItem disabled>remove admin</ContextMenuItem>
                     </ContextMenuContent>
                     <PopoverContent className="w-[300px] space-y-10">
                       <div className="flex">
@@ -132,7 +183,13 @@ export function ListUser(props: { data: any; chatId: string }) {
           })}
         </div>
       </ScrollArea>
-      <Dialog>
+      <Dialog
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open);
+          form.reset();
+        }}
+      >
         <Tooltip delayDuration={10}>
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
@@ -150,9 +207,6 @@ export function ListUser(props: { data: any; chatId: string }) {
                 form={form}
                 isRequired
               />
-              {form.watch("chatType") === "private" && (
-                <InputForm label="Password" name="password" form={form} />
-              )}
               <Button>Create</Button>
             </form>
           </Form>

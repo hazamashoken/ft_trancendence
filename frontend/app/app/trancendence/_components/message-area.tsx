@@ -1,60 +1,83 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getChannelData } from "../_actions/chat";
+import { getChannelData, getUserChats } from "../_actions/chat";
 import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-message";
+import { IChatStore, useChatStore } from "@/store/chat";
+import { set } from "lodash";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSocket } from "@/components/providers/socket-provider";
 
-export function MessageArea(props: { chatId: string }) {
-  const { chatId } = props;
-  const [chatMeta, setChatMeta] = useState({
-    chatId: "1",
-    chatName: "General",
-  });
+export function MessageArea(props: any) {
+  const { userId } = props;
+  const [
+    chatId,
+    chatList,
+    chatUserList,
+    chatMeta,
+    setChatId,
+    setChatList,
+    setChatUserList,
+    setChatMeta,
+  ] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+  ]);
 
   useEffect(() => {
+    if (!chatId) return;
     const getChatMeta = async () => {
       const data = await getChannelData(chatId);
-      setChatMeta(data);
+      setChatMeta({
+        id: data?.chatId,
+        name: data?.chatName,
+        chatType: data?.chatType,
+        type: "text",
+        data: data,
+      });
     };
     getChatMeta();
   }, [chatId]);
 
-  const channel = {
-    id: chatMeta?.chatId,
-    name: chatMeta?.chatName,
-    type: "text",
-  };
-
   return (
     <div className="w-[350px] h-full flex flex-col justify-between">
       <div className="flex flex-col h-full overflow-hidden">
-        <ChatHeader name={channel.name} type="channel" />
+        <ChatHeader type="channel" chatId={chatId} chatMeta={chatMeta} />
         <ChatMessages
-          member={[]}
-          name={channel.name}
-          chatId={channel.id}
+          member={chatUserList}
+          name={chatMeta.name}
           type="channel"
           apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`}
           socketUrl="/api/socket/messages"
           socketQuery={{
-            channelId: channel.id,
+            channelId: chatMeta.id,
           }}
           // chatData={chatData}
           paramKey="channelId"
-          paramValue={channel.id}
+          paramValue={chatMeta.id}
+          chatId={chatId}
         />
       </div>
-      <ChatInput
-        name={channel.name}
-        type="channel"
-        apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/createmessage`}
-        query={{
-          channelId: channel.id,
-        }}
-        chatId={chatMeta?.chatId}
-      />
+      {chatId && (
+        <ChatInput
+          name={chatMeta.name}
+          type="channel"
+          apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/createmessage`}
+          query={{
+            channelId: chatMeta.id,
+          }}
+          chatId={chatId}
+          userId={userId}
+        />
+      )}
     </div>
   );
 }
