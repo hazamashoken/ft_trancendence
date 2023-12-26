@@ -38,28 +38,20 @@ export function MainNav({
               <p className="text-lg font-semibol">Home</p>
             </Link>
             <Link
-              href="/game"
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              <p className="text-lg font-semibol">Game</p>
-            </Link>
-            <Link
-              href="/chat"
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              <p className="text-lg font-semibol">Chat</p>
-            </Link>
-            <Link
               href="/test"
               onClick={() => {
                 setOpen(false);
               }}
             >
               <p className="text-lg font-semibol">Test</p>
+            </Link>
+            <Link
+              href="/trancendence"
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              <p className="text-lg font-semibol">Trancendence</p>
             </Link>
             <Button
               variant={"ghost"}

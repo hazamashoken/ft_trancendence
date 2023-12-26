@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useModal } from "@/lib/hooks/use-modal-store";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 // import { EmojiPicker } from "@/components/emoji-picker";
 
 interface ChatInputProps {
@@ -56,11 +56,14 @@ export const ChatInput = ({
       //   query,
       // });
       const url = apiUrl;
+      // console.log(url);
       const { data } = await axios.post(url, values);
 
       form.reset();
-      router.refresh();
-      queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
+      // router.refresh();
+      await queryClient.invalidateQueries({
+        queryKey: [`chat:${chatId}`],
+      });
     } catch (error) {
       console.log(error);
     }

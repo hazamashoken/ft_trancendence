@@ -3,6 +3,11 @@ import { Hash } from "lucide-react";
 // import { MobileToggle } from "@/components/mobile-toggle";
 import { UserAvatar } from "@/components/user-avatar";
 import { SocketIndicator } from "@/components/socket-indicator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // import { ChatVideoButton } from "./chat-video-button";
 
@@ -21,7 +26,14 @@ export const ChatHeader = ({ name, type, imageUrl }: ChatHeaderProps) => {
       {type === "conversation" && (
         <UserAvatar src={imageUrl} className="w-8 h-8 mr-2 md:h-8 md:w-8" />
       )}
-      <p className="font-semibold text-black text-md dark:text-white">{name}</p>
+      <Tooltip>
+        <TooltipTrigger>
+          <p className="font-semibold text-black truncate w-28 text-md dark:text-white">
+            {name}
+          </p>
+        </TooltipTrigger>
+        <TooltipContent>{name}</TooltipContent>
+      </Tooltip>
       <div className="flex items-center ml-auto">
         <SocketIndicator />
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useRef, ElementRef } from "react";
+import { Fragment, useRef, ElementRef, useEffect } from "react";
 import { format } from "date-fns";
 // import { Member, Message, Profile } from "@prisma/client";
 import { Loader2, ServerCrash } from "lucide-react";
@@ -13,6 +13,8 @@ import { ChatWelcome } from "./chat-welcome";
 import { ChatItem } from "./chat-item";
 import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "@/components/providers/socket-provider";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import React from "react";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -32,6 +34,7 @@ interface ChatMessagesProps {
   paramKey: "channelId" | "conversationId";
   paramValue: string;
   type: "channel" | "conversation";
+  chatData?: any;
 }
 
 export const ChatMessages = ({
@@ -44,6 +47,7 @@ export const ChatMessages = ({
   paramKey,
   paramValue,
   type,
+  chatData,
 }: ChatMessagesProps) => {
   const queryKey = `chat:${chatId}`;
   const addKey = `chat:${chatId}:messages`;
@@ -51,16 +55,11 @@ export const ChatMessages = ({
 
   const chatRef = useRef<ElementRef<"div">>(null);
   const bottomRef = useRef<ElementRef<"div">>(null);
-
-  // const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-  //   useChatQuery({
-  //     queryKey,
-  //     apiUrl,
-  //     paramKey,
-  //     paramValue,
-  //   });
+  const [chatMessages, setChatMessages] = React.useState([]);
 
   const { isConnected } = useSocket();
+
+  console.log(isConnected);
 
   const { data, status } = useQuery({
     queryKey: [queryKey],
@@ -73,14 +72,17 @@ export const ChatMessages = ({
         },
       }).then((res) => res.json()),
   });
-  // useChatSocket({ queryKey, addKey, updateKey });
-  // useChatScroll({
-  //   chatRef,
-  //   bottomRef,
-  //   loadMore: fetchNextPage,
-  //   shouldLoadMore: !isFetchingNextPage && !!hasNextPage,
-  //   count: data?.pages?.[0]?.items?.length ?? 0,
-  // });
+
+  useEffect(() => {
+    if (!data) return;
+    data.reverse();
+    setChatMessages(data);
+  }, [data]);
+
+  useEffect(() => {
+    if (!chatRef.current) return;
+    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  });
 
   if (status === "pending") {
     return (
@@ -105,25 +107,12 @@ export const ChatMessages = ({
   }
 
   return (
-    <div ref={chatRef} className="flex flex-col flex-1 py-4 overflow-y-auto">
-      {/* {!hasNextPage && <div className="flex-1" />}
-      {!hasNextPage && <ChatWelcome type={type} name={name} />}
-      {hasNextPage && (
-        <div className="flex justify-center">
-          {isFetchingNextPage ? (
-            <Loader2 className="w-6 h-6 my-4 text-zinc-500 animate-spin" />
-          ) : (
-            <button
-              onClick={() => fetchNextPage()}
-              className="my-4 text-xs transition text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
-            >
-              Load previous messages
-            </button>
-          )}
-        </div>
-      )} */}
+    <div
+      ref={chatRef}
+      className="flex flex-col flex-1 py-4 overflow-y-auto h-[750px]"
+    >
       <div className="flex flex-col-reverse mt-auto">
-        {data?.map((message: any, i: number) => (
+        {chatMessages?.map((message: any, i: number) => (
           <ChatItem
             key={message.massageId}
             id={message.massageId}
@@ -132,8 +121,7 @@ export const ChatMessages = ({
             content={message.message}
             fileUrl={message.fileUrl}
             deleted={message.deleted}
-            // add message.createAt later
-            timestamp={format(new Date(), DATE_FORMAT)}
+            timestamp={format(new Date(message.createAt), DATE_FORMAT)}
             isUpdated={message.updatedAt}
             socketUrl={socketUrl}
             socketQuery={socketQuery}
