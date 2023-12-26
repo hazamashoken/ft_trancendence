@@ -21,9 +21,12 @@ import React from "react";
 export function UserNav(props: any) {
   const { session } = props;
 
-  const profile = session?.user?.profile;
-  const nameInitial = profile?.login[0] + profile?.login[1];
+  // console.log(data);
 
+  const isSignedIn = status === "authenticated";
+  const profile = session?.ftUser;
+  const avatarLink = isSignedIn ? profile.image?.link : "";
+  const nameInitial = isSignedIn ? profile.login : "TMP";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -37,7 +40,9 @@ export function UserNav(props: any) {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{profile?.login}</p>
+            <p className="text-sm font-medium leading-none">
+              {profile?.login}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
               {profile?.email}
             </p>

@@ -7,7 +7,7 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import { EMPTY, Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
@@ -83,22 +83,28 @@ export class AuthGuard implements CanActivate {
         return this.userRepo.findOneBy({ intraId: ft.id });
       }),
       switchMap(user => {
-        userSession.id = user.id;
-        userSession.status = 'OFFLINE';
-        return this.usRepo.findOneBy({ id: user.id });
-      }),
-      // Retrieve existed session and update only token and ftUser
-      switchMap(session => {
-        if (session) {
-          session.ftUser = userSession.ftUser;
-          session.accessToken = userSession.accessToken;
-          session.expiredTokenTimestamp = userSession.expiredTokenTimestamp;
-          userSession.status = session.status;
-          return this.usRepo.save(session);
+        if (!user) {
+          return from(of({}));
+        } else {
+          userSession.id = user.id;
+          userSession.status = 'OFFLINE';
+          return from(this.saveSession(userSession));
         }
-        return this.usRepo.save(userSession);
       }),
       map(() => userSession),
     );
+  }
+
+  saveSession(userSession) {
+    return this.usRepo.findOneBy({ id: userSession.id }).then(session => {
+      if (session) {
+        session.ftUser = userSession.ftUser;
+        session.accessToken = userSession.accessToken;
+        session.expiredTokenTimestamp = userSession.expiredTokenTimestamp;
+        userSession.status = session.status;
+        return this.usRepo.save(session);
+      }
+      return this.usRepo.save(userSession);
+    });
   }
 }
