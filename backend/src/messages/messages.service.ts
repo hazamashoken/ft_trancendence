@@ -30,7 +30,6 @@ export class MessagesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
-    @InjectRepository(BlockUser)
     private readonly blockUserService: BlockService,
   ) {}
 
