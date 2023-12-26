@@ -2,6 +2,8 @@
 PWD := $(shell pwd)
 all: run-backend run-database run-frontend
 
+dev: dev-frontend dev-backend 
+
 run-backend:
 	docker compose up --build --detach backend
 
@@ -18,6 +20,17 @@ dev-backend:
 		--volume $(PWD)/backend:/usr/src/app \
 		backend
 
+dev-frontend:
+	npm install --prefix frontend/app
+	docker compose run \
+		--detach \
+		--rm \
+		--build \
+		--name nextjs \
+		--publish 8080:8080 \
+		--volume $(PWD)/frontend/app:/usr/src/app \
+		frontend
+
 backend-start-dev:
 	docker exec -ti nestjs npm run start:dev
 
@@ -31,7 +44,7 @@ run-frontend:
 	docker compose up --build --detach frontend
 
 seed-database:
-	cd database && npm run start
+	cd database && npm install && npm run start
 
 re-backend: clean run-backend
 

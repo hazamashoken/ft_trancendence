@@ -7,6 +7,10 @@ export class ReturnMessageDto {
 
   athor: User;
 
+  createAt: Date;
+
+  updateAt: Date;
+
   my: string;
 
   hm: string;
