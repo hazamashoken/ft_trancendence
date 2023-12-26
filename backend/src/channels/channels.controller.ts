@@ -350,7 +350,7 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
   ): Promise<ChatUserDto[]> {
-    this.chatGateway.sendEvents({ message: 'user quitChat', event: 'quitChat' });
+    this.chatGateway.sendEvents({ message: 'user quitChat', event: 'quitChat', chatId: chatId});
     return await this.channelsService.quitChannel(chatId, userId);
   }
 
