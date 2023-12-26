@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "@/components/providers/socket-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
+import { IChatStore, useChatStore } from "@/store/chat";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -27,7 +28,6 @@ type MessageWithMemberWithProfile = any & {
 interface ChatMessagesProps {
   name: string;
   member: any;
-  chatId: string;
   apiUrl: string;
   socketUrl: string;
   socketQuery: Record<string, string>;
@@ -40,7 +40,6 @@ interface ChatMessagesProps {
 export const ChatMessages = ({
   name,
   member,
-  chatId,
   apiUrl,
   socketUrl,
   socketQuery,
@@ -49,6 +48,25 @@ export const ChatMessages = ({
   type,
   chatData,
 }: ChatMessagesProps) => {
+  const [
+    chatId,
+    chatList,
+    chatUserList,
+    chatMeta,
+    setChatId,
+    setChatList,
+    setChatUserList,
+    setChatMeta,
+  ] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+  ]);
   const queryKey = `chat:${chatId}`;
   const addKey = `chat:${chatId}:messages`;
   const updateKey = `chat:${chatId}:messages:update`;
@@ -58,10 +76,9 @@ export const ChatMessages = ({
   const [chatMessages, setChatMessages] = React.useState([]);
 
   const { isConnected } = useSocket();
-
   const { data, status } = useQuery({
     queryKey: [queryKey],
-    enabled: isConnected,
+    enabled: isConnected && !!chatId,
     queryFn: () =>
       fetch(
         apiUrl +
@@ -82,12 +99,21 @@ export const ChatMessages = ({
   useEffect(() => {
     if (!data) return;
     setChatMessages(data);
-  }, [data]);
+  }, [data, chatId]);
 
   useEffect(() => {
     if (!chatRef.current) return;
     chatRef.current.scrollTop = chatRef.current.scrollHeight;
   });
+  if (!chatId) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          No channel selected...
+        </p>
+      </div>
+    );
+  }
 
   if (status === "pending") {
     return (
@@ -110,8 +136,6 @@ export const ChatMessages = ({
       </div>
     );
   }
-
-  console.log(chatMessages[0]);
 
   return (
     <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">

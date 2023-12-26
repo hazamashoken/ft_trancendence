@@ -3,6 +3,7 @@
 import { InputForm } from "@/components/form/input";
 import { SelectForm } from "@/components/form/select";
 import { Button } from "@/components/ui/button";
+import { getChannelData, getUserChats } from "../_actions/chat";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -10,13 +11,13 @@ import { createChannelAction, leaveChannelAction } from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChatStore } from "@/store/chat";
+import { IChatStore, useChatStore } from "@/store/chat";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -24,20 +25,46 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSocket } from "@/components/providers/socket-provider";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
+
+const formSchema = z.object({
+  chatName: z.string().min(1),
+  chatOwner: z.coerce.number(),
+  password: z.string().nullable(),
+  chatType: z.string(),
+});
 
 export function ListChannel(props: { data: any }) {
   const { data } = props;
   const [open, setOpen] = useState(false);
-  const [chatId, setChatId] = useChatStore((state) => [
+  const [
+    chatId,
+    chatList,
+    chatUserList,
+    chatMeta,
+    setChatId,
+    setChatList,
+    setChatUserList,
+    setChatMeta,
+  ] = useChatStore((state: IChatStore) => [
     state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
     state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
   ]);
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       chatName: null,
       chatOwner: 4,
       password: null,
-      maxUsers: null,
       chatType: "public" as "public" | "private",
     },
   });
@@ -53,19 +80,32 @@ export function ListChannel(props: { data: any }) {
     const res = await createChannelAction(payload);
     if (res) {
       setChatId(res.chatId);
+      form.reset();
       setOpen(false);
     }
     console.log(res);
   };
 
-  const handleLeaveChannel = async () => {
-    const res = await leaveChannelAction(chatId, "4");
-    console.log(res);
+  const handleViewChannel = (channel: any) => {
+    setChatId(channel.chatId);
+    console.log(channel);
+    setChatMeta({
+      id: channel.chatId,
+      name: channel.chatName,
+      chatType: channel.chatType,
+      type: "text",
+      data: channel,
+    });
+  };
+
+  const handleLeaveChannel = async (id: string) => {
+    const res = await leaveChannelAction(id, "4");
   };
 
   function createAbbreviation(sentence: string) {
     // Split the sentence into words
     const words = sentence.trim().split(" ");
+    if (!words[0]) return "";
 
     // Initialize an empty string to store the abbreviation
     let abbreviation = "";
@@ -90,7 +130,7 @@ export function ListChannel(props: { data: any }) {
                   <ContextMenuTrigger>
                     <Tooltip delayDuration={10}>
                       <TooltipTrigger>
-                        <Avatar onClick={() => setChatId(channel.chatId)}>
+                        <Avatar onClick={() => handleViewChannel(channel)}>
                           <AvatarFallback>
                             {createAbbreviation(channel.chatName)}
                           </AvatarFallback>
@@ -100,7 +140,14 @@ export function ListChannel(props: { data: any }) {
                     </Tooltip>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
-                    <ContextMenuItem onClick={handleLeaveChannel}>
+                    {/* <ContextMenuItem onClick={() => {}}>
+                      channel settings
+                    </ContextMenuItem> */}
+                    <ContextMenuItem
+                      onClick={() => {
+                        handleLeaveChannel(channel.chatId);
+                      }}
+                    >
                       leave channel
                     </ContextMenuItem>
                   </ContextMenuContent>
@@ -110,7 +157,13 @@ export function ListChannel(props: { data: any }) {
           })}
         </div>
       </ScrollArea>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open);
+          form.reset();
+        }}
+      >
         <Tooltip delayDuration={10}>
           <TooltipTrigger asChild>
             <DialogTrigger asChild>

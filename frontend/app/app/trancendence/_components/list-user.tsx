@@ -31,9 +31,22 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { IChatStore, useChatStore } from "@/store/chat";
+import { useState } from "react";
 
-export function ListUser(props: { data: any; chatId: string }) {
-  const { data, chatId } = props;
+export function ListUser(props: { data: any }) {
+  const [open, setOpen] = useState(false);
+  const [chatId] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+  ]);
+  const { data } = props;
   const form = useForm({
     defaultValues: {
       username: "",
@@ -43,12 +56,14 @@ export function ListUser(props: { data: any; chatId: string }) {
   const handleSubmit = async (value: any) => {
     console.log(value);
     const res = await addChannelUserAction(chatId, value.username);
-    console.log(res);
+    if (res) {
+      setOpen(false);
+    }
   };
 
   function createAbbreviation(sentence: string) {
     // Split the sentence into words
-    const words = sentence.split(" ");
+    const words = sentence.trim().split(" ");
 
     // Initialize an empty string to store the abbreviation
     let abbreviation = "";
@@ -137,7 +152,13 @@ export function ListUser(props: { data: any; chatId: string }) {
           })}
         </div>
       </ScrollArea>
-      <Dialog>
+      <Dialog
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open);
+          form.reset();
+        }}
+      >
         <Tooltip delayDuration={10}>
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
@@ -155,10 +176,6 @@ export function ListUser(props: { data: any; chatId: string }) {
                 form={form}
                 isRequired
               />
-              {/* @ts-ignore */}
-              {form.watch("chatType") === "private" && (
-                <InputForm label="Password" name="password" form={form} />
-              )}
               <Button>Create</Button>
             </form>
           </Form>
