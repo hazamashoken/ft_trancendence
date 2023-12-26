@@ -94,7 +94,7 @@ export default function Game(props: any) {
       <div className="flex flex-row items-center m-1">
         <Button
           className="mt-1 mb-1 ml-4 mr-4"
-          disabled={phase == Phase.waiting || team == Team.spectator}
+          disabled={phase == Phase.waiting || phase == Phase.disconnect || team == Team.spectator}
           onMouseDown={sendKeyUp}
           onMouseUp={sendKeyRelease}
         >
@@ -102,7 +102,7 @@ export default function Game(props: any) {
         </Button>
         <Button
           className="mt-1 mb-1 mr-4"
-          disabled={phase == Phase.waiting || team == Team.spectator}
+          disabled={phase == Phase.waiting || phase == Phase.disconnect || team == Team.spectator}
           onMouseDown={sendKeyDown}
           onMouseUp={sendKeyRelease}
         >
@@ -112,14 +112,14 @@ export default function Game(props: any) {
       <div className="flex flex-row items-center m-1">
         <Button
           className="mt-1 mb-1 ml-4 mr-4"
-          disabled={phase == Phase.waiting || team == Team.spectator}
+          disabled={phase == Phase.waiting || phase == Phase.disconnect || team == Team.spectator}
           onClick={clickStart}
         >
           Start
         </Button>
         <Button
           className="mt-1 mb-1 mr-4"
-          disabled={phase == Phase.waiting || team == Team.spectator}
+          disabled={phase == Phase.waiting || phase == Phase.disconnect || team == Team.spectator}
           onClick={clickSuper}
         >
           Super
