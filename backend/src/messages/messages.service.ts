@@ -14,6 +14,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ReturnMessageDto } from './dto/return-message.dto';
 import { plainToClass } from 'class-transformer';
+import { take } from 'rxjs';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
 export class MessagesService {
@@ -26,7 +28,7 @@ export class MessagesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
-  ) { }
+  ) {}
 
   async createMessage(
     channelId: number,
@@ -55,6 +57,7 @@ export class MessagesService {
 
   async findAllMessagesByChannel(
     channelId: number,
+    pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
@@ -62,22 +65,17 @@ export class MessagesService {
     if (!channel) {
       throw new NotFoundException('Channel not found');
     }
-    // const numericValues = channel.chat_name.split(" ").map(word => {
-    //   let numericWord = "";
-    //   for (let i = 0; i < word.length; i++) {
-    //     const charCode = word.charCodeAt(i);
-    //     numericWord += charCode + " ";
-    //   }
-    //   return numericWord.trim(); // Удаляем последний пробел
-    // }).map(numericString => numericString.split(" "))
-    // .flat()
-    // .join("")
-
+    if (!pagination.limit)
+      pagination.limit = 100;
     const messages = await this.messagesRepository.find({
       where: { channel: { chatId: channelId } },
       relations: ['author'],
+      order: {
+        createAt: 'DESC', // Сортировка сообщений по дате создания в обратном порядке
+      },
+      skip: (pagination.page - 1) * pagination.limit,
+      take: pagination.limit,
     });
-
     if (messages.length < 1) return [];
 
     const formattedMessages: ReturnMessageDto[] = messages.map((message) => ({
@@ -91,17 +89,17 @@ export class MessagesService {
         .padStart(2, '0')}.${message.createAt.getFullYear()}`,
       hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
       createAt: message.createAt,
-      updateAt: message.updateAt,
       updatedAtmy: message.updateAt
         ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
-          message.updateAt.getMonth() + 1
-        )
-          .toString()
-          .padStart(2, '0')}.${message.updateAt.getFullYear()}`
+            message.updateAt.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, '0')}.${message.updateAt.getFullYear()}`
         : null,
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
         : null,
+      updateAt: !message.updateAt ? null : message.updateAt,
     }));
 
     return formattedMessages;
@@ -129,6 +127,7 @@ export class MessagesService {
   async deleteMessage(
     messageId: number,
     chatId: number,
+    pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: chatId },
@@ -143,6 +142,6 @@ export class MessagesService {
       throw new NotFoundException('Message not found at this chat');
 
     await this.messagesRepository.delete(messageId);
-    return await this.findAllMessagesByChannel(chatId);
+    return await this.findAllMessagesByChannel(chatId, pagination);
   }
 }
