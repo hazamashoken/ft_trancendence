@@ -555,7 +555,8 @@ export class ChannelsService {
 
     if (chat.activeUsers.length == 1)
     {
-      await this.channelsRepository.remove(chat);
+      // await this.channelsRepository.remove(chat);
+      await this.delete(chat.chatId, userId);
       return [];
     }
     if (chat.chatOwner.id == userId)
