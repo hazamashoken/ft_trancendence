@@ -154,11 +154,11 @@ export class ChannelsController {
   @Post(':chatId/addUser/:userName')
   async addUserByName(
     @Param('chatId') chatId: number,
-    @Param('userName') userName: string,
+    @Body() dto: {userName: string},
   ): Promise<ChatUserDto[]> {
     try {
       this.chatGateway.sendEvents({message: 'user added', chatId: chatId, event: 'getChatUsers'});
-      return await this.channelsService.addUserToChatByName(chatId, userName);
+      return await this.channelsService.addUserToChatByName(chatId, dto.userName);
     } catch (error) {
       throw new NotFoundException(error.message, 'Not Found');
     }
