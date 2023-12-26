@@ -1,31 +1,35 @@
 import { Body, Controller, Get, Param, Post, Delete } from "@nestjs/common";
 import { BlockService } from "./blockUser.service";
 import { User } from "@backend/typeorm";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { BlockUserDto } from "./dto/BlockUser.dto";
 
-@Controller('blockUser')
+@Controller('user')
+@ApiTags('BlockUser')
 export class BlockUserController {
-  constructor (
+  constructor(
     private readonly blockService: BlockService
-  ){};
+  ) { };
 
-  @Get(':userId')
+  @Get(':userId/block')
   async getAllBlockedUsers(
     @Param('userId') userId: number,
   ): Promise<User[]> {
     return await this.blockService.getAllBlockedUsers(userId);
   }
 
-  @Post()
+  @Post('/block')
+  @ApiOperation({ summary: 'Block user' })
   async blockUser(
-    @Body() dto: {myId: number,userId: number }
+    @Body() dto: BlockUserDto
   ): Promise<User[]> {
-    return await this.blockService.blockUser(dto.myId, dto.userId);
+    return await this.blockService.blockUser(dto.myId, dto.id);
   }
 
-  @Delete()
+  @Post('/unblock')
   async unblockUser(
-    @Body() dto: {myId: number,userId: number }
+    @Body() dto: BlockUserDto
   ): Promise<User[]> {
-    return await this.blockService.unBlockUser(dto.myId, dto.userId);
+    return await this.blockService.unBlockUser(dto.myId, dto.id);
   }
 }

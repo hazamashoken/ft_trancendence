@@ -15,7 +15,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "@/components/providers/socket-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
-import { IChatStore, useChatStore } from "@/store/chat";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -35,6 +34,7 @@ interface ChatMessagesProps {
   paramValue: string;
   type: "channel" | "conversation";
   chatData?: any;
+  chatId: string;
 }
 
 export const ChatMessages = ({
@@ -47,26 +47,8 @@ export const ChatMessages = ({
   paramValue,
   type,
   chatData,
+  chatId,
 }: ChatMessagesProps) => {
-  const [
-    chatId,
-    chatList,
-    chatUserList,
-    chatMeta,
-    setChatId,
-    setChatList,
-    setChatUserList,
-    setChatMeta,
-  ] = useChatStore((state: IChatStore) => [
-    state.chatId,
-    state.chatList,
-    state.chatUserList,
-    state.chatMeta,
-    state.setChatId,
-    state.setChatList,
-    state.setChatUserList,
-    state.setChatMeta,
-  ]);
   const queryKey = `chat:${chatId}`;
   const addKey = `chat:${chatId}:messages`;
   const updateKey = `chat:${chatId}:messages:update`;
@@ -104,7 +86,8 @@ export const ChatMessages = ({
   useEffect(() => {
     if (!chatRef.current) return;
     chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  });
+  }, [data, chatId]);
+
   if (!chatId) {
     return (
       <div className="flex flex-col items-center justify-center flex-1">
@@ -136,6 +119,8 @@ export const ChatMessages = ({
       </div>
     );
   }
+
+  console.log(chatMessages[0]);
 
   return (
     <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">

@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { createChannelAction, addChannelUserAction } from "../_actions/chat";
+import {
+  createChannelAction,
+  addChannelUserAction,
+  kickChatUser,
+} from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,8 +37,9 @@ import {
 } from "@/components/ui/tooltip";
 import { IChatStore, useChatStore } from "@/store/chat";
 import { useState } from "react";
+import { blockUser, unblockUser } from "../_actions/user";
 
-export function ListUser(props: { data: any }) {
+export function ListUser(props: { data: any; userId: string }) {
   const [open, setOpen] = useState(false);
   const [chatId] = useChatStore((state: IChatStore) => [
     state.chatId,
@@ -102,19 +107,45 @@ export function ListUser(props: { data: any }) {
                       </ContextMenuTrigger>
                     </PopoverTrigger>
                     <ContextMenuContent>
-                      <ContextMenuItem>send message</ContextMenuItem>
-                      <ContextMenuItem>invite to game</ContextMenuItem>
+                      <ContextMenuItem disabled>send message</ContextMenuItem>
+                      <ContextMenuItem disabled>invite to game</ContextMenuItem>
                       <ContextMenuSeparator />
-                      <ContextMenuItem>add friend</ContextMenuItem>
-                      <ContextMenuItem>remove friend</ContextMenuItem>
-                      <ContextMenuItem>block user</ContextMenuItem>
+                      <ContextMenuItem disabled>add friend</ContextMenuItem>
+                      <ContextMenuItem disabled>remove friend</ContextMenuItem>
                       <ContextMenuSeparator />
-                      <ContextMenuItem>kick</ContextMenuItem>
-                      <ContextMenuItem>ban</ContextMenuItem>
-                      <ContextMenuItem>mute</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          await blockUser({
+                            id: user.id,
+                            myId: props.userId,
+                          });
+                        }}
+                      >
+                        block user
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          await unblockUser({
+                            id: user.id,
+                            myId: props.userId,
+                          });
+                        }}
+                      >
+                        unblock user
+                      </ContextMenuItem>
                       <ContextMenuSeparator />
-                      <ContextMenuItem>make admin</ContextMenuItem>
-                      <ContextMenuItem>remove admin</ContextMenuItem>
+                      <ContextMenuItem disabled>mute</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          kickChatUser(chatId, user.id);
+                        }}
+                      >
+                        kick
+                      </ContextMenuItem>
+                      <ContextMenuItem disabled>ban</ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem disabled>make admin</ContextMenuItem>
+                      <ContextMenuItem disabled>remove admin</ContextMenuItem>
                     </ContextMenuContent>
                     <PopoverContent className="w-[300px] space-y-10">
                       <div className="flex">

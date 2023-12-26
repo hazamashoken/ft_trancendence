@@ -10,7 +10,8 @@ import { set } from "lodash";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "@/components/providers/socket-provider";
 
-export function MessageArea() {
+export function MessageArea(props: any) {
+  const { userId } = props;
   const [
     chatId,
     chatList,
@@ -35,7 +36,6 @@ export function MessageArea() {
     if (!chatId) return;
     const getChatMeta = async () => {
       const data = await getChannelData(chatId);
-      console.log(data);
       setChatMeta({
         id: data?.chatId,
         name: data?.chatName,
@@ -43,7 +43,6 @@ export function MessageArea() {
         type: "text",
         data: data,
       });
-      console.log(chatMeta);
     };
     getChatMeta();
   }, [chatId]);
@@ -51,9 +50,9 @@ export function MessageArea() {
   return (
     <div className="w-[350px] h-full flex flex-col justify-between">
       <div className="flex flex-col h-full overflow-hidden">
-        <ChatHeader type="channel" />
+        <ChatHeader type="channel" chatId={chatId} chatMeta={chatMeta} />
         <ChatMessages
-          member={[]}
+          member={chatUserList}
           name={chatMeta.name}
           type="channel"
           apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`}
@@ -64,6 +63,7 @@ export function MessageArea() {
           // chatData={chatData}
           paramKey="channelId"
           paramValue={chatMeta.id}
+          chatId={chatId}
         />
       </div>
       {chatId && (
@@ -74,6 +74,8 @@ export function MessageArea() {
           query={{
             channelId: chatMeta.id,
           }}
+          chatId={chatId}
+          userId={userId}
         />
       )}
     </div>

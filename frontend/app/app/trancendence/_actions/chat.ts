@@ -176,7 +176,6 @@ export const leaveChannelAction = async (chatId: string = "1", user: string) => 
 }
 
 export const updateChannelAction = async (chatId: string = "1", payload: any) => {
-  console.log(payload)
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/update`;
   const response = await fetch(url, {
     method: "POST",
@@ -188,6 +187,23 @@ export const updateChannelAction = async (chatId: string = "1", payload: any) =>
 
   const data = await response.json();
   console.log(data)
+  if (response.status !== 201) {
+    throw new Error(data.message);
+  }
+  return data;
+}
+
+
+export const kickChatUser = async (chatId: any, userId: any) => {
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/removeUser/${userId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
   if (response.status !== 201) {
     throw new Error(data.message);
   }

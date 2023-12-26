@@ -71,12 +71,6 @@ export class ChannelsController {
     return this.channelsService.findAllUserChannels(userId);
   }
 
-
-  @Post(':chatId/invite/:userName')
-  async invite(@Param('userName') userName: string, @Param('chatId') chatId: number): Promise<ChatUserDto[]> {
-    return await this.channelsService.inviteUserToChat(userName, chatId);
-  }
-
   @Get('public')
   async findPublic(): Promise<ChannelsEntity[]> {
     return this.channelsService.findAllPublicChannels();
@@ -137,20 +131,20 @@ export class ChannelsController {
     return this.channelsService.update(chatId, dto);
   }
 
-  @Post(':chatId/addUser/:userId')
-  async addUser(
-    @Param('chatId') chatId: number,
-    @Param('userId') userId: number,
-  ): Promise<ChatUserDto[]> {
-    try {
-      this.chatGateway.sendEvents({ message: 'user added', chatId: chatId, event: 'getChatUsers' });
-      return await this.channelsService.addUserToChat(chatId, userId);
-    } catch (error) {
-      throw new NotFoundException(error.message, 'Not Found');
-    }
-  }
+  // @Post(':chatId/addUser/:userId')
+  // async addUser(
+  //   @Param('chatId') chatId: number,
+  //   @Param('userId') userId: number,
+  // ): Promise<ChatUserDto[]> {
+  //   try {
+  //     this.chatGateway.sendEvents({ message: 'user added', chatId: chatId, event: 'getChatUsers' });
+  //     return await this.channelsService.addUserToChat(chatId, userId);
+  //   } catch (error) {
+  //     throw new NotFoundException(error.message, 'Not Found');
+  //   }
+  // }
 
-  @Post(':chatId/addByName/:userName')
+  @Post(':chatId/addUser/:userName')
   async addUserByName(
     @Param('chatId') chatId: number,
     @Param('userName') userName: string,

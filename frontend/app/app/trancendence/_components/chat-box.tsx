@@ -11,7 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useSocket } from "@/components/providers/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function ChatBox() {
+export function ChatBox(props: any) {
+  const { userId = "4" } = props;
   const [
     chatId,
     chatList,
@@ -36,7 +37,7 @@ export function ChatBox() {
   const { socket } = useSocket();
   useEffect(() => {
     const getChat = async () => {
-      getUserChats("4").then((data) => {
+      getUserChats(userId).then((data) => {
         setChatList(data);
       });
       if (!chatId) return;
@@ -46,7 +47,6 @@ export function ChatBox() {
     };
 
     socket?.on("event", (res: any) => {
-      console.log("event", res);
       if (res.event === "quitChat") {
         getChat();
         if (res.chatId === chatId.toString()) {
@@ -59,27 +59,26 @@ export function ChatBox() {
           setChatUserList([]);
         }
       } else if (res.event === "getChatMessages") {
-        queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
+        queryClient.invalidateQueries({ queryKey: [`chat:${res.chatId}`] });
       } else if (res.event === "chat updated") {
-        getUserChats("4").then((data) => {
+        getUserChats(userId).then((data) => {
           setChatList(data);
         });
       }
     });
 
     getChat();
-    console.log(chatList);
     return () => {
       socket?.off("event");
     };
-  }, [chatId]);
+  });
 
   return (
     <Card className="m-1">
       <CardContent className="flex h-[800px] p-1 space-x-1">
         <ListChannel data={chatList} />
-        <MessageArea />
-        {chatId && <ListUser data={chatUserList} />}
+        <MessageArea userId={userId} />
+        {chatId && <ListUser data={chatUserList} userId={userId} />}
       </CardContent>
     </Card>
   );

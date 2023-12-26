@@ -9,7 +9,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { IChatStore, useChatStore } from "@/store/chat";
 import { Badge } from "@/components/ui/badge";
 import { ChatSettingMenu } from "./chat-setting-dialog";
 
@@ -18,28 +17,16 @@ import { ChatSettingMenu } from "./chat-setting-dialog";
 interface ChatHeaderProps {
   type: "channel" | "conversation";
   imageUrl?: string;
+  chatId: string;
+  chatMeta: any;
 }
 
-export const ChatHeader = ({ type, imageUrl }: ChatHeaderProps) => {
-  const [
-    chatId,
-    chatList,
-    chatUserList,
-    chatMeta,
-    setChatId,
-    setChatList,
-    setChatUserList,
-    setChatMeta,
-  ] = useChatStore((state: IChatStore) => [
-    state.chatId,
-    state.chatList,
-    state.chatUserList,
-    state.chatMeta,
-    state.setChatId,
-    state.setChatList,
-    state.setChatUserList,
-    state.setChatMeta,
-  ]);
+export const ChatHeader = ({
+  type,
+  imageUrl,
+  chatId,
+  chatMeta,
+}: ChatHeaderProps) => {
   return (
     <div className="flex items-center h-12 px-3 font-semibold border-b-2 text-md border-neutral-200 dark:border-neutral-800">
       {chatMeta?.chatType && (

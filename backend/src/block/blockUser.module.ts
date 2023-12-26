@@ -9,7 +9,8 @@ import { User } from "@backend/typeorm";
   imports: [
     TypeOrmModule.forFeature([BlockUser, User])
   ],
+  controllers: [BlockUserController],
   providers: [BlockService],
   exports: [BlockService],
 })
-export class BlockUserModule {}
+export class BlockUserModule { }
