@@ -310,3 +310,42 @@ export const banChatUser = async (payload: { chatId: string, userId: string | nu
 
   return { data }
 }
+
+
+export const addChatAdmin = async (chatId: string, userId: string) => {
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/addAdmin/${userId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: null
+  });
+
+  const data = await response.json();
+  console.log(data)
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data }
+}
+
+
+export const removeChatAdmin = async (chatId: string, userId: string) => {
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/removeAdmin/${userId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: null
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data }
+}

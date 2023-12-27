@@ -54,11 +54,11 @@ export const ChatInput = ({
     }
     try {
       const url = apiUrl;
-      const { data } = await axios.post(url, values);
+      await axios.post(url, values);
       form.reset();
       queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
     } catch (error: any) {
-      toast.error(error);
+      toast.error(error.response.data.message);
     }
   };
   return (

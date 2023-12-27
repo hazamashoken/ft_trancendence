@@ -71,6 +71,8 @@ export class ChannelsService {
       .createQueryBuilder('channel')
       .innerJoinAndSelect('channel.chatUsers', 'user')
       .leftJoinAndSelect('channel.chatOwner', 'owner')
+      .where('user.id = :userId', { userId })
+      .orWhere('owner.id = :userId', { userId })
       .getMany();
     return channels;
   }
