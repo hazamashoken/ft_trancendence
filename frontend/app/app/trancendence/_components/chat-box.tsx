@@ -6,35 +6,84 @@ import { ListUser } from "./list-user";
 
 import { useChatStore, IChatStore } from "@/store/chat";
 import { useEffect } from "react";
-import { getChatUser, getPublicChat } from "../_actions/chat";
+import { getChatUser, getPublicChat, getUserChats } from "../_actions/chat";
+import { Card, CardContent } from "@/components/ui/card";
+import { useSocket } from "@/components/providers/socket-provider";
+import { useQueryClient } from "@tanstack/react-query";
 
-export function ChatBox() {
-  const [chatId, chatList, chatUserList, setChatList, setChatUserList] =
-    useChatStore((state: IChatStore) => [
-      state.chatId,
-      state.chatList,
-      state.chatUserList,
-      state.setChatList,
-      state.setChatUserList,
-    ]);
+export function ChatBox(props: any) {
+  const { userId = "4" } = props;
+  const [
+    chatId,
+    chatList,
+    chatUserList,
+    chatMeta,
+    setChatId,
+    setChatList,
+    setChatUserList,
+    setChatMeta,
+  ] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+  ]);
 
+  const queryClient = useQueryClient();
+  const { socket } = useSocket();
   useEffect(() => {
     const getChat = async () => {
-      const [channelListData, channelUserData] = await Promise.all([
-        getPublicChat(),
-        getChatUser(chatId),
-      ]);
-      setChatList(channelListData);
-      setChatUserList(channelUserData);
+      getUserChats(userId).then((res) => {
+        setChatList(res.data);
+      });
+      if (!chatId) return;
+      getChatUser(chatId).then((res) => {
+        setChatUserList(res.data);
+      });
     };
+
+    socket?.on("event", (res: any) => {
+      if (res.event === "quitChat") {
+        getChat();
+        if (res.chatId === chatId.toString()) {
+          setChatId("");
+          setChatMeta({
+            id: "",
+            name: "",
+            type: "text",
+          });
+          setChatUserList([]);
+        }
+      } else if (res.event === "getChatMessages") {
+        queryClient.invalidateQueries({ queryKey: [`chat:${res.chatId}`] });
+      } else if (res.event === "chat updated") {
+        getUserChats(userId).then((res) => {
+          setChatList(res.data);
+        });
+      } else if (res.event === "dmCreated") {
+        getUserChats(userId).then((res) => {
+          setChatList(res.data);
+        });
+      }
+    });
+
     getChat();
-  }, [setChatList, setChatUserList, chatId]);
+    return () => {
+      socket?.off("event");
+    };
+  }, [chatId]);
 
   return (
-    <div className="flex">
-      <ListChannel data={chatList} />
-      <MessageArea chatId={chatId} />
-      <ListUser data={chatUserList} chatId={chatId} />
-    </div>
+    <Card className="m-1">
+      <CardContent className="flex h-[800px] p-1 space-x-1">
+        <ListChannel data={chatList} userId={userId} />
+        <MessageArea userId={userId} />
+        {chatId && <ListUser data={chatUserList} userId={userId} />}
+      </CardContent>
+    </Card>
   );
 }

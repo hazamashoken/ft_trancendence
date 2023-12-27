@@ -5,9 +5,9 @@ export class BanUserDto {
   @IsNotEmpty()
   @ApiProperty()
   @IsNumber()
-  bannedUser: number;
+  userId: number;
 
   @IsString()
   @ApiProperty({ nullable: true, default: 'wtf' })
-  banReason: string;
+  reason: string;
 }

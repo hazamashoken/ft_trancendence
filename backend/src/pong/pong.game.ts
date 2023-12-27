@@ -3,6 +3,7 @@ import { PongUser } from './pong.user';
 import { PongState } from './pong.state';
 import { GameState } from '../interfaces/pong.interface';
 import { Phase, Keypress, Team } from './pong.enum';
+import { newGameState } from './pong.gamestate';
 
 export class PongGame
 {
@@ -29,6 +30,8 @@ export class PongGame
       this.keypress(id, Keypress.player1);
     else if (team == Team.player2)
       this.keypress(id, Keypress.player2);
+    else if (team == Team.spectator)
+      this._users.get(id).team = Team.spectator;
   }
 
   public deleteUser(id: string)
@@ -54,6 +57,10 @@ export class PongGame
     if (this._users.has(id))
     {
       let name: string = this._users.get(id).name;
+      // send a disconnect message to old room
+      let state: GameState = newGameState();
+      state.phase = Phase.disconnect;
+      this._server.to(id).emit('pong_state', state);
       this.deleteUser(id);
       this.addUser(this._server, id, name, room, team);
     }
@@ -124,6 +131,12 @@ export class PongGame
     let user: PongUser = this._users.get(id);
     let state: PongState = this._states.get(user.room);
 
+    // if a spectator ignore key press
+    if (user.team == Team.spectator || state.phase == Phase.disconnect)
+    {
+      return;
+    }
+
     // lock the game state
     state.locked = true;
 
@@ -160,6 +173,12 @@ export class PongGame
     if (keypress == Keypress.start && state.phase == Phase.play && user.team != Team.viewer)
     {
       state.serveMultiBall(user.team);
+    }
+
+    // if user uses a powerup
+    if (keypress == Keypress.super && user.team != Team.viewer)
+    {
+      state.usePowerup(user.team);
     }
 
     // if user clicks start game

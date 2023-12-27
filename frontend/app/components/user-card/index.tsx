@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { signOut } from "next-auth/react";
 
@@ -9,21 +9,24 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export function UserCard(props: any){
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>User Info</CardTitle>
-        </CardHeader>
-        <CardContent>
-         <pre>{JSON.stringify(props.session.data.user, null, 1)}</pre>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={() => signOut()}>Sign Out</Button>
-        </CardFooter>
-      </Card>
-    )
+export function UserCard(props: any) {
+  console.log(props.session.data.accessToken);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>User Info</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <pre className="truncate w-[400px]">
+          {JSON.stringify(props.session, null, 4)}
+        </pre>
+      </CardContent>
+      <CardFooter>
+        <Button onClick={() => signOut()}>Sign Out</Button>
+      </CardFooter>
+    </Card>
+  );
 }

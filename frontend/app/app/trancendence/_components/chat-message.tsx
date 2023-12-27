@@ -27,27 +27,27 @@ type MessageWithMemberWithProfile = any & {
 interface ChatMessagesProps {
   name: string;
   member: any;
-  chatId: string;
   apiUrl: string;
   socketUrl: string;
   socketQuery: Record<string, string>;
   paramKey: "channelId" | "conversationId";
   paramValue: string;
   type: "channel" | "conversation";
-  chatData?: any;
+  chatMeta?: any;
+  chatId: string;
 }
 
 export const ChatMessages = ({
   name,
   member,
-  chatId,
   apiUrl,
   socketUrl,
   socketQuery,
   paramKey,
   paramValue,
   type,
-  chatData,
+  chatMeta,
+  chatId,
 }: ChatMessagesProps) => {
   const queryKey = `chat:${chatId}`;
   const addKey = `chat:${chatId}:messages`;
@@ -58,35 +58,51 @@ export const ChatMessages = ({
   const [chatMessages, setChatMessages] = React.useState([]);
 
   const { isConnected } = useSocket();
-
-  console.log(isConnected);
-
   const { data, status } = useQuery({
     queryKey: [queryKey],
-    enabled: isConnected,
+    enabled: isConnected && !!chatId,
     queryFn: () =>
-      fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then((res) => res.json()),
+      fetch(
+        apiUrl +
+          "?" +
+          new URLSearchParams({
+            // limit: "100", //Why limit does not work check
+            offset: "0",
+          }).toString(),
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
+          },
+        }
+      ).then((res) => res.json()),
+    refetchInterval: 1000,
   });
 
   useEffect(() => {
     if (!data) return;
-    data.reverse();
     setChatMessages(data);
-  }, [data]);
+  }, [data, chatId]);
 
   useEffect(() => {
     if (!chatRef.current) return;
     chatRef.current.scrollTop = chatRef.current.scrollHeight;
   });
 
+  if (!chatId) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          No channel selected...
+        </p>
+      </div>
+    );
+  }
+
   if (status === "pending") {
     return (
-      <div className="flex flex-col items-center justify-center flex-1">
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
         <Loader2 className="my-4 h-7 w-7 text-zinc-500 animate-spin" />
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Loading messages...
@@ -97,7 +113,7 @@ export const ChatMessages = ({
 
   if (status === "error") {
     return (
-      <div className="flex flex-col items-center justify-center flex-1">
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
         <ServerCrash className="my-4 h-7 w-7 text-zinc-500" />
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Something went wrong!
@@ -106,12 +122,19 @@ export const ChatMessages = ({
     );
   }
 
+  if (chatMessages.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
+        <p className="text-xs text-center text-zinc-500 dark:text-zinc-400">
+          This is the beginning of your legendary conversation in{" "}
+          {chatMeta.name} channel.
+        </p>
+      </div>
+    );
+  }
   return (
-    <div
-      ref={chatRef}
-      className="flex flex-col flex-1 py-4 overflow-y-auto h-[750px]"
-    >
-      <div className="flex flex-col-reverse mt-auto">
+    <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">
+      <div className="flex flex-col mt-auto">
         {chatMessages?.map((message: any, i: number) => (
           <ChatItem
             key={message.massageId}
@@ -128,7 +151,7 @@ export const ChatMessages = ({
           />
         ))}
       </div>
-      <div ref={bottomRef} />
+      {/* <div ref={bottomRef} /> */}
     </div>
   );
 };

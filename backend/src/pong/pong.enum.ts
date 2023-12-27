@@ -7,6 +7,7 @@ export enum Phase
   countdown = 'C',
   play = 'P',
   finish = 'F',
+  disconnect = 'D',
 };
 
 export enum Team
@@ -14,6 +15,7 @@ export enum Team
   viewer = 'V',
   player1 = 'P1',
   player2 = 'P2',
+  spectator = 'S',
 }
 
 export enum Keypress
@@ -21,11 +23,12 @@ export enum Keypress
   viewer = 'V',
   player1 = 'P1',
   player2 = 'P2',
-  start = 'S',
-  up = 'U',
-  down = 'D',
-  release = '-',
-  refresh = 'R',
+  start = 'ST',
+  super = 'SU',
+  up = 'UP',
+  down = 'DN',
+  release = 'RL',
+  refresh = 'RF',
 };
 
 export enum Pong

@@ -9,13 +9,17 @@ export function newGameState()
       position: { x: -Pong.BAT_OFFSET, y: 0.5, },
       direction: { x: 0, y: 0, },
       score: 0,
-      balls: 3,
+      powerup: false,
+      multiballs: 3,
+      powerups: 3,
     },
     player2: {
       position: { x: Pong.BAT_OFFSET, y: 0.5, },
       direction: { x: 0, y: 0, },
       score: 0,
-      balls: 3,
+      powerup: false,
+      multiballs: 3,
+      powerups: 3,
     },
     ball: {
       position: { x: 0, y: 0.5, },
@@ -25,6 +29,7 @@ export function newGameState()
     multiball: [],
     serve: 1,
     phase: Phase.waiting,
+    continue: true,
     changed: false,
   };
 

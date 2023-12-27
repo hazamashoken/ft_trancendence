@@ -16,6 +16,8 @@ import { ReturnMessageDto } from './dto/return-message.dto';
 import { plainToClass } from 'class-transformer';
 import { take } from 'rxjs';
 import { PaginationDto } from './dto/pagination.dto';
+import { BlockUser } from '@backend/block/dto/BlockUser.dto';
+import { BlockService } from '@backend/block/blockUser.service';
 
 @Injectable()
 export class MessagesService {
@@ -28,6 +30,7 @@ export class MessagesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
+    private readonly blockUserService: BlockService,
   ) { }
 
   async createMessage(
@@ -57,7 +60,7 @@ export class MessagesService {
 
   async findAllMessagesByChannel(
     channelId: number,
-    pagination: PaginationDto,
+    userId?: number,
   ): Promise<ReturnMessageDto[]> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
@@ -65,20 +68,30 @@ export class MessagesService {
     if (!channel) {
       throw new NotFoundException('Channel not found');
     }
-    if (!pagination.limit)
-      pagination.limit = 100;
+
+    const blockedUsers = await this.blockUserService.getAllBlockedUsers(userId);
+    const blockedUserIds = new Set(blockedUsers.map(user => user.id));
+
     const messages = await this.messagesRepository.find({
       where: { channel: { chatId: channelId } },
       relations: ['author'],
       order: {
-        createAt: 'DESC', // Сортировка сообщений по дате создания в обратном порядке
+        createAt: 'DESC',
       },
-      skip: (pagination.page - 1) * pagination.limit,
-      take: pagination.limit,
+      take: 100,
     });
-    if (messages.length < 1) return [];
 
-    const formattedMessages: ReturnMessageDto[] = messages.map((message) => ({
+    messages.reverse();
+
+    const filteredMessages = messages.filter(message => {
+      // Assuming 'message.author' has an 'id' property
+      return !blockedUserIds.has(message.author.id);
+    });
+
+    if (messages.length < 1)
+      return [];
+
+    const formattedMessages: ReturnMessageDto[] = filteredMessages.map((message) => ({
       massageId: message.messageId,
       message: message.message,
       athor: message.author, // Предполагается, что в MessageEntity есть связь с автором
@@ -127,7 +140,6 @@ export class MessagesService {
   async deleteMessage(
     messageId: number,
     chatId: number,
-    pagination: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: chatId },
@@ -142,6 +154,6 @@ export class MessagesService {
       throw new NotFoundException('Message not found at this chat');
 
     await this.messagesRepository.delete(messageId);
-    return await this.findAllMessagesByChannel(chatId, pagination);
+    return await this.findAllMessagesByChannel(chatId);
   }
 }
