@@ -19,9 +19,5 @@ export class BlockUser extends BaseEntity {
 export class BlockUserDto {
   @IsNumber()
   @ApiProperty({ example: '2' })
-  id: number;
-
-  @IsNumber()
-  @ApiProperty({ example: '2' })
-  myId: number;
+  userId: number;
 }
