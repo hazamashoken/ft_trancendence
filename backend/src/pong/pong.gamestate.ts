@@ -29,6 +29,7 @@ export function newGameState()
     multiball: [],
     serve: 1,
     phase: Phase.waiting,
+    continue: true,
     changed: false,
   };
 
