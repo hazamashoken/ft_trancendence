@@ -102,6 +102,7 @@ export class MessagesService {
         .padStart(2, '0')}.${message.createAt.getFullYear()}`,
       hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
       createAt: message.createAt,
+      updateAt: !message.updateAt ? null : message.updateAt,
       updatedAtmy: message.updateAt
         ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
           message.updateAt.getMonth() + 1
@@ -112,7 +113,6 @@ export class MessagesService {
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
         : null,
-      updateAt: !message.updateAt ? null : message.updateAt,
     }));
 
     return formattedMessages;

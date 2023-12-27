@@ -164,7 +164,7 @@ export class ChannelsController {
   //   }
   // }
 
-  @Post(':chatId/addUser/:userName')
+  @Post(':chatId/addUser')
   async addUserByName(
     @Param('chatId') chatId: number,
     @Param('userName') userName: string,
@@ -270,8 +270,17 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     // @Body() dto: chatDelete,
   ): Promise<ReturnBannedDto[]> {
-    this.chatGateway.sendEvents({ message: 'user unbanned', chatId: chatId, event: 'getChatBanned' });
+    this.chatGateway.sendEvents({ message: 'user unbanned', chatId: chatId, event: 'removeBanned' });
     return await this.bannedService.removeBannedById(bannedId, chatId);
+  }
+
+  @Post(':chatId/unBan')
+  async unbanUser(
+    @Param('chatId') chatId: number,
+    @Body() dto: {userId: number},
+  ): Promise<ReturnBannedDto[]> {
+    this.chatGateway.sendEvents({ message: 'user unbanned', chatId: chatId, event: 'unbanUser' });
+    return await this.bannedService.unbanUser(chatId, dto.userId);
   }
 
   @Post(':messageId/updateMessage')

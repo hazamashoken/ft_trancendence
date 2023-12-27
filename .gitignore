@@ -5,4 +5,5 @@ backend/app/dist
 backend/app/dist/*
 backend/app/node_modules
 frontend/app/node_modules
+.DS
 
