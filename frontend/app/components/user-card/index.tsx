@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
+import { Avatar } from "../ui/avatar";
 
 export function UserCard(props: any){
     return (
