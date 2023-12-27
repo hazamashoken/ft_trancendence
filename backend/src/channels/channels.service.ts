@@ -71,9 +71,12 @@ export class ChannelsService {
       .createQueryBuilder('channel')
       .innerJoinAndSelect('channel.chatUsers', 'user')
       .leftJoinAndSelect('channel.chatOwner', 'owner')
+      .where('user.id = :userId', { userId })
+      .orWhere('owner.id = :userId', { userId })
       .getMany();
     return channels;
   }
+
   async findAllPublicChannels(): Promise<ChannelsEntity[]> {
     const channels = await this.channelsRepository
       .createQueryBuilder('channel')
@@ -438,6 +441,7 @@ export class ChannelsService {
     const newChat = await this.channelsRepository.save(chat);
 
     if (newChat.chatUsers.length < 1) return [];
+    Logger.log(`User removed from chat`);
     return newChat.chatUsers.map((user) => plainToClass(ChatUserDto, user));
   }
 
@@ -446,7 +450,9 @@ export class ChannelsService {
       where: { chatId: chatId },
       relations: ['chatAdmins'],
     });
-
+    if (chat.chatAdmins.find((admin) => admin.id == userId)) {
+      throw new ForbiddenException('User already an admin');
+    }
     if (!(await this.userRepository.findOne({ where: { id: userId } }))) {
       throw new NotFoundException('User not found');
     }

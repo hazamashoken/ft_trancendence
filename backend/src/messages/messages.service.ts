@@ -18,6 +18,7 @@ import { take } from 'rxjs';
 import { PaginationDto } from './dto/pagination.dto';
 import { BlockUser } from '@backend/block/dto/BlockUser.dto';
 import { BlockService } from '@backend/block/blockUser.service';
+import { ChannelsService } from '@backend/channels/channels.service';
 
 @Injectable()
 export class MessagesService {
@@ -31,6 +32,7 @@ export class MessagesService {
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
     private readonly blockUserService: BlockService,
+    private readonly channelService: ChannelsService,
   ) { }
 
   async createMessage(
@@ -40,15 +42,19 @@ export class MessagesService {
   ): Promise<ReturnMessageDto> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
-      relations: ['mutedUsers'],
+      relations: ['mutedUsers', 'mutedUsers.user'],
     });
-    // Logger.log(message)
+    
     if (!channel) throw new NotFoundException('ChannelNotFound');
     const author = await this.userRepository.findOne({
       where: { id: authorId },
     });
     if (!author) throw new NotFoundException('User dont exist at this channel');
-    if (channel.mutedUsers.find((user) => user.id == authorId))
+    const date = new Date();
+    const user = channel.mutedUsers.find((user) => user.user.id == authorId);
+    if (user.mutedUntill <= date)
+      await this.channelService.unMute(authorId, channelId);
+    if(user)
       throw new ForbiddenException('User is muted');
     const newMessage = new MessagesEntity();
     newMessage.message = message;
