@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { BlockUser } from "./dto/BlockUser.dto";
+import { BlockUser, intraD } from "./dto/BlockUser.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import {Repository} from 'typeorm'
 import { User } from "@backend/typeorm/user.entity";
@@ -40,5 +40,19 @@ export class BlockService{
       await this.blockRepository.remove(blockRelation);
     }
     return await this.getAllBlockedUsers(myId);
+  }
+
+  async getUserByIntraId(intraId: number): Promise<intraD> {
+    const user = await this.userRepository.findOneBy({intraId: intraId});
+    const ret = new intraD();
+    if(!user)
+    {
+      ret.register = false,
+      ret.user = user
+    } else {
+      ret.register = true,
+      ret.user = user
+    }
+    return ret;
   }
 }

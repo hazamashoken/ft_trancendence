@@ -364,4 +364,10 @@ export class ChannelsController {
   //     return await this.channelsService.getPassword(chatId);
   //   }
   // }
+
+  @Get('user/fromAuth')
+  getUser(@AuthUser('user') user: User): User {
+    Logger.log(User);
+    return user;
+  }
 }

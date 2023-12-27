@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinTable, BaseEntity } from "typeorm"
 import { User } from '../../typeorm/user.entity';
-import { IsNumber } from "class-validator";
+import { IsBoolean, IsNumber } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 @Entity('BlockUser')
@@ -24,4 +24,13 @@ export class BlockUserDto {
   @IsNumber()
   @ApiProperty({ example: '2' })
   myId: number;
+}
+
+export class intraD
+{
+  @IsBoolean()
+  register: boolean;
+
+  @ApiProperty()
+  user: User;
 }
