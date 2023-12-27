@@ -146,6 +146,43 @@ export class ChannelsService {
     return plainToClass(ChannelsEntity, chanel);
   }
 
+  async createDm(user1: number, user2: number): Promise<ChannelsEntity>
+  {
+    const owner = await this.userRepository.findOne({
+      where: { id: user1 },
+    });
+    if (!owner) {
+      throw new NotFoundException(`User ${owner?.displayName} not found`);
+    }
+    const user = await this.userRepository.findOne({
+      where: { id: user2 },
+    });
+    if (!user)
+    {
+      throw new NotFoundException(`User ${user?.displayName} not found`);
+    }
+    const chatName = owner.intraId + ' | ' + user.intraId;
+    const existingChannel = await this.channelsRepository.findOne({
+      where: { chatName: chatName, chatType: chatType.DIRECT },
+    });
+    if (existingChannel) {
+      throw new ForbiddenException('Ypu already have conversation with this user');
+    }
+
+    const newChannel = new ChannelsEntity();
+    newChannel.chatUsers = [];
+    newChannel.chatUsers.push(owner);
+    newChannel.chatUsers.push(user);
+    newChannel.chatName = chatName;
+    newChannel.chatOwner = owner;
+    newChannel.password = null;
+    newChannel.maxUsers = 2;
+    newChannel.chatType = chatType.DIRECT;
+
+    const chanel = await this.channelsRepository.save(newChannel);
+    return plainToClass(ChannelsEntity, chanel);
+  }
+
   async delete(chatId: number, userId: number): Promise<ChannelsEntity[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: chatId },
