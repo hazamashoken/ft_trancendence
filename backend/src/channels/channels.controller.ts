@@ -117,6 +117,7 @@ export class ChannelsController {
   async createDm(@Body() dto: {user1: number, user2: number}): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents('dmCreated'), {user1: dto.user1, user2: dto.user2};
     return this.channelsService.createDm(dto.user1, dto.user2);
+    
   }
 
   @Post(':chatId/delete/:userId')
