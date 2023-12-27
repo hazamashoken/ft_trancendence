@@ -44,6 +44,7 @@ export class MatchsService {
       player2: player2,
       ...matchDetail,
     });
+    // TODO update the user WIN RATE state...
     return this.matchRepository.save(newMatch);
   }
 
@@ -65,37 +66,34 @@ export class MatchsService {
   //   return 'SUCESS!! new match was added.';
   // }
   //
-  // async addNewMatch(player1Id: number, player2Id: number, player1Point: number, player2Point: number): Promise<boolean> {
-  //   const player1 = await this.userRepository.findOne({ where: { id: player1Id }, });
-  //   if (!player1) {
-  //     throw new HttpException (
-  //       'Player1 ID not found, Cannot create the match.',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  //   const player2 = await this.userRepository.findOne({ where: { id: player2Id } });
-  //   if (!player2) {
-  //     throw new HttpException (
-  //       'Player2 ID not found, Cannot create the match.',
-  //       HttpStatus.BAD_REQUEST,
-  //     )
-  //   }
-  //   if (player1 === player2) {
-  //     throw new HttpException (
-  //       'Player1 ID and Player2 ID cannot be the same person.',
-  //       HttpStatus.BAD_REQUEST,
-  //     )
-  //   }
-  //   const newMatch = this.matchRepository.create({
-  //     player1: player1,
-  //     player2: player2,
-  //     player1Point: player1Point,
-  //     player2Point: player2Point,
-  //   });
-  //   this.matchRepository.save(newMatch);
-  //   return true;
-  // }
 
+  // * for the pong game to add the match result into database 
+  async addNewMatch(player1Id: number, player2Id: number, player1Point: number, player2Point: number): Promise<boolean> {
+    const player1 = await this.userRepository.findOne({ where: { id: player1Id }, });
+    if (!player1) {
+     return false;
+    }
+    const player2 = await this.userRepository.findOne({ where: { id: player2Id } });
+    if (!player2) {
+      return false;
+    }
+    if (player1 === player2) {
+     return false;
+    }
+     // TODO add maxPoint comparation on this line..
+    const newMatch = this.matchRepository.create({
+      player1: player1,
+      player2: player2,
+      player1Point: player1Point,
+      player2Point: player2Point,
+    });
+    // TODO update the user WIN RATE state...
+    this.matchRepository.save(newMatch);
+    return true;
+  }
+
+
+  // TODO should return ERROR code for not found data in database.. ?
   findAll(
     playerId?: number,
     matchId?: number,
@@ -136,7 +134,7 @@ export class MatchsService {
     });
   }
 
-  update(id: number, updateMatchDto: UpdateMatchsDto) {
+  updateMatchProperty(id: number, updateMatchDto: UpdateMatchsDto) {
     return this.matchRepository.update({ matchId: id }, { ...updateMatchDto });
   }
 
