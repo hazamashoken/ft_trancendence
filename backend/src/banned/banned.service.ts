@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { ReturnBannedDto } from './dto/return-ban.dto';
+import { ChannelsService } from '@backend/channels/channels.service';
 
 @Injectable()
 export class BannedService {
@@ -19,6 +20,7 @@ export class BannedService {
     private readonly channelRepository: Repository<ChannelsEntity>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly channelService: ChannelsService,
   ) {}
 
   // async findAll(): Promise<void> {
@@ -124,7 +126,6 @@ export class BannedService {
       throw new ForbiddenException('You cant ban urself');
     }
 
-    Logger.log('bannedId');
     const isUserBanned = await this.bannedRepository.findOne({
       where: {
         bannedUser: { id: bannedId },
@@ -132,7 +133,7 @@ export class BannedService {
       },
       relations: ['bannedUser'],
     });
-    Logger.log(bannedId);
+
     if (isUserBanned) {
       throw new NotFoundException('User already banned at this chat');
     }
@@ -151,6 +152,7 @@ export class BannedService {
       .values(bannedUser)
       .execute();
 
+    await this.channelService.removeUserFromChat(chat1.chatId, bannedId);
     return await this.findAllBannedUsersInChat(chat1.chatId);
   }
 
