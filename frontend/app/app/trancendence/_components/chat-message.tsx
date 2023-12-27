@@ -76,6 +76,7 @@ export const ChatMessages = ({
           },
         }
       ).then((res) => res.json()),
+    refetchInterval: 1000,
   });
 
   useEffect(() => {
@@ -86,7 +87,7 @@ export const ChatMessages = ({
   useEffect(() => {
     if (!chatRef.current) return;
     chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [data, chatId]);
+  });
 
   if (!chatId) {
     return (
@@ -120,11 +121,9 @@ export const ChatMessages = ({
     );
   }
 
-  console.log(chatMessages[0]);
-
   return (
     <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">
-      <div className="flex flex-col-reverse mt-auto">
+      <div className="flex flex-col mt-auto">
         {chatMessages?.map((message: any, i: number) => (
           <ChatItem
             key={message.massageId}

@@ -7,6 +7,7 @@ export enum Phase
   countdown = 'C',
   play = 'P',
   finish = 'F',
+  disconnect = 'D',
 };
 
 export enum Team

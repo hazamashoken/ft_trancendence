@@ -33,6 +33,7 @@ export interface GameState {
   multiball: GameBall[];
   serve: number;
   phase: string;
+  continue: boolean;
   changed: boolean;
 }
 

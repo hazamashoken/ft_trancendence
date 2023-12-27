@@ -3,6 +3,7 @@ import { PongUser } from './pong.user';
 import { PongState } from './pong.state';
 import { GameState } from '../interfaces/pong.interface';
 import { Phase, Keypress, Team } from './pong.enum';
+import { newGameState } from './pong.gamestate';
 
 export class PongGame
 {
@@ -56,6 +57,10 @@ export class PongGame
     if (this._users.has(id))
     {
       let name: string = this._users.get(id).name;
+      // send a disconnect message to old room
+      let state: GameState = newGameState();
+      state.phase = Phase.disconnect;
+      this._server.to(id).emit('pong_state', state);
       this.deleteUser(id);
       this.addUser(this._server, id, name, room, team);
     }
@@ -127,7 +132,7 @@ export class PongGame
     let state: PongState = this._states.get(user.room);
 
     // if a spectator ignore key press
-    if (user.team == Team.spectator)
+    if (user.team == Team.spectator || state.phase == Phase.disconnect)
     {
       return;
     }

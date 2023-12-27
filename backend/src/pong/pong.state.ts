@@ -207,13 +207,14 @@ export class PongState
 
     if (this.phase == Phase.finish)
     {
-      if (this.single)
+      if (this.single || !this._state.continue)
         return ;
       this._countdown -= delta;
       if (this._countdown > 0)
         return ;
       this._state = newGameState();
       this.phase = Phase.ready;
+      return ;
     }
 
     let team: string = winner(this._state);
