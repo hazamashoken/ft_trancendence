@@ -19,7 +19,7 @@ export class BannedService {
     private readonly channelRepository: Repository<ChannelsEntity>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   // async findAll(): Promise<void> {
   //   const banned = await this.bannedRepository.find();
@@ -79,6 +79,7 @@ export class BannedService {
     const chat1 = await this.channelRepository
       .createQueryBuilder('chat')
       .leftJoinAndSelect('chat.bannedUsers', 'banned')
+      .leftJoinAndSelect('chat.chatUsers', 'users')
       .leftJoinAndSelect('chat.chatAdmins', 'admins')
       .leftJoinAndSelect('chat.chatOwner', 'owner')
       .where('chat.chatId = :chatId', { chatId })

@@ -14,6 +14,7 @@ import {
   createDMChannelAction,
   muteChatUser,
   unMuteChatUser,
+  banChatUser,
 } from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -256,7 +257,22 @@ export function ListUser(props: { data: any; userId: string }) {
                       >
                         kick
                       </ContextMenuItem>
-                      <ContextMenuItem disabled>ban</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          const res = await banChatUser({
+                            chatId: chatId,
+                            userId: user.id,
+                            adminId: "4",
+                          });
+                          if (res.data) {
+                            toast.success("Ban user success");
+                          } else {
+                            toast.error(res.error);
+                          }
+                        }}
+                      >
+                        ban
+                      </ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem disabled>make admin</ContextMenuItem>
                       <ContextMenuItem disabled>remove admin</ContextMenuItem>
