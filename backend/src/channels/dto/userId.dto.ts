@@ -51,7 +51,7 @@ export class adminRemove {
   adminId: number;
 }
 
-export class messageRem{
+export class messageRem {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
@@ -67,12 +67,7 @@ export class muteD {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  chatId: number;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  mutedId: number;
+  userId: number;
 }
 
 export class chatD {

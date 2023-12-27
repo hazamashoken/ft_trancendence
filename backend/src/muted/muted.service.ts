@@ -20,7 +20,7 @@ export class MutedService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(ChannelsEntity)
     private readonly channelRepository: Repository<ChannelsEntity>,
-  ) {}
+  ) { }
 
   async createMuted(
     userId: number,
@@ -66,7 +66,7 @@ export class MutedService {
       where: { mutedAt: { chatId: chatId } },
       relations: ['user', 'mutedAt', 'mutedBy'],
     });
-    if (mutedUsers.length < 1) return null;
+    if (mutedUsers.length < 1) return [];
     return mutedUsers.map((mutedUser) =>
       plainToClass(ReturnMutedDto, mutedUser),
     );
@@ -74,6 +74,15 @@ export class MutedService {
 
   async findMutedById(id: number): Promise<MutedEntity> {
     return this.mutedRepository.findOne({ where: { id: id } });
+  }
+
+  async findMutedByUserId(
+    userId: number,
+    chatId: number,
+  ): Promise<MutedEntity> {
+    return this.mutedRepository.findOne({
+      where: { user: { id: userId }, mutedAt: { chatId: chatId } },
+    });
   }
 
   async updateMuted(
@@ -91,7 +100,7 @@ export class MutedService {
   }
 
   async deleteMuted(
-    mutedId: number,
+    userId: number,
     chatId: number,
   ): Promise<ReturnMutedDto[]> {
     const chat = await this.channelRepository.findOne({
@@ -99,14 +108,12 @@ export class MutedService {
       relations: ['mutedUsers'],
     });
     if (!chat) throw new NotFoundException('Chat not found');
-    if (!chat.mutedUsers.find((user) => (user.id = mutedId)))
+    if (!chat.mutedUsers.find((user) => (user.id = userId)))
       throw new NotFoundException('User not muted at this chat');
-    if (!this.findMutedById(mutedId))
+    const muted = await this.findMutedByUserId(userId, chatId);
+    if (!muted) {
       throw new NotFoundException('User not muted');
-    const muted = await this.mutedRepository.findOne({
-      where: { id: mutedId },
-    });
-    if (!muted) throw new NotFoundException('User not muted');
+    }
     await this.mutedRepository.remove(muted);
     return await this.findAllMutedAtChat(chatId);
   }
