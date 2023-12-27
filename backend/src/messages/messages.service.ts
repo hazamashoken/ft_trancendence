@@ -6,9 +6,11 @@ import {
 } from '@backend/typeorm';
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -32,6 +34,7 @@ export class MessagesService {
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
     private readonly blockUserService: BlockService,
+    @Inject(forwardRef(() => ChannelsService))
     private readonly channelService: ChannelsService,
   ) { }
 

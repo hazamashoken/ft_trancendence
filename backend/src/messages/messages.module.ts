@@ -9,6 +9,7 @@ import {
 } from '@backend/typeorm';
 import { BlockUser } from '@backend/block/dto/BlockUser.dto';
 import { BlockService } from '@backend/block/blockUser.service';
+import { ChannelsModule } from '@backend/channels/channels.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { BlockService } from '@backend/block/blockUser.service';
       MutedEntity,
       BlockUser,
     ]),
+    ChannelsModule,
   ],
   providers: [MessagesService, BlockService],
   exports: [MessagesService],
