@@ -14,6 +14,7 @@ import { ChatSocketModule } from './gateWay/chatSocket.module';
 import { PongModule } from './pong/pong.module';
 import { GatewayModule } from './gateWay/gateway.module';
 import { MatchsModule } from './matchs/matchs.module';
+import { BlockUserModule } from './block/blockUser.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { MatchsModule } from './matchs/matchs.module';
     PongModule,
     GatewayModule,
     MatchsModule,
+    BlockUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

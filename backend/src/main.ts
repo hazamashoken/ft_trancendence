@@ -15,6 +15,11 @@ async function bootstrap() {
     index: false,
     prefix: '/data',
   });
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: '*',
+    credentials: true,
+  });
   const config = new DocumentBuilder()
     .setTitle('Ft_Transencdence')
     .setDescription('Backend API')
@@ -26,13 +31,12 @@ async function bootstrap() {
     .addTag('Channels')
     .addTag('FT', '42 resource endpoint, use to access 42 api without authentication')
     .addBearerAuth()
-    .addApiKey({type: 'apiKey', name: 'x-api-key', in: 'header'})
+    .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
   app.useGlobalPipes(new ValidationPipe());
-
   await app.listen(process.env.NESTJS_PORT ?? 3000);
 }
 bootstrap();

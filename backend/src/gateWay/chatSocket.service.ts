@@ -18,6 +18,7 @@ import { ChannelsEntity } from '@backend/typeorm';
 import { Inject, Injectable, UseGuards, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { SocketGateway } from './chat.gateway';
+import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 
 @Injectable()
 @UseGuards(XKeyGuard, AuthGuard)

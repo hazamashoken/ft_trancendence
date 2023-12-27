@@ -35,15 +35,15 @@ function drawSquare(canvas: HTMLCanvasElement, x: number, y: number, colour: str
   }
 }
 
-function drawBat(canvas: HTMLCanvasElement, x: number, y: number)
+function drawBat(canvas: HTMLCanvasElement, x: number, y: number, colour: string = "#ffffff")
 {
   let limit = Math.floor(Pong.BAT_SIZE / 2);
 
-  drawSquare(canvas, x, y);
+  drawSquare(canvas, x, y, colour);
   while (limit > 0)
   {
-    drawSquare(canvas, x, y - (Pong.SQUARE_SIZE * limit));
-    drawSquare(canvas, x, y + (Pong.SQUARE_SIZE * limit));
+    drawSquare(canvas, x, y - (Pong.SQUARE_SIZE * limit), colour);
+    drawSquare(canvas, x, y + (Pong.SQUARE_SIZE * limit), colour);
     limit--;
   }
 }
@@ -216,6 +216,13 @@ function drawLetterSingle(canvas: HTMLCanvasElement, x: number, y: number, c: st
               [1, 0, 1],
               [1, 0, 1] ];
       break;
+    case "O":
+      chr = [ [1, 1, 1],
+              [1, 0, 1],
+              [1, 0, 1],
+              [1, 0, 1],
+              [1, 1, 1] ];
+      break;
     case "P":
       chr = [ [1, 1, 1],
               [1, 0, 1],
@@ -272,6 +279,13 @@ function drawLetterSingle(canvas: HTMLCanvasElement, x: number, y: number, c: st
               [0],
               [1] ];
       break;
+    case "|":
+      chr = [ [0],
+              [0],
+              [1],
+              [1],
+              [1] ];
+        break;
   }
   return (drawLetterSquares(canvas, x, y, chr, print, colour));
 }
@@ -343,8 +357,23 @@ export function renderCanvas(canvas: HTMLCanvasElement, state: GameState, delta:
   drawNet(canvas);
   drawNumberRev(canvas, -Pong.SCORE_OFFSET, Pong.SCORE_OFFSET, state.player1.score);
   drawNumber(canvas, Pong.SCORE_OFFSET, Pong.SCORE_OFFSET, state.player2.score);
-  drawBat(canvas, state.player1.position.x, state.player1.position.y);
-  drawBat(canvas, state.player2.position.x, state.player2.position.y);
+
+  if (state.phase == Phase.disconnect)
+  {
+    drawStringCentre(canvas, Pong.SCORE_OFFSET * 3, "DISCONNECT", "#0000ff", true);
+    return;
+  }
+
+  if (state.player1.powerup)
+    drawBat(canvas, state.player1.position.x, state.player1.position.y, "#ff0000");
+  else
+    drawBat(canvas, state.player1.position.x, state.player1.position.y);
+
+  if (state.player2.powerup)
+    drawBat(canvas, state.player2.position.x, state.player2.position.y, "#ff0000");
+  else
+    drawBat(canvas, state.player2.position.x, state.player2.position.y);
+
   if (state.phase == Phase.waiting)
     drawStringCentre(canvas, Pong.SCORE_OFFSET * 3, "PLAYER SELECT", "#0000ff", true);
   if (state.phase == Phase.finish)
@@ -383,8 +412,13 @@ export function renderCanvas(canvas: HTMLCanvasElement, state: GameState, delta:
     for (let i: number = 0; i < state.multiball.length; i++)
       drawSquare(canvas, state.multiball[i].position.x, state.multiball[i].position.y, "#ff0000");
   }
-  let multiballs: string = ("").padStart(state.player1.balls, ".");
+  let multiballs: string = ("").padStart(state.player1.multiballs, ".");
   drawStringRev(canvas, -Pong.SCORE_OFFSET, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), multiballs, "#ff0000");
-  multiballs = ("").padStart(state.player2.balls, ".");
+  multiballs = ("").padStart(state.player2.multiballs, ".");
   drawString(canvas, Pong.SCORE_OFFSET, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), multiballs, "#ff0000");
+
+  let powerups: string = ("").padStart(state.player1.powerups, "|");
+  drawStringRev(canvas, -Pong.SCORE_OFFSET * 2 - Pong.SQUARE_SIZE, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), powerups, "#ff0000");
+  powerups = ("").padStart(state.player2.powerups, "|");
+  drawString(canvas, Pong.SCORE_OFFSET * 2 + Pong.SQUARE_SIZE, 1 - Pong.SCORE_OFFSET - (Pong.SQUARE_SIZE * 2), powerups, "#ff0000");
 }

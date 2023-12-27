@@ -20,7 +20,13 @@ export function MainNav({
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
       {...props}
     >
-      <Image src={ftLogo} width={30} height={30} alt="42 logo" />
+      {/* <Image
+        src={ftLogo}
+        width={30}
+        height={30}
+        alt="42 logo"
+        className="bg-gray"
+      /> */}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost">
@@ -38,28 +44,20 @@ export function MainNav({
               <p className="text-lg font-semibol">Home</p>
             </Link>
             <Link
-              href="/game"
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              <p className="text-lg font-semibol">Game</p>
-            </Link>
-            <Link
-              href="/chat"
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              <p className="text-lg font-semibol">Chat</p>
-            </Link>
-            <Link
               href="/test"
               onClick={() => {
                 setOpen(false);
               }}
             >
               <p className="text-lg font-semibol">Test</p>
+            </Link>
+            <Link
+              href="/trancendence"
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              <p className="text-lg font-semibol">Trancendence</p>
             </Link>
             <Button
               variant={"ghost"}

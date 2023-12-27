@@ -1,3 +1,4 @@
+import { BlockUser } from '@backend/block/dto/BlockUser.dto';
 import { BannedEntity } from './banned.entity';
 import { ChannelsEntity } from './channel.entity';
 import { Friendship } from './friendship.entity';
@@ -18,6 +19,7 @@ const entities = [
   MutedEntity,
   UserSession,
   Match,
+  BlockUser,
 ];
 
 export {

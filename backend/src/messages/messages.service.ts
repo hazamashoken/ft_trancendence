@@ -14,6 +14,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ReturnMessageDto } from './dto/return-message.dto';
 import { plainToClass } from 'class-transformer';
+import { take } from 'rxjs';
+import { PaginationDto } from './dto/pagination.dto';
+import { BlockUser } from '@backend/block/dto/BlockUser.dto';
+import { BlockService } from '@backend/block/blockUser.service';
 
 @Injectable()
 export class MessagesService {
@@ -26,6 +30,7 @@ export class MessagesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
+    private readonly blockUserService: BlockService,
   ) {}
 
   async createMessage(
@@ -55,6 +60,7 @@ export class MessagesService {
 
   async findAllMessagesByChannel(
     channelId: number,
+    userId?: number,
   ): Promise<ReturnMessageDto[]> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
@@ -62,25 +68,28 @@ export class MessagesService {
     if (!channel) {
       throw new NotFoundException('Channel not found');
     }
-    // const numericValues = channel.chat_name.split(" ").map(word => {
-    //   let numericWord = "";
-    //   for (let i = 0; i < word.length; i++) {
-    //     const charCode = word.charCodeAt(i);
-    //     numericWord += charCode + " ";
-    //   }
-    //   return numericWord.trim(); // Удаляем последний пробел
-    // }).map(numericString => numericString.split(" "))
-    // .flat()
-    // .join("")
+
+    const blockedUsers = await this.blockUserService.getAllBlockedUsers(userId);
+    const blockedUserIds = new Set(blockedUsers.map(user => user.id));
 
     const messages = await this.messagesRepository.find({
       where: { channel: { chatId: channelId } },
       relations: ['author'],
+      order: {
+        createAt: 'DESC',
+      },
+      take: 100,
     });
 
-    if (messages.length < 1) return [];
+    const filteredMessages = messages.filter(message => {
+      // Assuming 'message.author' has an 'id' property
+      return !blockedUserIds.has(message.author.id);
+    }); 
 
-    const formattedMessages: ReturnMessageDto[] = messages.map((message) => ({
+    if (messages.length < 1)
+      return [];
+
+    const formattedMessages: ReturnMessageDto[] = filteredMessages.map((message) => ({
       massageId: message.messageId,
       message: message.message,
       athor: message.author, // Предполагается, что в MessageEntity есть связь с автором
@@ -90,6 +99,7 @@ export class MessagesService {
         .toString()
         .padStart(2, '0')}.${message.createAt.getFullYear()}`,
       hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
+      createAt: message.createAt,
       updatedAtmy: message.updateAt
         ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
             message.updateAt.getMonth() + 1
@@ -100,6 +110,7 @@ export class MessagesService {
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
         : null,
+      updateAt: !message.updateAt ? null : message.updateAt,
     }));
 
     return formattedMessages;
