@@ -16,11 +16,11 @@ export async function getPublicChat() {
 
   const data = await response.json();
 
-  if (response.status !== 200) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
 
-  return data;
+  return { data };
 }
 
 export async function getUserChats(userId: string) {
@@ -40,11 +40,11 @@ export async function getUserChats(userId: string) {
 
   const data = await response.json();
 
-  if (response.status !== 200) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
 
-  return data;
+  return { data };
 }
 
 export async function getChatUser(chatId: string) {
@@ -60,11 +60,11 @@ export async function getChatUser(chatId: string) {
   );
   const data = await response.json();
 
-  if (response.status !== 200) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
 
-  return data;
+  return { data };
 }
 
 export async function createChannelAction(payload: any) {
@@ -78,12 +78,12 @@ export async function createChannelAction(payload: any) {
   });
 
   const data = await response.json();
-
-  if (response.status !== 201) {
-    throw new Error(data.message);
+  console.log(data)
+  if (!response.ok) {
+    return { error: data.message };
   }
   revalidateTag(`user:chat`);
-  return data;
+  return { data };
 }
 
 export async function addChannelUserAction(chatId: string, value: string) {
@@ -98,11 +98,11 @@ export async function addChannelUserAction(chatId: string, value: string) {
 
   const data = await response.json();
 
-  if (response.status !== 201) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
 
-  return data;
+  return { data };
 }
 
 
@@ -122,13 +122,12 @@ export const getChatMessage = async (chatId: string = "1") => {
     }
   );
 
+  const data = await res.json();
   if (!res.ok) {
-    throw new Error(`Failed to fetch ${res.url}`);
+    return { error: data.message };
   }
 
-  const data = await res.json();
-
-  return data;
+  return { data };
 };
 
 
@@ -144,13 +143,13 @@ export const getChannelData = async (chatId: string = "1") => {
     }
   );
 
+  const data = await res.json();
   if (!res.ok) {
-    throw new Error(`Failed to fetch ${res.url}`);
+    return { error: data.message };
   }
 
-  const data = await res.json();
 
-  return data;
+  return { data };
 };
 
 
@@ -166,13 +165,13 @@ export const leaveChannelAction = async (chatId: string = "1", user: string) => 
 
   const data = await response.json();
 
-  if (response.status !== 201) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
 
   revalidateTag(`user:chat`);
 
-  return data;
+  return { data };
 }
 
 export const updateChannelAction = async (chatId: string = "1", payload: any) => {
@@ -187,10 +186,10 @@ export const updateChannelAction = async (chatId: string = "1", payload: any) =>
 
   const data = await response.json();
   console.log(data)
-  if (response.status !== 201) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
-  return data;
+  return { data };
 }
 
 
@@ -204,8 +203,28 @@ export const kickChatUser = async (chatId: any, userId: any) => {
   });
 
   const data = await response.json();
-  if (response.status !== 201) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
-  return data;
+  return { data };
+}
+
+export const createDMChannelAction = async (user1: string, user2: string) => {
+  const url = `${process.env.BACKEND_URL}/channels/createDM`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ user1, user2 })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  revalidateTag(`user:chat`);
+
+  return { data }
 }

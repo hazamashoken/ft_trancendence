@@ -69,9 +69,7 @@ export class ChannelsService {
   async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     const channels = await this.channelsRepository
       .createQueryBuilder('channel')
-      .innerJoinAndSelect('channel.chatUsers', 'user', 'user.id = :userId', {
-        userId,
-      })
+      .innerJoinAndSelect('channel.chatUsers', 'user')
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .getMany();
     return channels;
@@ -91,7 +89,7 @@ export class ChannelsService {
   async findOneById(id: number): Promise<ChannelsEntity> {
     const channel = await this.channelsRepository.findOne({
       where: { chatId: id },
-      relations: ['chatOwner'],
+      relations: ['chatOwner', 'chatUsers'],
     });
     if (!channel) throw new NotFoundException('channelNotFound');
     return plainToClass(ChannelsEntity, channel);
@@ -146,8 +144,7 @@ export class ChannelsService {
     return plainToClass(ChannelsEntity, chanel);
   }
 
-  async createDm(user1: number, user2: number): Promise<ChannelsEntity>
-  {
+  async createDm(user1: number, user2: number): Promise<ChannelsEntity> {
     const owner = await this.userRepository.findOne({
       where: { id: user1 },
     });
@@ -157,11 +154,10 @@ export class ChannelsService {
     const user = await this.userRepository.findOne({
       where: { id: user2 },
     });
-    if (!user)
-    {
+    if (!user) {
       throw new NotFoundException(`User ${user?.displayName} not found`);
     }
-    const chatName = owner.intraId + ' | ' + user.intraId;
+    const chatName = owner.intraId + ':' + user.intraId;
     const existingChannel = await this.channelsRepository.findOne({
       where: { chatName: chatName, chatType: chatType.DIRECT },
     });
@@ -317,7 +313,7 @@ export class ChannelsService {
   async getOwnerById(chatId: number): Promise<ChatUserDto> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: chatId },
-      relations: ['chatOwner'],
+      relations: ['chatOwner', 'chatUsers'],
     });
 
     if (!chat) throw new NotFoundException('Chat not found');
