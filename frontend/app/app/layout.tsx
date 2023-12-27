@@ -3,10 +3,11 @@ import { Inter } from "next/font/google";
 
 import { Providers } from "./provider";
 
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { TopNavBar } from "@/components/top-navbar";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/authOptions";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,11 +24,11 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={cn(inter.className)}>
         <Providers>
           {session && <TopNavBar />}
           {children}
-          <Toaster />
+          <Toaster richColors />
         </Providers>
       </body>
     </html>

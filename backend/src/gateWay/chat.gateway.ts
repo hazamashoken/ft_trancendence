@@ -336,9 +336,9 @@ export class SocketGateway implements OnGatewayConnection {
  * Deletes a message from the chat.
  */
   @SubscribeMessage('deleteMessage')
-  async handleDeleteMessage(client: Socket, { messageId, chatId, pagination }): Promise<any> {
+  async handleDeleteMessage(client: Socket, { messageId, chatId }): Promise<any> {
     try {
-      const messages = await this.socketService.deleteMessage(messageId, chatId, pagination);
+      const messages = await this.socketService.deleteMessage(messageId, chatId);
       this.server.to(`chat_${chatId}`).emit('deleteMessageResponse', messages);
       return { status: 'success', messages };
     } catch (error) {
@@ -352,9 +352,9 @@ export class SocketGateway implements OnGatewayConnection {
    * Retrieves all messages in the chat.
    */
   @SubscribeMessage('findAllMessagesByChannel')
-  async handleFindAllMessagesByChannel(client: Socket, chatId: number, pagination: PaginationDto): Promise<any> {
+  async handleFindAllMessagesByChannel(client: Socket, chatId: number): Promise<any> {
     try {
-      const messages = await this.socketService.findAllMessagesByChannel(chatId, pagination);
+      const messages = await this.socketService.findAllMessagesByChannel(chatId);
       client.emit('findAllMessagesByChannelResponse', messages);
       return { status: 'success', messages };
     } catch (error) {

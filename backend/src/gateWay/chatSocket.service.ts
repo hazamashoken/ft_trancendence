@@ -135,12 +135,12 @@ export class SocketService {
     return await this.messageService.createMessage(chatId, dto.message, dto.userId);
   }
 
-  async deleteMessage(messageId: number, chatId: number, pagination: PaginationDto): Promise<ReturnMessageDto[]> {
-    return await this.messageService.deleteMessage(messageId, chatId, pagination);
+  async deleteMessage(messageId: number, chatId: number): Promise<ReturnMessageDto[]> {
+    return await this.messageService.deleteMessage(messageId, chatId);
   }
 
-  async findAllMessagesByChannel(chatId: number, pagination: PaginationDto): Promise<ReturnMessageDto[]> {
-    return await this.messageService.findAllMessagesByChannel(chatId, pagination);
+  async findAllMessagesByChannel(chatId: number): Promise<ReturnMessageDto[]> {
+    return await this.messageService.findAllMessagesByChannel(chatId);
   }
 
   async findAllMutedAtChat(chatId: number): Promise<ReturnMutedDto[]> {

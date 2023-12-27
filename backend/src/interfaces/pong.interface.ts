@@ -15,7 +15,9 @@ export interface GamePlayer {
   position: Vector;
   direction: Vector;
   score: number;
-  balls: number;
+  powerup: boolean;
+  multiballs: number;
+  powerups: number;
 }
 
 export interface GameBall {
@@ -31,6 +33,7 @@ export interface GameState {
   multiball: GameBall[];
   serve: number;
   phase: string;
+  continue: boolean;
   changed: boolean;
 }
 
