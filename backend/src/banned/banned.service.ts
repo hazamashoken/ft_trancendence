@@ -185,4 +185,31 @@ export class BannedService {
     await this.bannedRepository.remove(banned);
     return await this.findAllBannedUsersInChat(channelId);
   }
+
+  async unbanUser (chatId: number, userId: number): Promise<ReturnBannedDto[]> {
+    const chat = await this.channelRepository.findOne({
+      where: { chatId: chatId },
+      relations: ['bannedUsers'],
+    });
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
+    if (
+      chat.bannedUsers &&
+      chat.bannedUsers.length > 0 &&
+      chat.bannedUsers.find(
+        (banned) => banned.bannedUser && banned.bannedUser.id != userId,
+      )
+    ) {
+      throw new NotFoundException('User not found at this chat');
+    }
+    const banned = await this.bannedRepository.findOne({
+      where: { bannedUser: { id: userId }, bannedAt: { chatId: chatId } },
+    });
+    if (banned == null) {
+      throw new NotFoundException(`Banned user with ID ${userId} not found`);
+    }
+    await this.bannedRepository.remove(banned);
+    return await this.findAllBannedUsersInChat(chatId);
+  }
 }
