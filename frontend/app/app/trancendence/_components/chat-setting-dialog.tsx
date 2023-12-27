@@ -30,7 +30,6 @@ export function ChatSettingMenu() {
     state.setChatUserList,
     state.setChatMeta,
   ]);
-  console.log(chatMeta);
   const form = useForm({
     defaultValues: {
       chatName: chatMeta.name,
@@ -55,13 +54,13 @@ export function ChatSettingMenu() {
       password: values.chatType === "private" ? values.password?.trim() : null,
     };
     const res = await updateChannelAction(chatId, payload);
-    if (res) {
+    if (res.data) {
       form.reset();
       setOpen(false);
       setChatMeta({
         ...chatMeta,
-        name: res.chatName,
-        chatType: res.chatType,
+        name: res.data.chatName,
+        chatType: res.data.chatType,
         data: null,
       });
     }

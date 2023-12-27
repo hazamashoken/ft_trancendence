@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useModal } from "@/lib/hooks/use-modal-store";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface ChatInputProps {
   apiUrl: string;
@@ -56,8 +57,8 @@ export const ChatInput = ({
       const { data } = await axios.post(url, values);
       form.reset();
       queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error);
     }
   };
   return (

@@ -157,7 +157,7 @@ export class ChannelsService {
     if (!user) {
       throw new NotFoundException(`User ${user?.displayName} not found`);
     }
-    const chatName = owner.intraId + ':' + user.intraId;
+    const chatName = owner.intraId + ' | ' + user.intraId;
     const existingChannel = await this.channelsRepository.findOne({
       where: { chatName: chatName, chatType: chatType.DIRECT },
     });
@@ -533,6 +533,19 @@ export class ChannelsService {
     mutedById: number,
     mutedUntil?: Date | null,
   ): Promise<ReturnMutedDto[]> {
+    const muteSession = await this.mutedService.findMutedByUserId(
+      userId,
+      channelId,
+    );
+
+    if (muteSession) {
+      return this.mutedService.updateMuted(
+        muteSession.id,
+        mutedUntil,
+        channelId,
+      );
+    }
+
     return await this.mutedService.createMuted(
       userId,
       channelId,
@@ -545,8 +558,8 @@ export class ChannelsService {
     return await this.mutedService.findAllMutedAtChat(chatId);
   }
 
-  async unMute(mutedId: number, chatId: number): Promise<ReturnMutedDto[]> {
-    return await this.mutedService.deleteMuted(mutedId, chatId);
+  async unMute(userId: number, chatId: number): Promise<ReturnMutedDto[]> {
+    return await this.mutedService.deleteMuted(userId, chatId);
   }
 
   async muteUpdated(

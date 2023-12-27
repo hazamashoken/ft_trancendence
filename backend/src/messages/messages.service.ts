@@ -76,10 +76,12 @@ export class MessagesService {
       where: { channel: { chatId: channelId } },
       relations: ['author'],
       order: {
-        createAt: 'ASC',
+        createAt: 'DESC',
       },
       take: 100,
     });
+
+    messages.reverse();
 
     const filteredMessages = messages.filter(message => {
       // Assuming 'message.author' has an 'id' property

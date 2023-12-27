@@ -33,7 +33,7 @@ interface ChatMessagesProps {
   paramKey: "channelId" | "conversationId";
   paramValue: string;
   type: "channel" | "conversation";
-  chatData?: any;
+  chatMeta?: any;
   chatId: string;
 }
 
@@ -46,7 +46,7 @@ export const ChatMessages = ({
   paramKey,
   paramValue,
   type,
-  chatData,
+  chatMeta,
   chatId,
 }: ChatMessagesProps) => {
   const queryKey = `chat:${chatId}`;
@@ -73,6 +73,7 @@ export const ChatMessages = ({
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
           },
         }
       ).then((res) => res.json()),
@@ -91,7 +92,7 @@ export const ChatMessages = ({
 
   if (!chatId) {
     return (
-      <div className="flex flex-col items-center justify-center flex-1">
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           No channel selected...
         </p>
@@ -101,7 +102,7 @@ export const ChatMessages = ({
 
   if (status === "pending") {
     return (
-      <div className="flex flex-col items-center justify-center flex-1">
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
         <Loader2 className="my-4 h-7 w-7 text-zinc-500 animate-spin" />
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Loading messages...
@@ -112,7 +113,7 @@ export const ChatMessages = ({
 
   if (status === "error") {
     return (
-      <div className="flex flex-col items-center justify-center flex-1">
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
         <ServerCrash className="my-4 h-7 w-7 text-zinc-500" />
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Something went wrong!
@@ -121,6 +122,16 @@ export const ChatMessages = ({
     );
   }
 
+  if (chatMessages.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 border-x">
+        <p className="text-xs text-center text-zinc-500 dark:text-zinc-400">
+          This is the beginning of your legendary conversation in{" "}
+          {chatMeta.name} channel.
+        </p>
+      </div>
+    );
+  }
   return (
     <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">
       <div className="flex flex-col mt-auto">

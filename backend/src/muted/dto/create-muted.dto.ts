@@ -8,10 +8,6 @@ export class CreateMuteDto {
 
   @ApiProperty()
   @IsNumber()
-  channelId: number;
-
-  @ApiProperty()
-  @IsNumber()
   mutedById: number;
 
   @ApiProperty()

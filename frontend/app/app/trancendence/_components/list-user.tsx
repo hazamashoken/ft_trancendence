@@ -12,6 +12,8 @@ import {
   addChannelUserAction,
   kickChatUser,
   createDMChannelAction,
+  muteChatUser,
+  unMuteChatUser,
 } from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +24,9 @@ import {
   ContextMenuGroup,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -41,19 +46,23 @@ import { useState } from "react";
 import { blockUser, unblockUser } from "../_actions/user";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useSession } from "next-auth/react";
 
 export function ListUser(props: { data: any; userId: string }) {
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
-  const [chatId] = useChatStore((state: IChatStore) => [
-    state.chatId,
-    state.chatList,
-    state.chatUserList,
-    state.chatMeta,
-    state.setChatId,
-    state.setChatList,
-    state.setChatUserList,
-    state.setChatMeta,
-  ]);
+  const [chatId, chatList, chatUserList, chatMeta] = useChatStore(
+    (state: IChatStore) => [
+      state.chatId,
+      state.chatList,
+      state.chatUserList,
+      state.chatMeta,
+      state.setChatId,
+      state.setChatList,
+      state.setChatUserList,
+      state.setChatMeta,
+    ]
+  );
   const { data } = props;
   const form = useForm({
     defaultValues: {
@@ -88,6 +97,21 @@ export function ListUser(props: { data: any; userId: string }) {
     return abbreviation.slice(0, 4);
   }
 
+  const handleMuteUser = async (min: number, userId: string) => {
+    const payload = {
+      chatId: chatId,
+      userId: userId,
+      mutedById: "4",
+      mutedUntil: new Date(Date.now() + min * 60000).toISOString(),
+    };
+    const res = await muteChatUser(payload);
+    if (res.data) {
+      toast.success("Mute user success");
+    } else {
+      toast.error(res.error);
+    }
+  };
+
   return (
     <div className="flex flex-col justify-between h-full p-2 pt-12 space-y-2">
       <ScrollArea className="h-[750px] pl-3" scrollHideDelay={10}>
@@ -115,7 +139,9 @@ export function ListUser(props: { data: any; userId: string }) {
                         </Tooltip>
                       </ContextMenuTrigger>
                     </PopoverTrigger>
-                    <ContextMenuContent>
+                    <ContextMenuContent
+                      hidden={props.userId === user.id.toString()}
+                    >
                       <ContextMenuItem
                         onClick={async () => {
                           const res = await createDMChannelAction(
@@ -170,7 +196,54 @@ export function ListUser(props: { data: any; userId: string }) {
                         unblock user
                       </ContextMenuItem>
                       <ContextMenuSeparator />
-                      <ContextMenuItem disabled>mute</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          const res = await unMuteChatUser({
+                            userId: user.id,
+                            chatId: chatId,
+                          });
+                          if (res.data) {
+                            toast.success("Unmuted user success");
+                          } else {
+                            toast.error(res.error);
+                          }
+                        }}
+                      >
+                        unmute
+                      </ContextMenuItem>
+                      <ContextMenuSub>
+                        <ContextMenuSubTrigger>mute</ContextMenuSubTrigger>
+                        <ContextMenuSubContent>
+                          <ContextMenuItem
+                            onClick={() => {
+                              handleMuteUser(30, user.id);
+                            }}
+                          >
+                            30 min
+                          </ContextMenuItem>
+                          <ContextMenuItem
+                            onClick={() => {
+                              handleMuteUser(60, user.id);
+                            }}
+                          >
+                            1 h
+                          </ContextMenuItem>
+                          <ContextMenuItem
+                            onClick={() => {
+                              handleMuteUser(120, user.id);
+                            }}
+                          >
+                            2 h
+                          </ContextMenuItem>
+                          <ContextMenuItem
+                            onClick={() => {
+                              handleMuteUser(240, user.id);
+                            }}
+                          >
+                            4 h
+                          </ContextMenuItem>
+                        </ContextMenuSubContent>
+                      </ContextMenuSub>
                       <ContextMenuItem
                         onClick={async () => {
                           const res = await kickChatUser(chatId, user.id);
@@ -232,11 +305,13 @@ export function ListUser(props: { data: any; userId: string }) {
         }}
       >
         <Tooltip delayDuration={10}>
-          <TooltipTrigger asChild>
-            <DialogTrigger asChild>
-              <Button className="w-10 h-10 rounded-full">+</Button>
-            </DialogTrigger>
-          </TooltipTrigger>
+          {chatMeta.chatType !== "direct" && (
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button className="w-10 h-10 rounded-full">+</Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+          )}
           <TooltipContent>Add User</TooltipContent>
         </Tooltip>
         <DialogContent>
