@@ -1,9 +1,11 @@
 import { BannedEntity, ChannelsEntity, User } from '@backend/typeorm';
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
@@ -20,6 +22,7 @@ export class BannedService {
     private readonly channelRepository: Repository<ChannelsEntity>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => ChannelsService))
     private readonly channelService: ChannelsService,
   ) {}
 
