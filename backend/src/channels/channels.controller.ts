@@ -164,7 +164,7 @@ export class ChannelsController {
   //   }
   // }
 
-  @Post(':chatId/addUser/:userName')
+  @Post(':chatId/addUser')
   async addUserByName(
     @Param('chatId') chatId: number,
     @Param('userName') userName: string,
@@ -277,7 +277,7 @@ export class ChannelsController {
   @Post(':chatId/unBan')
   async unbanUser(
     @Param('chatId') chatId: number,
-    @Body() dto: { userId: number },
+    @Body() dto: {userId: number},
   ): Promise<ReturnBannedDto[]> {
     this.chatGateway.sendEvents({ message: 'user unbanned', chatId: chatId, event: 'unbanUser' });
     return await this.bannedService.unbanUser(chatId, dto.userId);

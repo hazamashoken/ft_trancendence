@@ -6,9 +6,11 @@ import {
 } from '@backend/typeorm';
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,6 +20,7 @@ import { take } from 'rxjs';
 import { PaginationDto } from './dto/pagination.dto';
 import { BlockUser } from '@backend/block/dto/BlockUser.dto';
 import { BlockService } from '@backend/block/blockUser.service';
+import { ChannelsService } from '@backend/channels/channels.service';
 
 @Injectable()
 export class MessagesService {
@@ -31,6 +34,8 @@ export class MessagesService {
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
     private readonly blockUserService: BlockService,
+    @Inject(forwardRef(() => ChannelsService))
+    private readonly channelService: ChannelsService,
   ) { }
 
   async createMessage(
@@ -42,18 +47,18 @@ export class MessagesService {
       where: { chatId: channelId },
       relations: ['mutedUsers', 'mutedUsers.user'],
     });
-    // Logger.log(message)
+    
     if (!channel) throw new NotFoundException('ChannelNotFound');
     const author = await this.userRepository.findOne({
       where: { id: authorId },
     });
     if (!author) throw new NotFoundException('User dont exist at this channel');
-    const userMuted = channel.mutedUsers.find((user) =>
-      user.user.id == authorId
-    );
-    if (userMuted) {
+    const date = new Date();
+    const user = channel.mutedUsers.find((user) => user.user.id == authorId);
+    if (user.mutedUntill <= date)
+      await this.channelService.unMute(authorId, channelId);
+    if(user)
       throw new ForbiddenException('User is muted');
-    }
     const newMessage = new MessagesEntity();
     newMessage.message = message;
     newMessage.author = author;
