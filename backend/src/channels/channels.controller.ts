@@ -44,6 +44,7 @@ import { SocketGateway } from '@backend/gateWay/chat.gateway';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 import { PaginationDto } from '@backend/messages/dto/pagination.dto';
+import { dmCreate } from './dto/dm.dto';
 
 @Controller('channels')
 // @UseGuards(XKeyGuard, AuthGuard)
@@ -114,10 +115,9 @@ export class ChannelsController {
   }
 
   @Post('createDm')
-  async createDm(@Body() dto: {user1: number, user2: number}): Promise<ChannelsEntity> {
+  async createDm(@Body() dto: dmCreate): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents('dmCreated'), {user1: dto.user1, user2: dto.user2};
     return this.channelsService.createDm(dto.user1, dto.user2);
-    
   }
 
   @Post(':chatId/delete/:userId')

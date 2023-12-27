@@ -170,9 +170,9 @@ export class ChannelsService {
     }
 
     const newChannel = new ChannelsEntity();
-    newChannel.chatUsers = [];
-    newChannel.chatUsers.push(owner);
-    newChannel.chatUsers.push(user);
+    newChannel.chatUsers = [owner, user];
+    // newChannel.chatUsers.push(owner);
+    // newChannel.chatUsers.push(user);
     newChannel.chatName = chatName;
     newChannel.chatOwner = owner;
     newChannel.password = null;
