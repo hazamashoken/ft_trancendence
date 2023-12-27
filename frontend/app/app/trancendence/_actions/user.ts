@@ -1,13 +1,14 @@
 "use server";
 
 export const blockUser = async (payload: any) => {
-  const url = `${process.env.BACKEND_URL}/user/block`;
+  const { userId, blockId } = payload;
+  const url = `${process.env.BACKEND_URL}/user/${userId}/block`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ userId: blockId })
   });
 
   const data = await response.json();
@@ -18,13 +19,14 @@ export const blockUser = async (payload: any) => {
 }
 
 export const unblockUser = async (payload: any) => {
-  const url = `${process.env.BACKEND_URL}/user/unblock`;
+  const { userId, blockId } = payload;
+  const url = `${process.env.BACKEND_URL}/user/${userId}/unblock`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ userId: blockId })
   });
 
   const data = await response.json();

@@ -14,6 +14,9 @@ import {
   createDMChannelAction,
   muteChatUser,
   unMuteChatUser,
+  banChatUser,
+  addChatAdmin,
+  removeChatAdmin,
 } from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -167,8 +170,8 @@ export function ListUser(props: { data: any; userId: string }) {
                       <ContextMenuItem
                         onClick={async () => {
                           const res = await blockUser({
-                            id: user.id,
-                            myId: props.userId,
+                            blockId: user.id,
+                            userId: props.userId,
                           });
 
                           if (res.data) {
@@ -183,8 +186,8 @@ export function ListUser(props: { data: any; userId: string }) {
                       <ContextMenuItem
                         onClick={async () => {
                           const res = await unblockUser({
-                            id: user.id,
-                            myId: props.userId,
+                            blockId: user.id,
+                            userId: props.userId,
                           });
                           if (res.data) {
                             toast.success("Unblock user success");
@@ -256,10 +259,47 @@ export function ListUser(props: { data: any; userId: string }) {
                       >
                         kick
                       </ContextMenuItem>
-                      <ContextMenuItem disabled>ban</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          const res = await banChatUser({
+                            chatId: chatId,
+                            userId: user.id,
+                            adminId: "4",
+                          });
+                          if (res.data) {
+                            toast.success("Ban user success");
+                          } else {
+                            toast.error(res.error);
+                          }
+                        }}
+                      >
+                        ban
+                      </ContextMenuItem>
                       <ContextMenuSeparator />
-                      <ContextMenuItem disabled>make admin</ContextMenuItem>
-                      <ContextMenuItem disabled>remove admin</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          const res = await addChatAdmin(chatId, user.id);
+                          if (res.data) {
+                            toast.success("Add admin success");
+                          } else {
+                            toast.error(res.error);
+                          }
+                        }}
+                      >
+                        make admin
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          const res = await removeChatAdmin(chatId, user.id);
+                          if (res.data) {
+                            toast.success("Remove admin success");
+                          } else {
+                            toast.error(res.error);
+                          }
+                        }}
+                      >
+                        remove admin
+                      </ContextMenuItem>
                     </ContextMenuContent>
                     <PopoverContent className="w-[300px] space-y-10">
                       <div className="flex">

@@ -287,3 +287,65 @@ export const unMuteChatUser = async (payload: { chatId: string, userId: string |
 
   return { data }
 }
+
+export const banChatUser = async (payload: { chatId: string, userId: string | number, adminId: string, reason?: string }) => {
+  const { chatId, adminId, ...body } = payload;
+  if (typeof body.userId === "string") {
+    body.userId = parseInt(body.userId);
+  }
+  body.reason = body.reason || "No reason provided";
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/banUser/${adminId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data }
+}
+
+
+export const addChatAdmin = async (chatId: string, userId: string) => {
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/addAdmin/${userId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: null
+  });
+
+  const data = await response.json();
+  console.log(data)
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data }
+}
+
+
+export const removeChatAdmin = async (chatId: string, userId: string) => {
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/removeAdmin/${userId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: null
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data }
+}

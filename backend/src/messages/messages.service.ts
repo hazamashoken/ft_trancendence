@@ -40,7 +40,7 @@ export class MessagesService {
   ): Promise<ReturnMessageDto> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
-      relations: ['mutedUsers'],
+      relations: ['mutedUsers', 'mutedUsers.user'],
     });
     // Logger.log(message)
     if (!channel) throw new NotFoundException('ChannelNotFound');
@@ -48,8 +48,12 @@ export class MessagesService {
       where: { id: authorId },
     });
     if (!author) throw new NotFoundException('User dont exist at this channel');
-    if (channel.mutedUsers.find((user) => user.id == authorId))
+    const userMuted = channel.mutedUsers.find((user) =>
+      user.user.id == authorId
+    );
+    if (userMuted) {
       throw new ForbiddenException('User is muted');
+    }
     const newMessage = new MessagesEntity();
     newMessage.message = message;
     newMessage.author = author;
@@ -102,6 +106,7 @@ export class MessagesService {
         .padStart(2, '0')}.${message.createAt.getFullYear()}`,
       hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
       createAt: message.createAt,
+      updateAt: !message.updateAt ? null : message.updateAt,
       updatedAtmy: message.updateAt
         ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
           message.updateAt.getMonth() + 1
@@ -112,7 +117,6 @@ export class MessagesService {
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
         : null,
-      updateAt: !message.updateAt ? null : message.updateAt,
     }));
 
     return formattedMessages;

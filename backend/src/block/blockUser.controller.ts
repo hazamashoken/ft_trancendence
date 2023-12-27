@@ -18,18 +18,20 @@ export class BlockUserController {
     return await this.blockService.getAllBlockedUsers(userId);
   }
 
-  @Post('/block')
+  @Post(':userId/block')
   @ApiOperation({ summary: 'Block user' })
   async blockUser(
+    @Param('userId') userId: number,
     @Body() dto: BlockUserDto
   ): Promise<User[]> {
-    return await this.blockService.blockUser(dto.myId, dto.id);
+    return await this.blockService.blockUser(userId, dto.userId);
   }
 
-  @Post('/unblock')
+  @Post(':userId/unblock')
   async unblockUser(
+    @Param('userId') userId: number,
     @Body() dto: BlockUserDto
   ): Promise<User[]> {
-    return await this.blockService.unBlockUser(dto.myId, dto.id);
+    return await this.blockService.unBlockUser(userId, dto.userId);
   }
 }
