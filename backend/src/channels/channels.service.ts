@@ -144,7 +144,8 @@ export class ChannelsService {
     return plainToClass(ChannelsEntity, chanel);
   }
 
-  async createDm(user1: number, user2: number): Promise<ChannelsEntity> {
+  async createDm(user1: number, user2: number): Promise<ChannelsEntity>
+  {
     const owner = await this.userRepository.findOne({
       where: { id: user1 },
     });
@@ -154,10 +155,11 @@ export class ChannelsService {
     const user = await this.userRepository.findOne({
       where: { id: user2 },
     });
-    if (!user) {
+    if (!user)
+    {
       throw new NotFoundException(`User ${user?.displayName} not found`);
     }
-    const chatName = owner.intraId + ':' + user.intraId;
+    const chatName = owner.intraId + ' | ' + user.intraId;
     const existingChannel = await this.channelsRepository.findOne({
       where: { chatName: chatName, chatType: chatType.DIRECT },
     });
