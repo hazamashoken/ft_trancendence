@@ -194,7 +194,7 @@ export const updateChannelAction = async (chatId: string = "1", payload: any) =>
 
 
 export const kickChatUser = async (chatId: any, userId: any) => {
-  const url = `${process.env.BACKEND_URL}/channels/${chatId}/removeUser/${userId}`;
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/kick/${userId}/`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -225,6 +225,56 @@ export const createDMChannelAction = async (user1: string, user2: string) => {
   }
 
   revalidateTag(`user:chat`);
+
+  return { data }
+}
+
+export const muteChatUser = async (payload: { chatId: string, userId: string, mutedById: string | number, mutedUntil: string }) => {
+
+  const { chatId, ...body } = payload;
+  if (typeof body.mutedById === "string") {
+    body.mutedById = parseInt(body.mutedById);
+  }
+
+  console.log(body.mutedUntil)
+
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/muteUser`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data }
+}
+
+export const unMuteChatUser = async (payload: { chatId: string, userId: string | number }) => {
+
+  const { chatId, ...body } = payload;
+  if (typeof body.userId === "string") {
+    body.userId = parseInt(body.userId);
+  }
+
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/unmute`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
 
   return { data }
 }

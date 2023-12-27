@@ -144,8 +144,7 @@ export class ChannelsService {
     return plainToClass(ChannelsEntity, chanel);
   }
 
-  async createDm(user1: number, user2: number): Promise<ChannelsEntity>
-  {
+  async createDm(user1: number, user2: number): Promise<ChannelsEntity> {
     const owner = await this.userRepository.findOne({
       where: { id: user1 },
     });
@@ -155,8 +154,7 @@ export class ChannelsService {
     const user = await this.userRepository.findOne({
       where: { id: user2 },
     });
-    if (!user)
-    {
+    if (!user) {
       throw new NotFoundException(`User ${user?.displayName} not found`);
     }
     const chatName = owner.intraId + ' | ' + user.intraId;
@@ -535,6 +533,19 @@ export class ChannelsService {
     mutedById: number,
     mutedUntil?: Date | null,
   ): Promise<ReturnMutedDto[]> {
+    const muteSession = await this.mutedService.findMutedByUserId(
+      userId,
+      channelId,
+    );
+
+    if (muteSession) {
+      return this.mutedService.updateMuted(
+        muteSession.id,
+        mutedUntil,
+        channelId,
+      );
+    }
+
     return await this.mutedService.createMuted(
       userId,
       channelId,
@@ -547,8 +558,8 @@ export class ChannelsService {
     return await this.mutedService.findAllMutedAtChat(chatId);
   }
 
-  async unMute(mutedId: number, chatId: number): Promise<ReturnMutedDto[]> {
-    return await this.mutedService.deleteMuted(mutedId, chatId);
+  async unMute(userId: number, chatId: number): Promise<ReturnMutedDto[]> {
+    return await this.mutedService.deleteMuted(userId, chatId);
   }
 
   async muteUpdated(
