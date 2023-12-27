@@ -30,7 +30,6 @@ export function ChatSettingMenu() {
     state.setChatUserList,
     state.setChatMeta,
   ]);
-  console.log(chatMeta);
   const form = useForm({
     defaultValues: {
       chatName: chatMeta.name,

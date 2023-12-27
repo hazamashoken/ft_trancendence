@@ -9,6 +9,7 @@ export async function getPublicChat() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.X_API_KEY as string,
       },
       cache: "no-cache",
     }
@@ -30,6 +31,7 @@ export async function getUserChats(userId: string) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.X_API_KEY as string,
       },
       next: {
         tags: [`user:chat`],
@@ -54,6 +56,7 @@ export async function getChatUser(chatId: string) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.X_API_KEY as string,
       },
       cache: "no-cache",
     }
@@ -73,12 +76,12 @@ export async function createChannelAction(payload: any) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
     },
     body: JSON.stringify(payload),
   });
 
   const data = await response.json();
-  console.log(data)
   if (!response.ok) {
     return { error: data.message };
   }
@@ -92,6 +95,7 @@ export async function addChannelUserAction(chatId: string, value: string) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
     },
     body: null
   });
@@ -114,6 +118,7 @@ export const getChatMessage = async (chatId: string = "1") => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.X_API_KEY as string,
       },
       next: {
         tags: [`chat:${chatId}`],
@@ -138,6 +143,7 @@ export const getChannelData = async (chatId: string = "1") => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.X_API_KEY as string,
       },
       cache: "no-cache",
     }
@@ -159,6 +165,7 @@ export const leaveChannelAction = async (chatId: string = "1", user: string) => 
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
     },
     body: null
   });
@@ -180,12 +187,12 @@ export const updateChannelAction = async (chatId: string = "1", payload: any) =>
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
     },
     body: JSON.stringify(payload)
   });
 
   const data = await response.json();
-  console.log(data)
   if (!response.ok) {
     return { error: data.message };
   }
@@ -199,6 +206,7 @@ export const kickChatUser = async (chatId: any, userId: any) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
     },
   });
 
@@ -215,8 +223,9 @@ export const createDMChannelAction = async (user1: string, user2: string) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
     },
-    body: JSON.stringify({ user1, user2 })
+    body: JSON.stringify({ user1: parseInt(user1), user2 })
   });
 
   const data = await response.json();

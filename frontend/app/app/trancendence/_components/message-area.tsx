@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getChannelData, getUserChats } from "../_actions/chat";
-import { ChatHeader } from "./chat-header";
+import { ChatHeader, getDmOther } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-message";
 import { IChatStore, useChatStore } from "@/store/chat";
@@ -71,11 +71,16 @@ export function MessageArea(props: any) {
           paramKey="channelId"
           paramValue={chatMeta.id}
           chatId={chatId}
+          chatMeta={chatMeta}
         />
       </div>
       {chatId && (
         <ChatInput
-          name={chatMeta.name}
+          name={
+            chatMeta.chatType === "direct"
+              ? getDmOther(chatMeta.data.chatUsers, userId)?.displayName
+              : chatMeta.name
+          }
           type="channel"
           apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/createmessage`}
           query={{

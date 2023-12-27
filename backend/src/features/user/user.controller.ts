@@ -37,7 +37,7 @@ import { QueryOptionDto } from '@backend/dto/query-option.dto';
 @Controller('users')
 // @UseGuards(XKeyGuard, AuthGuard)
 // @ApiBearerAuth()
-// @ApiSecurity('x-api-key')
+@ApiSecurity('x-api-key')
 @ApiTags('Users')
 export class UserController {
   constructor(

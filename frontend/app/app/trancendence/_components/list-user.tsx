@@ -44,16 +44,18 @@ import { Badge } from "@/components/ui/badge";
 
 export function ListUser(props: { data: any; userId: string }) {
   const [open, setOpen] = useState(false);
-  const [chatId] = useChatStore((state: IChatStore) => [
-    state.chatId,
-    state.chatList,
-    state.chatUserList,
-    state.chatMeta,
-    state.setChatId,
-    state.setChatList,
-    state.setChatUserList,
-    state.setChatMeta,
-  ]);
+  const [chatId, chatList, chatUserList, chatMeta] = useChatStore(
+    (state: IChatStore) => [
+      state.chatId,
+      state.chatList,
+      state.chatUserList,
+      state.chatMeta,
+      state.setChatId,
+      state.setChatList,
+      state.setChatUserList,
+      state.setChatMeta,
+    ]
+  );
   const { data } = props;
   const form = useForm({
     defaultValues: {
@@ -115,7 +117,9 @@ export function ListUser(props: { data: any; userId: string }) {
                         </Tooltip>
                       </ContextMenuTrigger>
                     </PopoverTrigger>
-                    <ContextMenuContent>
+                    <ContextMenuContent
+                      hidden={props.userId === user.id.toString()}
+                    >
                       <ContextMenuItem
                         onClick={async () => {
                           const res = await createDMChannelAction(
@@ -171,18 +175,20 @@ export function ListUser(props: { data: any; userId: string }) {
                       </ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem disabled>mute</ContextMenuItem>
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await kickChatUser(chatId, user.id);
-                          if (res.data) {
-                            toast.success("Kick user success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        kick
-                      </ContextMenuItem>
+                      {chatMeta.chatType !== "direct" && (
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await kickChatUser(chatId, user.id);
+                            if (res.data) {
+                              toast.success("Kick user success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          kick
+                        </ContextMenuItem>
+                      )}
                       <ContextMenuItem disabled>ban</ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem disabled>make admin</ContextMenuItem>
@@ -232,11 +238,13 @@ export function ListUser(props: { data: any; userId: string }) {
         }}
       >
         <Tooltip delayDuration={10}>
-          <TooltipTrigger asChild>
-            <DialogTrigger asChild>
-              <Button className="w-10 h-10 rounded-full">+</Button>
-            </DialogTrigger>
-          </TooltipTrigger>
+          {chatMeta.chatType !== "direct" && (
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button className="w-10 h-10 rounded-full">+</Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+          )}
           <TooltipContent>Add User</TooltipContent>
         </Tooltip>
         <DialogContent>

@@ -19,7 +19,7 @@ export class FriendshipService {
   constructor(
     @InjectRepository(Friendship)
     private fsRepository: Repository<Friendship>,
-  ) {}
+  ) { }
 
   static isValidStatus(status: string) {
     return (
@@ -65,10 +65,19 @@ export class FriendshipService {
   }
 
   getFriend(userId: number, friendId: number) {
-    return this.fsRepository.findOneBy({
+    const friendship = this.fsRepository.findOneBy({
       user: { id: userId },
       friend: { id: friendId },
     });
+
+    if (!friendship) {
+      return this.fsRepository.findOneBy({
+        user: { id: friendId },
+        friend: { id: userId },
+      });
+    }
+
+    return friendship;
   }
 
   async create(userId: number, friendId: number, status: FriendshipStatus) {

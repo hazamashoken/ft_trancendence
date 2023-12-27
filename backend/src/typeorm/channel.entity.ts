@@ -46,7 +46,7 @@ export class ChannelsEntity extends BaseEntity {
   @ManyToMany(() => User)
   @JoinTable({ name: 'chat_users' })
   @JoinColumn({ name: 'chat_users' })
-  @Exclude()
+  // @Exclude()
   chatUsers: User[];
 
   @ManyToMany(() => User)
