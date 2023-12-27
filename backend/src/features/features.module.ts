@@ -5,6 +5,9 @@ import { AuthModule } from './auth/auth.module';
 import { MeModule } from './me/me.module';
 import { FriendshipModule } from './friendship/friendship.module';
 import { UserSessionModule } from './user-session/user-session.module';
+import { MatchsModule } from './matchs/matchs.module';
+import { GatewayModule } from '@backend/gateWay/gateway.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -14,6 +17,9 @@ import { UserSessionModule } from './user-session/user-session.module';
     FtModule,
     AuthModule,
     UserSessionModule,
+    GatewayModule,
+    MatchsModule,
+    StatsModule,
   ],
   exports: [
     MeModule,
@@ -22,6 +28,9 @@ import { UserSessionModule } from './user-session/user-session.module';
     FtModule,
     AuthModule,
     UserSessionModule,
+    GatewayModule,
+    MatchsModule,
+    StatsModule,
   ],
 })
 export class FeaturesModule {}
