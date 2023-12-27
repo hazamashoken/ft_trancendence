@@ -11,7 +11,7 @@ export default async function ChatPage() {
         <Game width={"1200"} height={"600"} />
       </div> */}
       {/* <ChatBox userId={"5"} /> */}
-      <ChatBox userId={4} />
+      <ChatBox userId={"4"} />
     </div>
   );
 }

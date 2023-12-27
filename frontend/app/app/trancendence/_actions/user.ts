@@ -11,10 +11,10 @@ export const blockUser = async (payload: any) => {
   });
 
   const data = await response.json();
-  if (response.status !== 201) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
-  return data;
+  return { data };
 }
 
 export const unblockUser = async (payload: any) => {
@@ -28,10 +28,10 @@ export const unblockUser = async (payload: any) => {
   });
 
   const data = await response.json();
-  if (response.status !== 201) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
-  return data;
+  return { data };
 }
 
 export const getBlockUsers = async (userId: string = "1") => {
@@ -44,9 +44,9 @@ export const getBlockUsers = async (userId: string = "1") => {
   });
 
   const data = await response.json();
-  if (response.status !== 200) {
-    throw new Error(data.message);
+  if (!response.ok) {
+    return { error: data.message };
   }
-  return data;
+  return { data };
 }
 

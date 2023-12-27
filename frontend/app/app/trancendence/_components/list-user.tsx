@@ -11,6 +11,7 @@ import {
   createChannelAction,
   addChannelUserAction,
   kickChatUser,
+  createDMChannelAction,
 } from "../_actions/chat";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -38,6 +39,8 @@ import {
 import { IChatStore, useChatStore } from "@/store/chat";
 import { useState } from "react";
 import { blockUser, unblockUser } from "../_actions/user";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 export function ListUser(props: { data: any; userId: string }) {
   const [open, setOpen] = useState(false);
@@ -58,11 +61,14 @@ export function ListUser(props: { data: any; userId: string }) {
     },
   });
 
-  const handleSubmit = async (value: any) => {
-    console.log(value);
+  const handleAddUser = async (value: any) => {
     const res = await addChannelUserAction(chatId, value.username);
-    if (res) {
+    if (res.data) {
+      toast.success("Add user success");
       setOpen(false);
+      form.reset();
+    } else {
+      toast.error(res.error);
     }
   };
 
@@ -76,16 +82,17 @@ export function ListUser(props: { data: any; userId: string }) {
     // Loop through each word and append the first letter (up to 4 characters) to the abbreviation
     for (let i = 0; i < words.length; i++) {
       const firstLetter = words[i][0]; // Get the first letter of the word
-      abbreviation += firstLetter.slice(0, 4); // Append the first letter, limiting to 4 characters
+      abbreviation += firstLetter; // Append the first letter
     }
 
-    return abbreviation;
+    return abbreviation.slice(0, 4);
   }
 
   return (
     <div className="flex flex-col justify-between h-full p-2 pt-12 space-y-2">
       <ScrollArea className="h-[750px] pl-3" scrollHideDelay={10}>
         <div className="container flex flex-col px-0 space-y-2">
+          <Badge>User</Badge>
           {data.map((user: any, index: number) => {
             return (
               <div key={index}>
@@ -102,12 +109,30 @@ export function ListUser(props: { data: any; userId: string }) {
                               </AvatarFallback>
                             </Avatar>
                           </TooltipTrigger>
-                          <TooltipContent>{user.displayName}</TooltipContent>
+                          <TooltipContent side="left">
+                            {user.displayName}
+                          </TooltipContent>
                         </Tooltip>
                       </ContextMenuTrigger>
                     </PopoverTrigger>
                     <ContextMenuContent>
-                      <ContextMenuItem disabled>send message</ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={async () => {
+                          const res = await createDMChannelAction(
+                            props.userId,
+                            user.id
+                          );
+                          if (res.data) {
+                            toast.success("Create DM success");
+                            setOpen(false);
+                            form.reset();
+                          } else {
+                            toast.error(res.error);
+                          }
+                        }}
+                      >
+                        send message
+                      </ContextMenuItem>
                       <ContextMenuItem disabled>invite to game</ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem disabled>add friend</ContextMenuItem>
@@ -115,20 +140,31 @@ export function ListUser(props: { data: any; userId: string }) {
                       <ContextMenuSeparator />
                       <ContextMenuItem
                         onClick={async () => {
-                          await blockUser({
+                          const res = await blockUser({
                             id: user.id,
                             myId: props.userId,
                           });
+
+                          if (res.data) {
+                            toast.success("Block user success");
+                          } else {
+                            toast.error(res.error);
+                          }
                         }}
                       >
                         block user
                       </ContextMenuItem>
                       <ContextMenuItem
                         onClick={async () => {
-                          await unblockUser({
+                          const res = await unblockUser({
                             id: user.id,
                             myId: props.userId,
                           });
+                          if (res.data) {
+                            toast.success("Unblock user success");
+                          } else {
+                            toast.error(res.error);
+                          }
                         }}
                       >
                         unblock user
@@ -137,7 +173,12 @@ export function ListUser(props: { data: any; userId: string }) {
                       <ContextMenuItem disabled>mute</ContextMenuItem>
                       <ContextMenuItem
                         onClick={async () => {
-                          kickChatUser(chatId, user.id);
+                          const res = await kickChatUser(chatId, user.id);
+                          if (res.data) {
+                            toast.success("Kick user success");
+                          } else {
+                            toast.error(res.error);
+                          }
                         }}
                       >
                         kick
@@ -200,7 +241,7 @@ export function ListUser(props: { data: any; userId: string }) {
         </Tooltip>
         <DialogContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <form onSubmit={form.handleSubmit(handleAddUser)}>
               <InputForm
                 label="Username"
                 name="username"

@@ -19,6 +19,15 @@ interface ChatHeaderProps {
   imageUrl?: string;
   chatId: string;
   chatMeta: any;
+  chatUserList?: any;
+  userId: string;
+}
+
+export function getDmOther(chatUserList: any, userId: string) {
+  const other = chatUserList?.filter(
+    (user: any) => user.id.toString() !== userId
+  );
+  return other[0];
 }
 
 export const ChatHeader = ({
@@ -26,6 +35,8 @@ export const ChatHeader = ({
   imageUrl,
   chatId,
   chatMeta,
+  chatUserList,
+  userId,
 }: ChatHeaderProps) => {
   return (
     <div className="flex items-center h-12 px-3 font-semibold border-b-2 text-md border-neutral-200 dark:border-neutral-800">
@@ -39,12 +50,14 @@ export const ChatHeader = ({
         <UserAvatar src={imageUrl} className="w-8 h-8 mr-2 md:h-8 md:w-8" />
       )}
       <p className="font-semibold text-black truncate w-28 text-md dark:text-white">
-        {chatMeta.name}
+        {chatMeta?.chatType != "direct"
+          ? chatMeta.name
+          : getDmOther(chatUserList, userId)?.displayName}
       </p>
       <div className="flex items-center px-4 ml-auto">
         <SocketIndicator />
       </div>
-      {chatId && <ChatSettingMenu />}
+      {chatId && chatMeta?.chatType != "direct" && <ChatSettingMenu />}
     </div>
   );
 };

@@ -35,7 +35,8 @@ export function MessageArea(props: any) {
   useEffect(() => {
     if (!chatId) return;
     const getChatMeta = async () => {
-      const data = await getChannelData(chatId);
+      const res = await getChannelData(chatId);
+      const data = await res.data;
       setChatMeta({
         id: data?.chatId,
         name: data?.chatName,
@@ -50,7 +51,13 @@ export function MessageArea(props: any) {
   return (
     <div className="w-[350px] h-full flex flex-col justify-between">
       <div className="flex flex-col h-full overflow-hidden">
-        <ChatHeader type="channel" chatId={chatId} chatMeta={chatMeta} />
+        <ChatHeader
+          type="channel"
+          chatId={chatId}
+          chatMeta={chatMeta}
+          chatUserList={chatUserList}
+          userId={userId}
+        />
         <ChatMessages
           member={chatUserList}
           name={chatMeta.name}

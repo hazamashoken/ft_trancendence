@@ -69,9 +69,7 @@ export class ChannelsService {
   async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     const channels = await this.channelsRepository
       .createQueryBuilder('channel')
-      .innerJoinAndSelect('channel.chatUsers', 'user', 'user.id = :userId', {
-        userId,
-      })
+      .innerJoinAndSelect('channel.chatUsers', 'user')
       .leftJoinAndSelect('channel.chatOwner', 'owner')
       .getMany();
     return channels;
@@ -91,7 +89,7 @@ export class ChannelsService {
   async findOneById(id: number): Promise<ChannelsEntity> {
     const channel = await this.channelsRepository.findOne({
       where: { chatId: id },
-      relations: ['chatOwner'],
+      relations: ['chatOwner', 'chatUsers'],
     });
     if (!channel) throw new NotFoundException('channelNotFound');
     return plainToClass(ChannelsEntity, channel);
@@ -143,6 +141,41 @@ export class ChannelsService {
 
     const chanel = await this.channelsRepository.save(newChannel);
     // return plainToClass(ReturnChanelDto, chanel);
+    return plainToClass(ChannelsEntity, chanel);
+  }
+
+  async createDm(user1: number, user2: number): Promise<ChannelsEntity> {
+    const owner = await this.userRepository.findOne({
+      where: { id: user1 },
+    });
+    if (!owner) {
+      throw new NotFoundException(`User ${owner?.displayName} not found`);
+    }
+    const user = await this.userRepository.findOne({
+      where: { id: user2 },
+    });
+    if (!user) {
+      throw new NotFoundException(`User ${user?.displayName} not found`);
+    }
+    const chatName = owner.intraId + ':' + user.intraId;
+    const existingChannel = await this.channelsRepository.findOne({
+      where: { chatName: chatName, chatType: chatType.DIRECT },
+    });
+    if (existingChannel) {
+      throw new ForbiddenException('Ypu already have conversation with this user');
+    }
+
+    const newChannel = new ChannelsEntity();
+    newChannel.chatUsers = [owner, user];
+    // newChannel.chatUsers.push(owner);
+    // newChannel.chatUsers.push(user);
+    newChannel.chatName = chatName;
+    newChannel.chatOwner = owner;
+    newChannel.password = null;
+    newChannel.maxUsers = 2;
+    newChannel.chatType = chatType.DIRECT;
+
+    const chanel = await this.channelsRepository.save(newChannel);
     return plainToClass(ChannelsEntity, chanel);
   }
 
@@ -280,7 +313,7 @@ export class ChannelsService {
   async getOwnerById(chatId: number): Promise<ChatUserDto> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: chatId },
-      relations: ['chatOwner'],
+      relations: ['chatOwner', 'chatUsers'],
     });
 
     if (!chat) throw new NotFoundException('Chat not found');

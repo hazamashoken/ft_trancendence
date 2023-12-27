@@ -31,7 +31,7 @@ export class MessagesService {
     @InjectRepository(MutedEntity)
     private readonly mutedRepository: Repository<MutedEntity>,
     private readonly blockUserService: BlockService,
-  ) {}
+  ) { }
 
   async createMessage(
     channelId: number,
@@ -76,7 +76,7 @@ export class MessagesService {
       where: { channel: { chatId: channelId } },
       relations: ['author'],
       order: {
-        createAt: 'DESC',
+        createAt: 'ASC',
       },
       take: 100,
     });
@@ -84,7 +84,7 @@ export class MessagesService {
     const filteredMessages = messages.filter(message => {
       // Assuming 'message.author' has an 'id' property
       return !blockedUserIds.has(message.author.id);
-    }); 
+    });
 
     if (messages.length < 1)
       return [];
@@ -102,10 +102,10 @@ export class MessagesService {
       createAt: message.createAt,
       updatedAtmy: message.updateAt
         ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
-            message.updateAt.getMonth() + 1
-          )
-            .toString()
-            .padStart(2, '0')}.${message.updateAt.getFullYear()}`
+          message.updateAt.getMonth() + 1
+        )
+          .toString()
+          .padStart(2, '0')}.${message.updateAt.getFullYear()}`
         : null,
       updateAthm: message.updateAt
         ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
