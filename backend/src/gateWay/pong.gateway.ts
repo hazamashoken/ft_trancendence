@@ -34,9 +34,7 @@ export let _gameInstance: PongGame = new PongGame();
 @ApiBearerAuth()
 @ApiSecurity('x-api-key')
 @ApiTags('Channels')
-export class PongGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   public server: Server = new Server<
     PongServerToClientEvents,
@@ -44,15 +42,17 @@ export class PongGateway
   >();
   private logger = new Logger('PongGateway');
 
-  getClientID(@ConnectedSocket() client: any)
-  {
+  getClientID(@ConnectedSocket() client: any) {
     return `${client.id}`;
   }
 
-  handleConnection(@ConnectedSocket() client: any, @AuthUser() authUser: AuthUserInterface)
-  {
+  handleConnection(
+    @ConnectedSocket() client: any,
+    @AuthUser() authUser: AuthUserInterface,
+  ) {
     let id: string = this.getClientID(client);
-    let name: string = authUser.user.intraLogin;
+    let name = id;
+    // let name: string = authUser.user.intraLogin;
 
     this.logger.log('connect: ' + id + ', ' + name);
     _gameInstance.addUser(this.server, id, name, 'public channel');
@@ -60,21 +60,20 @@ export class PongGateway
     startGameLoop(_gameInstance.update);
   }
 
-  handleDisconnect(@ConnectedSocket() client: any)
-  {
+  handleDisconnect(@ConnectedSocket() client: any) {
     let id: string = this.getClientID(client);
-  
+
     this.logger.log('disconnect: ' + id);
     //client.leave('public channel');
     _gameInstance.deleteUserByID(id);
-    if (_gameInstance.empty())
-      stopGameLoop();
+    if (_gameInstance.empty()) stopGameLoop();
   }
 
   @SubscribeMessage('pong_keypress')
-  async handleReceiveKeypress(@ConnectedSocket() client: any, @MessageBody() payload: GameInstruction)
-    : Promise<void>
-  {
+  async handleReceiveKeypress(
+    @ConnectedSocket() client: any,
+    @MessageBody() payload: GameInstruction,
+  ): Promise<void> {
     let id: string = this.getClientID(client);
 
     this.logger.log('keypress: ' + payload.keypress);

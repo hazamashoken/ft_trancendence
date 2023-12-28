@@ -1,75 +1,54 @@
 import { InputForm } from "@/components/form/input";
+import { SelectForm } from "@/components/form/select";
 import { Button } from "@/components/ui/button";
+import { createChannelAction } from "../_actions/chat";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
-import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { updateChannelAction } from "../_actions/chat";
-import { IChatStore, useChatStore } from "@/store/chat";
-import { SelectForm } from "@/components/form/select";
-import { Settings } from "lucide-react";
+import z from "zod";
+import { toast } from "sonner";
 
-export function ChatSettingMenu() {
-  const [open, setOpen] = useState(false);
-  const [
-    chatId,
-    chatList,
-    chatUserList,
-    chatMeta,
-    setChatId,
-    setChatList,
-    setChatUserList,
-    setChatMeta,
-  ] = useChatStore((state: IChatStore) => [
-    state.chatId,
-    state.chatList,
-    state.chatUserList,
-    state.chatMeta,
-    state.setChatId,
-    state.setChatList,
-    state.setChatUserList,
-    state.setChatMeta,
-  ]);
+const formSchema = z.object({
+  chatName: z.string({ required_error: "required" }).min(1, "required"),
+  chatOwner: z.coerce.number(),
+  password: z.string().nullable(),
+  chatType: z.string(),
+});
+
+export function CreateChannelDialog(props: any) {
+  const { userId, setChatId, setOpen, open } = props;
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      chatName: chatMeta.name,
+      chatName: "",
+      chatOwner: userId,
       password: null,
       chatType: "public" as "public" | "private",
     },
   });
-
-  useEffect(() => {
-    if (!chatMeta) return;
-    form.reset({
-      chatName: chatMeta.name,
-      password: null,
-      chatType: chatMeta.chatType as "public" | "private",
-    });
-  }, [chatMeta]);
   const handleSubmit = async (values: any) => {
     const payload = {
-      chatOwner: values.chatOwner,
+      chatOwner: parseInt(values.chatOwner),
       chatName: values.chatName?.trim(),
       chatType: values.chatType,
-      password: values.chatType === "private" ? values.password?.trim() : null,
+      password: values.chatType == "private" ? values.password?.trim() : null,
     };
-    const res = await updateChannelAction(chatId, payload);
+    const res = await createChannelAction(payload);
     if (res.data) {
+      toast.success("Channel created successfully");
+      setChatId(res.data.chatId);
       form.reset();
       setOpen(false);
-      setChatMeta({
-        ...chatMeta,
-        name: res.data.chatName,
-        chatType: res.data.chatType,
-        data: null,
-      });
+    } else {
+      toast.error(res.error);
     }
   };
   return (
@@ -80,14 +59,11 @@ export function ChatSettingMenu() {
         form.reset();
       }}
     >
-      <DialogTrigger>
-        <Settings />
-      </DialogTrigger>
       <DialogContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader>
-              <DialogTitle>Channel Settings</DialogTitle>
+              <DialogTitle>Create Channel</DialogTitle>
             </DialogHeader>
             <div className="p-4">
               <InputForm
@@ -95,6 +71,7 @@ export function ChatSettingMenu() {
                 name="chatName"
                 form={form}
                 isRequired
+                msg
               />
               <SelectForm
                 label="Chat Type"
@@ -107,11 +84,15 @@ export function ChatSettingMenu() {
                 ]}
               />
               {form.watch("chatType") === "private" && (
-                <InputForm label="Password" name="password" form={form} />
+                <>
+                  <InputForm label="Password" name="password" form={form} msg />
+                </>
               )}
             </div>
             <DialogFooter>
-              <Button>Save</Button>
+              <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
+                Create
+              </Button>
             </DialogFooter>
           </form>
         </Form>
