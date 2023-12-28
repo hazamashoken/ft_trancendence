@@ -23,11 +23,12 @@ export class StatsService {
   // }
 
   private winRateCalculate(win: number, matchs: number): string {
-    if (win === 0 && matchs === 0) {
-      return Number(100).toFixed(2);
-    }
+    console.log(`[Debug]::win|${win}|matchs|${matchs}|`)
     if (!Number(win)) {
-      return Number((0 / matchs) * 100).toFixed(2);
+      win = 0;
+    }
+    if (win === 0 && matchs === 0) {
+      return Number(0).toFixed(2);
     }
     return Number((win / matchs) * 100).toFixed(2);
   }
@@ -48,6 +49,12 @@ export class StatsService {
   async createNewStats(createStateDto: CreateStatsDto) {
     // console.log(createStateDto);
     let { userId } = createStateDto;
+    if (userId < 0) {
+      throw new HttpException(
+        'Nagative user-id, fail to create new stats.',
+        HttpStatus.BAD_REQUEST
+      )
+    }
     const user = await this.userRepository.findOne({ where: { id: userId } });
     // if (user) {
     //   throw new HttpException(
@@ -99,31 +106,18 @@ export class StatsService {
     return this.statsRepository.findOne({ where: { user: { id: id } }});
   }
 
-  updateStatsByUser(id: number, updateStatsDto: UpdateStatsDto) {
-    // const { win, ...statsDetail } = updateStatsDto;
-    if (Number(updateStatsDto.win) && updateStatsDto.win < 0
-      || Number(updateStatsDto.win) && updateStatsDto.win >= Number.MAX_VALUE) {
-      throw new HttpException (
-        'Fail to update the stats, win value is invalid.',
+  async updateStatsByUser(id: number, updateStatsDto: UpdateStatsDto){
+    const userMatch = await this.findStatsByUser(id);
+    if (!userMatch) {
+      throw new HttpException(
+        'Fail! to update the stats, the user-id is not found.',
         HttpStatus.BAD_REQUEST
       )
     }
-    if (Number(updateStatsDto.lose) && updateStatsDto.lose < 0
-      || Number(updateStatsDto.lose) && updateStatsDto.lose >= Number.MAX_VALUE) {
-      throw new HttpException (
-        'Fail! to update the stats, lose value is invalid.',
-        HttpStatus.BAD_REQUEST
-      )
-    }
-    if (Number(updateStatsDto.point) && updateStatsDto.point < 0
-      || Number(updateStatsDto.point) && updateStatsDto.point >= Number.MAX_VALUE) {
-      throw new HttpException (
-        'Fail! to update the stats, point value is invalid.',
-        HttpStatus.BAD_REQUEST
-      )
-    }
-    const matchs = this.matchsCalculate(updateStatsDto.win, updateStatsDto.lose);
-    const winRate = this.winRateCalculate(updateStatsDto.win, matchs);
+    const win = Number(updateStatsDto.win) ? updateStatsDto.win : userMatch.win;
+    const lose = Number(updateStatsDto.lose) ? updateStatsDto.lose : userMatch.lose;
+    const matchs = this.matchsCalculate(win, lose);
+    const winRate = this.winRateCalculate(win, matchs);
     return this.statsRepository.update(
       {
         user: { id: id }
@@ -137,5 +131,17 @@ export class StatsService {
   
   removeStatsByUser(id: number) {
     return this.statsRepository.delete({ user : { id: id } });
+  }
+
+  listAllStatsInDescOrder() {
+    return this.statsRepository.find({ order: { point: 'DESC', }, })
+  }
+
+  listStatsInDescOederLimit(num: number) {
+    return this.statsRepository.find({
+      order: { point: "DESC" },
+      skip: 0,
+      take: num,
+    },)
   }
 }

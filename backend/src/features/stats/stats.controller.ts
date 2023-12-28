@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { StatsService } from './stats.service';
 import { CreateStatsDto } from './dto/create-stats.dto';
 import { UpdateStatsDto } from './dto/update-stats.dto';
+import { ParseIntPipe } from '@nestjs/common';
 
 @Controller('stats')
 export class StatsController {
@@ -17,18 +18,31 @@ export class StatsController {
     return this.statsService.listAllStats();
   }
 
+  @Get('rank')
+  listAllStatsInOrder() {
+    return this.statsService.listAllStatsInDescOrder();
+  }
+
   @Get(':id')
-  findStatsByUser(@Param('id') id: string) {
+  findStatsByUser(@Param('id', ParseIntPipe) id: number) {
     return this.statsService.findStatsByUser(+id);
   }
 
+  @Get('rank/:num')
+  listStatsInRankNumber(@Param('num', ParseIntPipe) num: number) {
+    return this.statsService.listStatsInDescOederLimit(num);
+  }
+
   @Patch(':id')
-  async updateStatsByUser(@Param('id') id: string, @Body() updateStatsDto: UpdateStatsDto) {
+  async updateStatsByUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateStatsDto: UpdateStatsDto
+  ) {
     await this.statsService.updateStatsByUser(+id, updateStatsDto);
   }
 
   @Delete(':id')
-  async removeStatsByUser(@Param('id') id: string) {
+  async removeStatsByUser(@Param('id', ParseIntPipe) id: number) {
     await this.statsService.removeStatsByUser(+id);
   }
 }
