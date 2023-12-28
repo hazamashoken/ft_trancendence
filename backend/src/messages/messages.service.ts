@@ -45,9 +45,8 @@ export class MessagesService {
   ): Promise<ReturnMessageDto> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
-      relations: ['mutedUsers', 'mutedUsers.user'],
+      relations: ['mutedUsers', 'mutedUsers.user', 'bannedUsers'],
     });
-
     if (!channel) throw new NotFoundException('ChannelNotFound');
     const author = await this.userRepository.findOne({
       where: { id: authorId },
@@ -59,6 +58,10 @@ export class MessagesService {
       await this.channelService.unMute(authorId, channelId, authorId);
     if (user) {
       throw new ForbiddenException('User is muted');
+    }
+    if(channel.bannedUsers.find((user) => user.id == authorId) != undefined)
+    {
+      throw new ForbiddenException('User is banned at this channel');
     }
     const newMessage = new MessagesEntity();
     newMessage.message = message;
