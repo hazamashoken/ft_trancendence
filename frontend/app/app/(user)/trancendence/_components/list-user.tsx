@@ -160,7 +160,7 @@ export function ListUser(props: { data: any; userId: string }) {
                           }
                         }}
                       >
-                        send message
+                        create DM
                       </ContextMenuItem>
                       <ContextMenuItem disabled>invite to game</ContextMenuItem>
                       <ContextMenuSeparator />

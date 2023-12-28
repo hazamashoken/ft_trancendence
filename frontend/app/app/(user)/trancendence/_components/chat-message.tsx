@@ -16,6 +16,7 @@ import { useSocket } from "@/components/providers/socket-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
 import ApiClient from "@/app/api/api-client";
+import { getDmOther } from "./chat-header";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -35,6 +36,7 @@ interface ChatMessagesProps {
   type: "channel" | "conversation";
   chatMeta?: any;
   chatId: string;
+  userId: string;
 }
 
 export const ChatMessages = ({
@@ -47,6 +49,7 @@ export const ChatMessages = ({
   type,
   chatMeta,
   chatId,
+  userId,
 }: ChatMessagesProps) => {
   const queryKey = `chat:${chatId}`;
   const addKey = `chat:${chatId}:messages`;
@@ -111,13 +114,19 @@ export const ChatMessages = ({
   if (chatMessages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center flex-1 border-x">
-        <p className="text-xs text-center text-zinc-500 dark:text-zinc-400">
-          This is the beginning of your legendary conversation in{" "}
-          {chatMeta.name} channel.
-        </p>
+        <ChatWelcome
+          name={
+            chatMeta.chatType !== "direct"
+              ? chatMeta.name
+              : getDmOther(chatMeta.data.chatUsers, userId)?.displayName ??
+                "unknown"
+          }
+          type={chatMeta.chatType}
+        />
       </div>
     );
   }
+
   return (
     <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">
       <div className="flex flex-col mt-auto">

@@ -70,6 +70,7 @@ export function MessageArea(props: any) {
           paramValue={chatMeta.id}
           chatId={chatId}
           chatMeta={chatMeta}
+          userId={userId}
         />
       </div>
       {chatId && (

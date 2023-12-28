@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { createChannelAction, leaveChannelAction } from "../_actions/chat";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { IChatStore, useChatStore } from "@/store/chat";
 import {
@@ -216,11 +216,13 @@ export function ListChannel(props: { data: any; userId: string }) {
             <AccordionContent className="flex flex-col px-0 space-y-2">
               {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "direct") return null;
-
                 return (
                   <Tooltip key={index} delayDuration={10}>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Avatar onClick={() => handleViewChannel(channel)}>
+                        <AvatarImage
+                          src={getDmOther(channel.chatUsers, userId).imageUrl}
+                        />
                         <AvatarFallback>
                           {createAbbreviation(
                             getDmOther(channel.chatUsers, userId)
@@ -230,7 +232,8 @@ export function ListChannel(props: { data: any; userId: string }) {
                       </Avatar>
                     </TooltipTrigger>
                     <TooltipContent side="right">
-                      {channel.chatName}
+                      {getDmOther(channel.chatUsers, userId)?.displayName ??
+                        "DM"}
                     </TooltipContent>
                   </Tooltip>
                 );
