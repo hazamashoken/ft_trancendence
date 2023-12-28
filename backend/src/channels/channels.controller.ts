@@ -154,6 +154,18 @@ export class ChannelsController {
     return owner;
   }
 
+  @Post(':chatName/addUserProtected')
+  @ApiOperation({ summary: 'add user to protected chat' })
+  @ApiParam({ name: 'chatName', type: String, example: 'Im chat name' })
+  async addUserToProtectedChat(
+    @Param('chatName') chatName: string,
+    @AuthUser() authUser: AuthUserInterface,
+  ): Promise<ChatUserDto[]> {
+    this.chatGateway.sendEvents('user added to protected chat');
+    const name = chatName.trim();
+    return this.channelsService.addUserToProtectedChat(name, authUser.user.id);
+  }
+
   @Post('create')
   @ApiOperation({ summary: 'get one channel owner by chat Id.' })
   @ApiBody({

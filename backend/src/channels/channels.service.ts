@@ -129,6 +129,19 @@ export class ChannelsService {
     return plainToClass(ChannelsEntity, channel);
   }
 
+  async addUserToProtectedChat(chatName: string, userId: number): Promise<ChatUserDto[]> {
+    const channel = await this.channelsRepository.findOne({
+      where: { chatName: chatName },
+      relations: [ 'chatUsers'],
+    });
+    if (!channel) throw new NotFoundException('channelNotFound');
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('userNotFound');
+    channel.chatUsers.push(user);
+    await this.channelsRepository.save(channel);
+    return channel.chatUsers.map((user) => plainToClass(ChatUserDto, user));
+  }
+
   async findOne(id: number): Promise<ChannelsEntity> {
     const channel = await this.channelsRepository.findOne({
       where: { chatId: id },
