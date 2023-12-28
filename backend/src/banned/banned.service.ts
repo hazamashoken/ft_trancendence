@@ -24,7 +24,7 @@ export class BannedService {
     private readonly userRepository: Repository<User>,
     @Inject(forwardRef(() => ChannelsService))
     private readonly channelService: ChannelsService,
-  ) { }
+  ) {}
 
   // async findAll(): Promise<void> {
   //   const banned = await this.bannedRepository.find();
@@ -84,7 +84,6 @@ export class BannedService {
     const chat1 = await this.channelRepository
       .createQueryBuilder('chat')
       .leftJoinAndSelect('chat.bannedUsers', 'banned')
-      .leftJoinAndSelect('chat.chatUsers', 'users')
       .leftJoinAndSelect('chat.chatAdmins', 'admins')
       .leftJoinAndSelect('chat.chatOwner', 'owner')
       .where('chat.chatId = :chatId', { chatId })
@@ -156,9 +155,7 @@ export class BannedService {
       .values(bannedUser)
       .execute();
 
-    const user = await this.channelService.removeUserFromChat(chat1.chatId, bannedId);
-
-    Logger.log(user);
+    await this.channelService.removeUserFromChat(chat1.chatId, bannedId);
     return await this.findAllBannedUsersInChat(chat1.chatId);
   }
 
@@ -192,7 +189,7 @@ export class BannedService {
     return await this.findAllBannedUsersInChat(channelId);
   }
 
-  async unbanUser(chatId: number, userId: number): Promise<ReturnBannedDto[]> {
+  async unbanUser (chatId: number, userId: number): Promise<ReturnBannedDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: chatId },
       relations: ['bannedUsers'],
