@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useModal } from "@/lib/hooks/use-modal-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import ApiClient from "@/app/api/api-client";
 
 interface ChatInputProps {
   apiUrl: string;
@@ -45,6 +46,7 @@ export const ChatInput = ({
   });
 
   const queryClient = useQueryClient();
+  const client = ApiClient("CLIENT");
 
   const isLoading = form.formState.isSubmitting;
 
@@ -54,7 +56,7 @@ export const ChatInput = ({
     }
     try {
       const url = apiUrl;
-      await axios.post(url, values);
+      await client.post(url, values);
       form.reset();
       queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
     } catch (error: any) {

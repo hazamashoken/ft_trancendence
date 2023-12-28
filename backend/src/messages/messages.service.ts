@@ -36,7 +36,7 @@ export class MessagesService {
     private readonly blockUserService: BlockService,
     @Inject(forwardRef(() => ChannelsService))
     private readonly channelService: ChannelsService,
-  ) { }
+  ) {}
 
   async createMessage(
     channelId: number,
@@ -47,17 +47,17 @@ export class MessagesService {
       where: { chatId: channelId },
       relations: ['mutedUsers', 'mutedUsers.user'],
     });
-    
+
     if (!channel) throw new NotFoundException('ChannelNotFound');
     const author = await this.userRepository.findOne({
       where: { id: authorId },
     });
     if (!author) throw new NotFoundException('User dont exist at this channel');
     const date = new Date();
-    const user = channel.mutedUsers.find((user) => user.user.id == authorId);
-    if (user.mutedUntill <= date)
+    const user = channel.mutedUsers.find(user => user.user.id == authorId);
+    if (user?.mutedUntill <= date)
       await this.channelService.unMute(authorId, channelId);
-    if(user)
+    if (user) {
       throw new ForbiddenException('User is muted');
     const newMessage = new MessagesEntity();
     newMessage.message = message;
@@ -97,32 +97,33 @@ export class MessagesService {
       return !blockedUserIds.has(message.author.id);
     });
 
-    if (messages.length < 1)
-      return [];
+    if (messages.length < 1) return [];
 
-    const formattedMessages: ReturnMessageDto[] = filteredMessages.map((message) => ({
-      massageId: message.messageId,
-      message: message.message,
-      athor: message.author, // Предполагается, что в MessageEntity есть связь с автором
-      my: `${message.createAt.getDate().toString().padStart(2, '0')}.${(
-        message.createAt.getMonth() + 1
-      )
-        .toString()
-        .padStart(2, '0')}.${message.createAt.getFullYear()}`,
-      hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
-      createAt: message.createAt,
-      updateAt: !message.updateAt ? null : message.updateAt,
-      updatedAtmy: message.updateAt
-        ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
-          message.updateAt.getMonth() + 1
+    const formattedMessages: ReturnMessageDto[] = filteredMessages.map(
+      message => ({
+        massageId: message.messageId,
+        message: message.message,
+        athor: message.author, // Предполагается, что в MessageEntity есть связь с автором
+        my: `${message.createAt.getDate().toString().padStart(2, '0')}.${(
+          message.createAt.getMonth() + 1
         )
           .toString()
-          .padStart(2, '0')}.${message.updateAt.getFullYear()}`
-        : null,
-      updateAthm: message.updateAt
-        ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
-        : null,
-    }));
+          .padStart(2, '0')}.${message.createAt.getFullYear()}`,
+        hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
+        createAt: message.createAt,
+        updateAt: !message.updateAt ? null : message.updateAt,
+        updatedAtmy: message.updateAt
+          ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
+              message.updateAt.getMonth() + 1
+            )
+              .toString()
+              .padStart(2, '0')}.${message.updateAt.getFullYear()}`
+          : null,
+        updateAthm: message.updateAt
+          ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
+          : null,
+      }),
+    );
 
     return formattedMessages;
   }
@@ -157,7 +158,7 @@ export class MessagesService {
 
     if (!chat) throw new NotFoundException('Chat not found');
     const existMess = chat.chatMessages.find(
-      (message) => message.messageId == messageId,
+      message => message.messageId == messageId,
     );
     if (!existMess)
       throw new NotFoundException('Message not found at this chat');

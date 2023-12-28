@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "@/components/providers/socket-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
+import ApiClient from "@/app/api/api-client";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -27,7 +28,6 @@ type MessageWithMemberWithProfile = any & {
 interface ChatMessagesProps {
   name: string;
   member: any;
-  apiUrl: string;
   socketUrl: string;
   socketQuery: Record<string, string>;
   paramKey: "channelId" | "conversationId";
@@ -40,7 +40,6 @@ interface ChatMessagesProps {
 export const ChatMessages = ({
   name,
   member,
-  apiUrl,
   socketUrl,
   socketQuery,
   paramKey,
@@ -58,25 +57,12 @@ export const ChatMessages = ({
   const [chatMessages, setChatMessages] = React.useState([]);
 
   const { isConnected } = useSocket();
-  const { data, status } = useQuery({
+  const client = ApiClient("CLIENT");
+  const { data, isError, isLoading } = useQuery({
     queryKey: [queryKey],
     enabled: isConnected && !!chatId,
     queryFn: () =>
-      fetch(
-        apiUrl +
-          "?" +
-          new URLSearchParams({
-            // limit: "100", //Why limit does not work check
-            offset: "0",
-          }).toString(),
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
-          },
-        }
-      ).then((res) => res.json()),
+      client.get(`/channels/${chatId}/messages`).then((res) => res.data),
     refetchInterval: 1000,
   });
 
@@ -100,7 +86,7 @@ export const ChatMessages = ({
     );
   }
 
-  if (status === "pending") {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center flex-1 border-x">
         <Loader2 className="my-4 h-7 w-7 text-zinc-500 animate-spin" />
@@ -111,7 +97,7 @@ export const ChatMessages = ({
     );
   }
 
-  if (status === "error") {
+  if (isError) {
     return (
       <div className="flex flex-col items-center justify-center flex-1 border-x">
         <ServerCrash className="my-4 h-7 w-7 text-zinc-500" />
@@ -151,7 +137,6 @@ export const ChatMessages = ({
           />
         ))}
       </div>
-      {/* <div ref={bottomRef} /> */}
     </div>
   );
 };

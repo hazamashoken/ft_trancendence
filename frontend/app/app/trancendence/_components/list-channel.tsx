@@ -137,7 +137,7 @@ export function ListChannel(props: { data: any; userId: string }) {
               <Badge>Public</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
-              {data.map((channel: any, index: number) => {
+              {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "public") return null;
                 return (
                   <ContextMenu key={index}>
@@ -177,7 +177,7 @@ export function ListChannel(props: { data: any; userId: string }) {
               <Badge>Private</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
-              {data.map((channel: any, index: number) => {
+              {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "private") return null;
                 return (
                   <ContextMenu key={index}>
@@ -214,7 +214,7 @@ export function ListChannel(props: { data: any; userId: string }) {
               <Badge>Direct</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
-              {data.map((channel: any, index: number) => {
+              {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "direct") return null;
 
                 return (
