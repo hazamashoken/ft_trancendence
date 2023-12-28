@@ -20,6 +20,17 @@ export class PongGame
   public addUser(server: Server, id: string, name: string, room: string, team: string = Team.viewer)
   {
     this._server = server;
+    // send a disconnect message to old websocket if duplicate connection
+    for (let user of this._users.values())
+    {
+      if (user.name == name)
+      {
+        let state: GameState = newGameState();
+        state.phase = Phase.disconnect;
+        this._server.to(user.id).emit('pong_state', state);
+        this.deleteUserByID(user.id);
+      }
+    }
     // create the user
     this._users.set(id, new PongUser(id, name, room));
     // create the room if it doesn't exist
@@ -34,7 +45,7 @@ export class PongGame
       this._users.get(id).team = Team.spectator;
   }
 
-  public deleteUser(id: string)
+  public deleteUserByID(id: string)
   {
     if (this._users.has(id))
     {
@@ -52,17 +63,53 @@ export class PongGame
     }
   }
 
-  public moveUser(id: string, room: string, team: string = Team.viewer)
+  public deleteUserByName(name: string)
+  {
+    let id = this.findUserIDByName(name);
+    if (id != null)
+      this.deleteUserByID(id);
+  }
+
+  public moveUserByID(id: string, room: string, team: string = Team.viewer)
   {
     if (this._users.has(id))
     {
       let name: string = this._users.get(id).name;
-      // send a disconnect message to old room
-      let state: GameState = newGameState();
-      state.phase = Phase.disconnect;
-      this._server.to(id).emit('pong_state', state);
-      this.deleteUser(id);
+      this.deleteUserByID(id);
       this.addUser(this._server, id, name, room, team);
+    }
+  }
+
+  public moveUserByName(name: string, room: string, team: string = Team.viewer)
+  {
+    let id = this.findUserIDByName(name);
+    if (id != null)
+      this.moveUserByID(id, room, team);
+  }
+
+  public findUserIDByName(name: string)
+  : string
+  {
+    for (let user of this._users.values())
+    {
+      if (user.name == name)
+        return user.id;
+    }
+    return null;
+  }
+
+  public setRoomPlayers(room: string, p1name: string, p2name: string)
+  {
+    let id1: string = this.findUserIDByName(p1name);
+    let id2: string = this.findUserIDByName(p2name);
+
+    if (id1 != null && id2 != null)
+    {
+      this._users.get(id1).team = Team.player1;
+      this._users.get(id2).team = Team.player2;
+      let state = this._states.get(room).state();
+      state.phase = Phase.ready;
+      this.sendState(room);
     }
   }
 
