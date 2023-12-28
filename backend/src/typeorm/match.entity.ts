@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
-export type matchStatus = 'WAITING' | 'PLAYING' | 'FINISHED'
+export type MatchStatus = 'WAITING' | 'PLAYING' | 'FINISHED'
 
 @Entity({ name: 'matchs' })
 export class Match {
@@ -44,5 +44,5 @@ export class Match {
     enum: ['WAITING', 'PLAYING', 'FINISHED'],
     default: 'WAITING'
   })
-  status: matchStatus;
+  status: MatchStatus;
 }

@@ -1,6 +1,6 @@
 import { IsNumber, Max, Min, IsOptional, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { matchStatus } from '@backend/typeorm/match.entity';
+import { MatchStatus } from '@backend/typeorm/match.entity';
 
 // TODO ask Andre about max score
 export class CreateMatchsDto {
@@ -30,5 +30,5 @@ export class CreateMatchsDto {
   @IsIn(['WAITING', 'PLAYING', 'FINISHED'])
   @IsOptional()
   @ApiProperty()
-  status: matchStatus
+  status: MatchStatus
 }

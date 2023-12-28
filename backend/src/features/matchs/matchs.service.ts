@@ -8,7 +8,7 @@ import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
-import { matchStatus } from '@backend/typeorm/match.entity';
+import { MatchStatus } from '@backend/typeorm/match.entity';
 import { StatsService } from '../stats/stats.service';
 
 const PONE_WIN = 1;
@@ -35,7 +35,7 @@ export class MatchsService {
       player1: player1,
     });
     this.matchRepository.save(newMatch);
-    return newMatch.MatchId;
+    return newMatch.matchId;
   }
 
   /*
@@ -43,30 +43,30 @@ export class MatchsService {
   * by input the match-id and status.
   * => [true] the match status is success to update.
   * => [false] the math status is fail to update. */
-  async updateStatus(matchId: number, status: matchStatus): Promise<boolean> {
-    const match = await this.matchRepository.fineOne({ where: { matchId: matchId } });
+  async updateStatus(matchId: number, status: MatchStatus): Promise<boolean> {
+    const match = await this.matchRepository.findOne({ where: { matchId: matchId } });
     if (!match) {
       console.log('MatchId not found, Cannot update the match status.');
       return false;
     }
-    this.matchRepository.update({ matchId }, { matchStatus: status });
+    this.matchRepository.update({ matchId }, { status });
     return true;
   }
 
   /*
   * [fucntion] update a whole value of the match with out player1Id.
-  * [ player2Id, player1Point, player1Point, player2Point, matchStatus ]
+  * [ player2Id, player1Point, player1Point, player2Point, MatchStatus ]
   * by input matchId and the match attribute.
   * => [ture] the match status is success to update.
   * => [false] ther match status is fail to update. */
   async updateMatch(
-    matchId: number, player2Id: number, player1Point: number, player2Point: number, status?: matchStatus): Promise<boolean> {
-    const match = await this.matchRepository.fineOne({ where: { matchId: matchId} });
+    matchId: number, player2Id: number, player1Point: number, player2Point: number, status: MatchStatus): Promise<boolean> {
+    const match = await this.matchRepository.findOne({ where: { matchId: matchId } });
     if (!match) {
       console.log('MatchId not found, Cannot update the match value.');
       return false;
     }
-    const user = await this.userRepository.fineOne({ where: { id: player2Id} });
+    const user = await this.userRepository.findOne({ where: { id: player2Id } });
     if (!user) {
       console.log('Player2Id not found, Cannot update the match value.');
       return false;
@@ -79,7 +79,7 @@ export class MatchsService {
       player1Point: player1Point,
       player2Id: player2Id,
       player2Point: player2Point,
-      matchStatus: status,
+      status: status,
     });
     console.log(`[Debug]::player1Id|${match.player1.id}|`)
     const result = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
@@ -89,8 +89,8 @@ export class MatchsService {
   
   private async updatePlayersStats(player1Id: number, player2Id: number, result: number): Promise<void> {
     let stats: StatsService;
-    const player1Stats = await this.statsRepository.fineOne({ where: { user: player1Id} });
-    const player2Stats = await this.statsRepository.fineOne({ where: { user: player2Id} });
+    const player1Stats = await this.statsRepository.findOne({ where: { user: { id: player1Id } }});
+    const player2Stats = await this.statsRepository.findOne({ where: { user: { id: player2Id } }});
     if (result == PONE_WIN) {
       const point1 = player1Stats.point + 2;
       const point2 = player2Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
@@ -108,8 +108,8 @@ export class MatchsService {
   // TODO add maxPoint comparation on this line..
   async createMatch(createMatchsDto: CreateMatchsDto) {
     const { player1Id, player2Id, ...matchDetail } = createMatchsDto;
-    let player2: User;
-    const player1 = await this.userRepository.findOne({ where: { id: player1Id} });
+    let player2: Partial<User>;
+    const player1 = await this.userRepository.findOne({ where: { id: player1Id } });
     if (player1Id === player2Id) {
       throw new HttpException (
         'Player1 ID and Player2 ID cannot be the same person.',
