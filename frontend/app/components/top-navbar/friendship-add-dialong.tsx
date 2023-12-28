@@ -4,7 +4,10 @@ import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
 import { Form } from "../ui/form";
@@ -15,11 +18,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import { addFriendUsername } from "./_actions/friendship";
 import { toast } from "sonner";
 import React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
+
+const formSchema = z.object({
+  username: z.string({ required_error: "required" }).min(1, "required"),
+});
 
 export function FriendshipAddUserDialog({}) {
   const [open, setOpen] = React.useState(false);
   const queryClient = useQueryClient();
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
     },
@@ -51,13 +61,23 @@ export function FriendshipAddUserDialog({}) {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>
-          <DialogHeader>Add friend</DialogHeader>
-        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <InputForm name="username" label="username" form={form} />
-            <Button>send friend request</Button>
+            <DialogHeader>
+              <DialogTitle>Send friend request</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <InputForm
+                name="username"
+                label="Username"
+                isRequired
+                form={form}
+                msg
+              />
+            </div>
+            <DialogFooter>
+              <Button onClick={form.handleSubmit(handleSubmit)}>send</Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

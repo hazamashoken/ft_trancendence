@@ -147,9 +147,7 @@ export class ChannelsController {
   @Get(':chatId/owner')
   @ApiOperation({ summary: 'get one channel owner by chat Id.' })
   @ApiParam({ name: 'chatId', type: Number, example: 1 })
-  async owner(
-    @Param('chatId') chatId: number,
-  ): Promise<ChatUserDto> {
+  async owner(@Param('chatId') chatId: number): Promise<ChatUserDto> {
     const owner = await this.channelsService.getOwnerById(chatId);
     if (!owner) throw new NotFoundException('UserNotFound');
     return owner;
@@ -179,8 +177,8 @@ export class ChannelsController {
   })
   async create(
     @AuthUser() authUser: AuthUserInterface,
-    @Body() dto: ChannelCreatedTO
-    ): Promise<ChannelsEntity> {
+    @Body() dto: ChannelCreatedTO,
+  ): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents('chat created');
     dto.chatOwner = authUser.user.id;
     return this.channelsService.create(dto);
@@ -291,7 +289,7 @@ export class ChannelsController {
   //   }
   // }
 
-  @Post(':chatId/addUser')
+  @Post(':chatId/addUser/:userName')
   async addUserByName(
     @AuthUser() authUser: AuthUserInterface,
     @Param('chatId') chatId: number,
@@ -303,7 +301,11 @@ export class ChannelsController {
         chatId: chatId,
         event: 'addUsersToChat',
       });
-      return await this.channelsService.addUserToChatByName(chatId, userName, authUser.user.id);
+      return await this.channelsService.addUserToChatByName(
+        chatId,
+        userName,
+        authUser.user.id,
+      );
     } catch (error) {
       throw new NotFoundException(error.message, 'Not Found');
     }
@@ -336,7 +338,11 @@ export class ChannelsController {
       chatId: chatId,
       event: 'getChatUsers',
     });
-    return await this.channelsService.removeUserFromChat(chatId, userId, authUser.user.id);
+    return await this.channelsService.removeUserFromChat(
+      chatId,
+      userId,
+      authUser.user.id,
+    );
   }
 
   @Get(':chatId/users')
@@ -386,7 +392,11 @@ export class ChannelsController {
         chatId: chatId,
         event: 'getChatAdmins',
       });
-      return await this.channelsService.addAdminToChat(chatId, userId, authUser.user.id);
+      return await this.channelsService.addAdminToChat(
+        chatId,
+        userId,
+        authUser.user.id,
+      );
     } catch (error) {
       throw new NotFoundException(error.message, 'Not Found');
     }
@@ -421,7 +431,11 @@ export class ChannelsController {
         chatId: chatId,
         event: 'getChatAdmins',
       });
-      return await this.channelsService.removeAdminFromChat(chatId, adminId, authUser.user.id);
+      return await this.channelsService.removeAdminFromChat(
+        chatId,
+        adminId,
+        authUser.user.id,
+      );
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
@@ -541,7 +555,11 @@ export class ChannelsController {
       chatId: chatId,
       event: 'removeBanned',
     });
-    return await this.bannedService.removeBannedById(bannedId, chatId, authUser.user.id);
+    return await this.bannedService.removeBannedById(
+      bannedId,
+      chatId,
+      authUser.user.id,
+    );
   }
 
   @Post(':chatId/unBan')
@@ -568,7 +586,7 @@ export class ChannelsController {
   })
   async unbanUser(
     @Param('chatId') chatId: number,
-    @Body() dto: {userId: number},
+    @Body() dto: { userId: number },
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ReturnBannedDto[]> {
     this.chatGateway.sendEvents({
@@ -576,7 +594,11 @@ export class ChannelsController {
       chatId: chatId,
       event: 'unbanUser',
     });
-    return await this.bannedService.unbanUser(chatId, dto.userId, authUser.user.id);
+    return await this.bannedService.unbanUser(
+      chatId,
+      dto.userId,
+      authUser.user.id,
+    );
   }
 
   @Post(':messageId/updateMessage')
@@ -604,7 +626,11 @@ export class ChannelsController {
       message: 'mesagre updated',
       event: 'getChatMessages',
     });
-    return await this.messageService.updateMessage(dto.messageId, dto.message, authUser.user.id);
+    return await this.messageService.updateMessage(
+      dto.messageId,
+      dto.message,
+      authUser.user.id,
+    );
   }
 
   @Post(':chatId/createmessage')
@@ -675,7 +701,11 @@ export class ChannelsController {
       chatId: chatId,
       event: 'getChatMessages',
     });
-    return await this.messageService.deleteMessage(messageId, chatId, authUser.user.id);
+    return await this.messageService.deleteMessage(
+      messageId,
+      chatId,
+      authUser.user.id,
+    );
   }
 
   @Get(':chatId/messages')
@@ -692,7 +722,10 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ReturnMessageDto[]> {
-    return await this.messageService.findAllMessagesByChannel(chatId, authUser.user.id);
+    return await this.messageService.findAllMessagesByChannel(
+      chatId,
+      authUser.user.id,
+    );
   }
 
   @Get(':chatId/muted')
@@ -826,7 +859,11 @@ export class ChannelsController {
       message: 'mute update',
       event: 'getChatMuted',
     });
-    return await this.channelsService.unMute(dto.userId, chatId, authUser.user.id);
+    return await this.channelsService.unMute(
+      dto.userId,
+      chatId,
+      authUser.user.id,
+    );
   }
 
   @Post(':chatId/joinChat/:userId')

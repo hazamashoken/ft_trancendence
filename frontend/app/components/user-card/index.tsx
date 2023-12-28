@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function UserCard(props: any) {
-  console.log(props.session.data.accessToken);
   return (
     <Card>
       <CardHeader>

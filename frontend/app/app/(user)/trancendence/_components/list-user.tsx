@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { Loader2, ServerCrash } from "lucide-react";
 import {
   createChannelAction,
   addChannelUserAction,
@@ -54,18 +55,29 @@ import { useSession } from "next-auth/react";
 export function ListUser(props: { data: any; userId: string }) {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
-  const [chatId, chatList, chatUserList, chatMeta] = useChatStore(
-    (state: IChatStore) => [
-      state.chatId,
-      state.chatList,
-      state.chatUserList,
-      state.chatMeta,
-      state.setChatId,
-      state.setChatList,
-      state.setChatUserList,
-      state.setChatMeta,
-    ]
-  );
+  const [
+    chatId,
+    chatList,
+    chatUserList,
+    chatMeta,
+    chatIsLoading,
+    setChatId,
+    setChatList,
+    setChatUserList,
+    setChatMeta,
+    setChatIsLoading,
+  ] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.chatIsLoading,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+    state.setChatIsLoading,
+  ]);
   const { data } = props;
   const form = useForm({
     defaultValues: {
@@ -78,6 +90,7 @@ export function ListUser(props: { data: any; userId: string }) {
     if (res.data) {
       toast.success("Add user success");
       setOpen(false);
+      setChatUserList(res.data);
       form.reset();
     } else {
       toast.error(res.error);
@@ -120,221 +133,231 @@ export function ListUser(props: { data: any; userId: string }) {
       <ScrollArea className="h-[750px] pl-3" scrollHideDelay={10}>
         <div className="container flex flex-col px-0 space-y-2">
           <Badge>User</Badge>
-          {data.map((user: any, index: number) => {
-            return (
-              <div key={index}>
-                <Popover>
-                  <ContextMenu>
-                    <PopoverTrigger asChild>
-                      <ContextMenuTrigger>
-                        <Tooltip delayDuration={10}>
-                          <TooltipTrigger>
-                            <Avatar>
-                              <AvatarImage src={user.imageUrl} />
-                              <AvatarFallback>
-                                {createAbbreviation(user.displayName)}
-                              </AvatarFallback>
-                            </Avatar>
-                          </TooltipTrigger>
-                          <TooltipContent side="left">
-                            {user.displayName}
-                          </TooltipContent>
-                        </Tooltip>
-                      </ContextMenuTrigger>
-                    </PopoverTrigger>
-                    <ContextMenuContent
-                      hidden={props.userId === user.id.toString()}
-                    >
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await createDMChannelAction(
-                            props.userId,
-                            user.id
-                          );
-                          if (res.data) {
-                            toast.success("Create DM success");
-                            setOpen(false);
-                            form.reset();
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
+          {!chatIsLoading ? (
+            data.map((user: any, index: number) => {
+              return (
+                <div key={index}>
+                  <Popover>
+                    <ContextMenu>
+                      <PopoverTrigger asChild>
+                        <ContextMenuTrigger>
+                          <Tooltip delayDuration={10}>
+                            <TooltipTrigger>
+                              <Avatar>
+                                <AvatarImage src={user.imageUrl} />
+                                <AvatarFallback>
+                                  {createAbbreviation(user.displayName)}
+                                </AvatarFallback>
+                              </Avatar>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                              {user.displayName}
+                            </TooltipContent>
+                          </Tooltip>
+                        </ContextMenuTrigger>
+                      </PopoverTrigger>
+                      <ContextMenuContent
+                        hidden={props.userId === user.id.toString()}
                       >
-                        create DM
-                      </ContextMenuItem>
-                      <ContextMenuItem disabled>invite to game</ContextMenuItem>
-                      <ContextMenuSeparator />
-                      <ContextMenuItem disabled>add friend</ContextMenuItem>
-                      <ContextMenuItem disabled>remove friend</ContextMenuItem>
-                      <ContextMenuSeparator />
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await blockUser({
-                            blockId: user.id,
-                            userId: props.userId,
-                          });
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await createDMChannelAction(
+                              props.userId,
+                              user.id
+                            );
+                            if (res.data) {
+                              toast.success("Create DM success");
+                              setOpen(false);
+                              form.reset();
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          create DM
+                        </ContextMenuItem>
+                        <ContextMenuItem disabled>
+                          invite to game
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem disabled>add friend</ContextMenuItem>
+                        <ContextMenuItem disabled>
+                          remove friend
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await blockUser({
+                              blockId: user.id,
+                              userId: props.userId,
+                            });
 
-                          if (res.data) {
-                            toast.success("Block user success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        block user
-                      </ContextMenuItem>
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await unblockUser({
-                            blockId: user.id,
-                            userId: props.userId,
-                          });
-                          if (res.data) {
-                            toast.success("Unblock user success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        unblock user
-                      </ContextMenuItem>
-                      <ContextMenuSeparator />
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await unMuteChatUser({
-                            userId: user.id,
-                            chatId: chatId,
-                          });
-                          if (res.data) {
-                            toast.success("Unmuted user success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        unmute
-                      </ContextMenuItem>
-                      <ContextMenuSub>
-                        <ContextMenuSubTrigger>mute</ContextMenuSubTrigger>
-                        <ContextMenuSubContent>
-                          <ContextMenuItem
-                            onClick={() => {
-                              handleMuteUser(30, user.id);
-                            }}
-                          >
-                            30 min
-                          </ContextMenuItem>
-                          <ContextMenuItem
-                            onClick={() => {
-                              handleMuteUser(60, user.id);
-                            }}
-                          >
-                            1 h
-                          </ContextMenuItem>
-                          <ContextMenuItem
-                            onClick={() => {
-                              handleMuteUser(120, user.id);
-                            }}
-                          >
-                            2 h
-                          </ContextMenuItem>
-                          <ContextMenuItem
-                            onClick={() => {
-                              handleMuteUser(240, user.id);
-                            }}
-                          >
-                            4 h
-                          </ContextMenuItem>
-                        </ContextMenuSubContent>
-                      </ContextMenuSub>
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await kickChatUser(chatId, user.id);
-                          if (res.data) {
-                            toast.success("Kick user success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        kick
-                      </ContextMenuItem>
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await banChatUser({
-                            chatId: chatId,
-                            userId: user.id,
-                            adminId: "4",
-                          });
-                          if (res.data) {
-                            toast.success("Ban user success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        ban
-                      </ContextMenuItem>
-                      <ContextMenuSeparator />
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await addChatAdmin(chatId, user.id);
-                          if (res.data) {
-                            toast.success("Add admin success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        make admin
-                      </ContextMenuItem>
-                      <ContextMenuItem
-                        onClick={async () => {
-                          const res = await removeChatAdmin(chatId, user.id);
-                          if (res.data) {
-                            toast.success("Remove admin success");
-                          } else {
-                            toast.error(res.error);
-                          }
-                        }}
-                      >
-                        remove admin
-                      </ContextMenuItem>
-                    </ContextMenuContent>
-                    <PopoverContent className="w-[300px] space-y-10">
-                      <div className="flex">
-                        <Avatar className="w-[70px] h-[70px]">
-                          <AvatarImage
-                            src={user.imageUrl}
-                            className="w-[70px] h-[70px]"
-                          />
-                          <AvatarFallback className="w-[70px] h-[70px]">
-                            {createAbbreviation(user.displayName)}
-                          </AvatarFallback>
-                        </Avatar>
-                        status: {user.status}
-                      </div>
-                      <Card className="w-full">
-                        <CardContent>
-                          <p>{user.displayName}</p>
-                          <p># {user.id}</p>
-                          <Separator />
-                          <div className="flex gap-2">
-                            <p>win: {user?.stat?.win ?? "1"}</p>
-                            <p>lose: {user?.stat?.lose ?? "1"}</p>
-                            <p>
-                              ratio:{" "}
-                              {user?.stat?.win / user?.stat?.lose ?? "100"}%
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </PopoverContent>
-                  </ContextMenu>
-                </Popover>
-              </div>
-            );
-          })}
+                            if (res.data) {
+                              toast.success("Block user success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          block user
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await unblockUser({
+                              blockId: user.id,
+                              userId: props.userId,
+                            });
+                            if (res.data) {
+                              toast.success("Unblock user success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          unblock user
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await unMuteChatUser({
+                              userId: user.id,
+                              chatId: chatId,
+                            });
+                            if (res.data) {
+                              toast.success("Unmuted user success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          unmute
+                        </ContextMenuItem>
+                        <ContextMenuSub>
+                          <ContextMenuSubTrigger>mute</ContextMenuSubTrigger>
+                          <ContextMenuSubContent>
+                            <ContextMenuItem
+                              onClick={() => {
+                                handleMuteUser(30, user.id);
+                              }}
+                            >
+                              30 min
+                            </ContextMenuItem>
+                            <ContextMenuItem
+                              onClick={() => {
+                                handleMuteUser(60, user.id);
+                              }}
+                            >
+                              1 h
+                            </ContextMenuItem>
+                            <ContextMenuItem
+                              onClick={() => {
+                                handleMuteUser(120, user.id);
+                              }}
+                            >
+                              2 h
+                            </ContextMenuItem>
+                            <ContextMenuItem
+                              onClick={() => {
+                                handleMuteUser(240, user.id);
+                              }}
+                            >
+                              4 h
+                            </ContextMenuItem>
+                          </ContextMenuSubContent>
+                        </ContextMenuSub>
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await kickChatUser(chatId, user.id);
+                            if (res.data) {
+                              toast.success("Kick user success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          kick
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await banChatUser({
+                              chatId: chatId,
+                              userId: user.id,
+                              adminId: "4",
+                            });
+                            if (res.data) {
+                              toast.success("Ban user success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          ban
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await addChatAdmin(chatId, user.id);
+                            if (res.data) {
+                              toast.success("Add admin success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          make admin
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={async () => {
+                            const res = await removeChatAdmin(chatId, user.id);
+                            if (res.data) {
+                              toast.success("Remove admin success");
+                            } else {
+                              toast.error(res.error);
+                            }
+                          }}
+                        >
+                          remove admin
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                      <PopoverContent className="w-[300px] space-y-10">
+                        <div className="flex">
+                          <Avatar className="w-[70px] h-[70px]">
+                            <AvatarImage
+                              src={user.imageUrl}
+                              className="w-[70px] h-[70px]"
+                            />
+                            <AvatarFallback className="w-[70px] h-[70px]">
+                              {createAbbreviation(user.displayName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          status: {user.status}
+                        </div>
+                        <Card className="w-full">
+                          <CardContent>
+                            <p>{user.displayName}</p>
+                            <p># {user.id}</p>
+                            <Separator />
+                            <div className="flex gap-2">
+                              <p>win: {user?.stat?.win ?? "1"}</p>
+                              <p>lose: {user?.stat?.lose ?? "1"}</p>
+                              <p>
+                                ratio:{" "}
+                                {user?.stat?.win / user?.stat?.lose ?? "100"}%
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </PopoverContent>
+                    </ContextMenu>
+                  </Popover>
+                </div>
+              );
+            })
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="my-4 h-7 w-7 text-zinc-500 animate-spin" />
+            </div>
+          )}
         </div>
       </ScrollArea>
       <Dialog

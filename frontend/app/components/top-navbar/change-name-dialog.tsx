@@ -1,7 +1,13 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+} from "../ui/dialog";
 import { Form } from "../ui/form";
 import { InputForm } from "../form/input";
 import { Button } from "../ui/button";
@@ -11,7 +17,7 @@ export function ChangeNameDialog(props: any) {
   const { session, open, setOpen } = props;
   const form = useForm({
     defaultValues: {
-      username: session?.ftUser?.login,
+      displayName: session?.ftUser?.displayName,
     },
   });
   useEffect(() => {
@@ -20,21 +26,25 @@ export function ChangeNameDialog(props: any) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>Change Username</DialogHeader>
-        <Form {...form}>
-          <form>
-            <InputForm
-              label="Username"
-              name="username"
-              type="text"
-              placeholder="Username"
-              form={form}
-            />
-            <Button type="submit">Change</Button>
-          </form>
-        </Form>
-      </DialogContent>
+      <Form {...form}>
+        <form>
+          <DialogContent>
+            <DialogHeader>Change Username</DialogHeader>
+            <DialogDescription>
+              <InputForm
+                label="Username"
+                name="username"
+                type="text"
+                placeholder="Username"
+                form={form}
+              />
+            </DialogDescription>
+            <DialogFooter>
+              <Button type="submit">save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
+      </Form>
     </Dialog>
   );
 }
