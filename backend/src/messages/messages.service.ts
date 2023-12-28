@@ -56,7 +56,7 @@ export class MessagesService {
     const date = new Date();
     const user = channel.mutedUsers.find(user => user.user.id == authorId);
     if (user?.mutedUntill <= date)
-      await this.channelService.unMute(authorId, channelId);
+      await this.channelService.unMute(authorId, channelId, authorId);
     if (user) {
       throw new ForbiddenException('User is muted');
     }
