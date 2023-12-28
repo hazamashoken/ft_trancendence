@@ -13,7 +13,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -46,6 +46,7 @@ import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.int
 import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 import { dmCreate } from './dto/dm.dto';
 import { addUserByName, adminRemove, chatD, chatDelete, chatId, messageRem, muteD, userId } from './dto/userId.dto';
+import { chatType } from '@backend/typeorm/channel.entity';
 
 @Controller('channels')
 // @UseGuards(XKeyGuard, AuthGuard)
@@ -69,16 +70,21 @@ export class ChannelsController {
   }
 
   @Get(':userId/all')
+  @ApiOperation({ summary: 'get all of user channels by user Id.' })
+  @ApiParam({ name: 'userId', type: Number, example: 1 })
   async findUserChats(@Param('userId') userId: number): Promise<ChannelsEntity[]> {
     return this.channelsService.findAllUserChannels(userId);
   }
 
   @Get('public')
+  @ApiOperation({ summary: 'get all public channels' })
   async findPublic(): Promise<ChannelsEntity[]> {
     return this.channelsService.findAllPublicChannels();
   }
 
   @Get('usersPrivate/:userId')
+  @ApiOperation({ summary: 'get all of user private channels by user Id.' })
+  @ApiParam({ name: 'userId', type: Number, example: 1 })
   async findPrivate(
     @Param('userId') userId: number,
     // @Body() dto: userId,
@@ -87,6 +93,8 @@ export class ChannelsController {
   }
 
   @Get('usersProtect/:userId')
+  @ApiOperation({ summary: 'get all of user protected channels by user Id.' })
+  @ApiParam({ name: 'userId', type: Number, example: 1 })
   async findPotected(
     @Param('userId') userId: number,
     // @Body() dto: userId,
@@ -95,6 +103,8 @@ export class ChannelsController {
   }
 
   @Get('usersDm/:userId')
+  @ApiOperation({ summary: 'get all of user dm channels by user Id.' })
+  @ApiParam({ name: 'userId', type: Number, example: 1 })
   async findDm(
     @Param('userId') userId: number
     // @Body() dto: userId,
@@ -103,6 +113,8 @@ export class ChannelsController {
   }
 
   @Get(':chatId')
+  @ApiOperation({ summary: 'get one channel by Id.' })
+  @ApiParam({ name: 'chatId', type: Number, example: 1 })
   async findOne(
     @Param('chatId') chatId: number
     // @Body() dto: chatId,
@@ -111,6 +123,8 @@ export class ChannelsController {
   }
 
   @Get(':chatId/owner')
+  @ApiOperation({ summary: 'get one channel owner by chat Id.' })
+  @ApiParam({ name: 'chatId', type: Number, example: 1 })
   async owner(
     @Param('chatId') chatId: number
     // @Body() dto: chatId,
@@ -121,28 +135,102 @@ export class ChannelsController {
   }
 
   @Post('create')
+  @ApiOperation({ summary: 'get one channel owner by chat Id.' })
+  @ApiBody({
+    description: 'Channel creation data',
+    type: ChannelCreatedTO,
+    examples: {
+      NormalRequest: {
+        summary: 'A normal example',
+        value: {
+          chatName: 'Example chat',
+          hatOwner: 23,
+          password: 'aaasssddd',
+          maxUsers: null,
+          chatType: chatType.PUBLIC || chatType.DIRECT || chatType.PROTECTED || chatType.PRIVATE,
+        }
+      },
+    }
+  })
   async create(@Body() dto: ChannelCreatedTO): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents('chat created');
     return this.channelsService.create(dto);
   }
 
   @Post('createDm')
+  @ApiOperation({ 
+    summary: 'create direct messages',
+    description: 'by default max_users will be set as 2 and chatType will be set as direct'
+  })
+  @ApiBody({
+    description: 'Direct messages creation data',
+    type: dmCreate,
+    examples: {
+      NormalRequest: {
+        summary: 'A normal example',
+        value: {
+          user1: 1,
+          user2: 2
+        }
+      },
+    }
+  })
   async createDm(@Body() dto: dmCreate): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents('dmCreated'), { user1: dto.user1, user2: dto.user2 };
     return this.channelsService.createDm(dto.user1, dto.user2);
   }
 
   @Post(':chatId/delete/:userId')
+  @ApiOperation({ 
+    summary: 'delete chat',
+    description: 'gets chat Id and Id of user who trying to delete the chat (will be changed when we get userSession)'
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 23
+  })
+  @ApiParam({
+    name: 'userId',
+    type: Number,
+    description: 'The ID of the user',
+    example: 42
+  })
   async deleteChat(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
-    // @Body() dto: chatDelete,
   ): Promise<ChannelsEntity[]> {
     this.chatGateway.sendEvents({ messge: 'chat deleted', chatId: chatId });
     return await this.channelsService.delete(chatId, userId);
   }
 
   @Post(':chatId/update')
+  @ApiOperation({ 
+    summary: 'update chat',
+    description: 'gets Id of chat that need to be updadet and data with new values(if data is null params not changed)'
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiBody({
+    description: 'Direct messages creation data',
+    type: UpdateChannelDto,
+    examples: {
+      NormalRequest: {
+        summary: 'A normal example',
+        value: {
+          chatName: 'Updated chat',
+          password: 'updated password',
+          max_users: 23,
+          chatType: chatType.PROTECTED || chatType.PUBLIC || chatType.DIRECT || chatType.PRIVATE,
+        }
+      },
+    }
+  })
   async update(
     @Param('chatId') chatId: number,
     @Body() dto: UpdateChannelDto,
@@ -179,6 +267,22 @@ export class ChannelsController {
   }
 
   @Post(':chatId/kick/:userId')
+  @ApiOperation({ 
+    summary: 'kick user from chat',
+    description: 'gets Id of and id of user that need to be kicked)'
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiParam({
+    name: 'userId',
+    type: Number,
+    description: 'The ID of the user',
+    example: 23
+  })
   async removeUser(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -188,6 +292,15 @@ export class ChannelsController {
   }
 
   @Get(':chatId/users')
+  @ApiOperation({
+    summary: 'get all users in chat'
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
   async getUsers(@Param('chatId') chatId: number): Promise<ChatUserDto[]> {
     try {
       return await this.channelsService.findAllUsers(chatId);
@@ -197,6 +310,22 @@ export class ChannelsController {
   }
 
   @Post(':chatId/addAdmin/:userId')
+  @ApiOperation({
+    summary: 'add admin to chat',
+    description: 'gets chat id and user that will become admin in this chat'
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 22
+  })
+  @ApiParam({
+    name: 'userId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
   async addAdmin(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -211,6 +340,22 @@ export class ChannelsController {
   }
 
   @Post(':chatId/removeAdmin/:adminId')
+  @ApiOperation({
+    summary: 'remove admin from chat',
+    description: 'gets chat id and admin that will be removed'
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 12
+  })
+  @ApiParam({
+    name: 'adminId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 11
+  })
   async removeAdmin(
     @Param('chatId') chatId: number,
     @Param('adminId') adminId: number,
@@ -229,6 +374,13 @@ export class ChannelsController {
   }
 
   @Get(':chatId/admins')
+  @ApiOperation({summary: 'get all admins in chat'})
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 22
+  })
   async getAdmins(
     @Param('chatId') chatId: number,
   ): Promise<ChatUserDto[] | null> {
@@ -243,12 +395,47 @@ export class ChannelsController {
   }
 
   @Get(':chatId/bannedUsers')
+  @ApiOperation({summary: 'get all admins in chat'})
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 22
+  })
   async getBanned(@Param('chatId') chatId: number): Promise<ReturnBannedDto[]> {
     return await this.bannedService.findAllBannedUsersInChat(chatId);
   }
 
   // add AuthUser and check if user is admin
   @Post(':chatId/banUser/:adminId')
+  @ApiOperation({
+    summary: 'ban user in chat',
+    description: 'gets chat id and adminId as params + dto with ban info'
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })  @ApiParam({
+    name: 'adminId',
+    type: Number,
+    description: 'The ID of the admin',
+    example: 22
+  })
+  @ApiBody({
+    description: 'Ban info',
+    type: BanUserDto,
+    examples: {
+      NormalRequest: {
+        summary: 'A normal example',
+        value: {
+          userId: 123,
+          reasin: 'ban reason',
+        }
+      },
+    }
+  })
   async addBannedUserToChat(
     @Param('chatId') chatId: number,
     @Param('adminId') adminId: number,
@@ -265,6 +452,21 @@ export class ChannelsController {
   }
 
   @Post(':chatId/removeBanned/:bannedId')
+  @ApiOperation({
+    summary: 'remove banned user from chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiParam({
+    name: 'bannedId',
+    type: Number,
+    description: 'The ID of the banned user',
+    example: 24
+  })
   async removeBanned(
     @Param('bannedId') bannedId: number,
     @Param('chatId') chatId: number,
@@ -275,6 +477,27 @@ export class ChannelsController {
   }
 
   @Post(':chatId/unBan')
+  @ApiOperation({
+    summary: 'unban user from chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiBody({
+    description: 'id of user to unban',
+    type: BanUserDto,
+    examples: {
+      NormalRequest: {
+        summary: 'A normal example',
+        value: {
+          userId: 123,
+        }
+      },
+    }
+  })
   async unbanUser(
     @Param('chatId') chatId: number,
     @Body() dto: { userId: number },
@@ -284,6 +507,22 @@ export class ChannelsController {
   }
 
   @Post(':messageId/updateMessage')
+  @ApiOperation({
+    summary: 'update message',
+  })
+  @ApiBody({
+    description: 'update message',
+    type: UpdateMessageDto,
+    examples: {
+      NormalRequest: {
+        summary: 'Updated message dto example',
+        value: {
+          messageId: 123,
+          message: 'updated message',
+        }
+      },
+    }
+  })
   async updateMessage(
     @Body() dto: UpdateMessageDto,
   ): Promise<ReturnMessageDto> {
@@ -292,6 +531,28 @@ export class ChannelsController {
   }
 
   @Post(':chatId/createmessage')
+  @ApiOperation({
+    summary: 'create message',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiBody({
+    description: 'create message',
+    type: CreateMessageDto,
+    examples: {
+      NormalRequest: {
+        summary: 'Create message dto example',
+        value: {
+          message: 'new message',
+          userId: 123,
+        }
+      },
+    }
+  })
   async createMessage(
     @Param('chatId') chatId: number,
     @Body() dto: CreateMessageDto,
@@ -306,6 +567,21 @@ export class ChannelsController {
   }
 
   @Post(':chatId/deleteMessage/:messageId')
+  @ApiOperation({
+    summary: 'delete message',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiParam({
+    name: 'messageId',
+    type: Number,
+    description: 'The ID of the message',
+    example: 24
+  })
   async deleteMessage(
     @Param('messageId') messageId: number,
     @Param('chatId') chatId: number,
@@ -317,14 +593,31 @@ export class ChannelsController {
 
 
   @Get(':chatId/messages')
+  @ApiOperation({
+    summary: 'get chat messages',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
   async chatMessages(
     @Param('chatId') chatId: number,
-    @Query() paginationDto: PaginationDto,
   ): Promise<ReturnMessageDto[]> {
     return await this.messageService.findAllMessagesByChannel(chatId);
   }
 
   @Get(':chatId/muted')
+  @ApiOperation({
+    summary: 'get muted users in chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
   async findAllMutedAtChat(
     @Param('chatId') chatId: number,
   ): Promise<ReturnMutedDto[]> {
@@ -332,6 +625,29 @@ export class ChannelsController {
   }
 
   @Post(':chatId/muteUser')
+  @ApiOperation({
+    summary: 'mute user in chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiBody({
+    description: 'mute user in chat',
+    type: CreateMuteDto,
+    examples: {
+      NormalRequest: {
+        summary: 'Mute user dto example',
+        value: {
+          userId: 123,
+          mutedById: 123,
+          mutedUntil: (new Date()),
+        }
+      },
+    }
+  })
   async muteuUser(
     @Param('chatId') chatId: number,
     @Body() dto: CreateMuteDto): Promise<ReturnMutedDto[]> {
@@ -345,6 +661,28 @@ export class ChannelsController {
   }
 
   @Post(':chatId/muteUpdate')
+  @ApiOperation({
+    summary: 'update mute user in chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiBody({
+    description: 'update mute user in chat',
+    type: UpdateMuteDto,
+    examples: {
+      NormalRequest: {
+        summary: 'Update mute user dto example',
+        value: {
+          muteId: 123,
+          mutedUntil: (new Date()),
+        }
+      },
+    }
+  })
   async updateMute(
     @Param('chatId') chatId: number,
     @Body() dto: UpdateMuteDto,
@@ -358,6 +696,27 @@ export class ChannelsController {
   }
 
   @Post(':chatId/unmute/')
+  @ApiOperation({
+    summary: 'unmute user in chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiBody({
+    description: 'unmute user in chat',
+    type: muteD,
+    examples: {
+      NormalRequest: {
+        summary: 'Unmute user dto example',
+        value: {
+          userId: 123,
+        }
+      },
+    }
+  })
   async unMute(
     // @Param('mutedId') mutedId: number,
     @Param('chatId') chatId: number,
@@ -368,6 +727,21 @@ export class ChannelsController {
   }
 
   @Post(':chatId/joinChat/:userId')
+  @ApiOperation({
+    summary: 'add user to active chatUsers list',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiParam({
+    name: 'userId',
+    type: Number,
+    description: 'The ID of the user',
+    example: 24
+  })
   async join(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -378,6 +752,21 @@ export class ChannelsController {
   }
 
   @Post(':chatId/quitChat/:userId')
+  @ApiOperation({
+    summary: 'remove user from active chatUsers list',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
+  @ApiParam({
+    name: 'userId',
+    type: Number,
+    description: 'The ID of the user',
+    example: 24
+  })
   async quit(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -388,6 +777,15 @@ export class ChannelsController {
   }
 
   @Get(':chatId/activeUsers')
+  @ApiOperation({
+    summary: 'get all active users in chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42
+  })
   async active(@Param('chatId') chatId: number): Promise<ChatUserDto[]> {
     return await this.channelsService.getActiveUsers(chatId);
   }
