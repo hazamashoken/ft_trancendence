@@ -98,7 +98,7 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
       .whereInIds(ids)
       .getMany();
 
-    return channels;
+      return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
   }
 
   return [];
@@ -123,6 +123,19 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     });
     if (!channel) throw new NotFoundException('channelNotFound');
     return plainToClass(ChannelsEntity, channel);
+  }
+
+  async addUserToProtectedChat(chatName: string, userId: number): Promise<ChatUserDto[]> {
+    const channel = await this.channelsRepository.findOne({
+      where: { chatName: chatName },
+      relations: [ 'chatUsers'],
+    });
+    if (!channel) throw new NotFoundException('channelNotFound');
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('userNotFound');
+    channel.chatUsers.push(user);
+    await this.channelsRepository.save(channel);
+    return channel.chatUsers.map((user) => plainToClass(ChatUserDto, user));
   }
 
   async findOne(id: number): Promise<ChannelsEntity> {
@@ -462,7 +475,7 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if(chat.chatOwner.id != authUser && chat.chatAdmins.find((admin) => admin.id == authUser == false))
+    if(chat.chatOwner.id != authUser || chat.chatAdmins.find((admin) => admin.id == authUser == false))
       throw new ForbiddenException(`Only owner or admin can remove user from chat`);
     const userRemove = chat.chatUsers.find((user) => user.id == userId);
 
