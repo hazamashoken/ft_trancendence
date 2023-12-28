@@ -65,7 +65,12 @@ export class UserSessionService {
   }
 
   getSessionByToken(accessToken: string) {
-    return this.usRepository.findBy({ accessToken });
+    return this.usRepository.findOne({
+      relations: {
+        user: true
+      },
+      where: { accessToken }
+    });
   }
 
   static isValidUserStatus(status: UserSessionStatusType | string) {
