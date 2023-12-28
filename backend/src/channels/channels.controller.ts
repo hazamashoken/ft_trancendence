@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import {
@@ -181,6 +182,36 @@ export class ChannelsController {
   ): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents('chat created');
     dto.chatOwner = authUser.user.id;
+    if (dto.chatType === chatType.PRIVATE) {
+      if (dto.password) {
+        throw new UnprocessableEntityException(
+          'Private chat cannot have password',
+        );
+      }
+    } else if (dto.chatType === chatType.PUBLIC) {
+      if (dto.password) {
+        throw new UnprocessableEntityException(
+          'Public chat cannot have password',
+        );
+      }
+    } else if (dto.chatType === chatType.DIRECT) {
+      if (dto.maxUsers) {
+        throw new UnprocessableEntityException(
+          'Direct chat cannot have max users',
+        );
+      }
+      if (dto.password) {
+        throw new UnprocessableEntityException(
+          'Direct chat cannot have password',
+        );
+      }
+    } else if (dto.chatType === chatType.PROTECTED) {
+      if (!dto.password) {
+        throw new UnprocessableEntityException(
+          'Protected chat must have password',
+        );
+      }
+    }
     return this.channelsService.create(dto);
   }
 

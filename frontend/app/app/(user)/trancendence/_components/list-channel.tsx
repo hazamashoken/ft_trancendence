@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CreateChannelDialog } from "./chat-create-channel-dialog";
 import { JoinChannelDialog } from "./chat-join-channel-dialog";
+import { createAbbreviation } from "@/lib/utils";
 
 export function ListChannel(props: { data: any; userId: string }) {
   const { data, userId } = props;
@@ -85,23 +86,6 @@ export function ListChannel(props: { data: any; userId: string }) {
       toast.error(res.error);
     }
   };
-
-  function createAbbreviation(sentence: string) {
-    // Split the sentence into words
-    const words = sentence.trim().split(" ");
-    if (!words[0]) return "";
-
-    // Initialize an empty string to store the abbreviation
-    let abbreviation = "";
-
-    // Loop through each word and append the first letter (up to 4 characters) to the abbreviation
-    for (let i = 0; i < words.length; i++) {
-      const firstLetter = words[i][0]; // Get the first letter of the word
-      abbreviation += firstLetter; // Append the first letter
-    }
-
-    return abbreviation.slice(0, 4);
-  }
 
   return (
     <div className="flex flex-col justify-between h-full p-2 pt-12 space-y-2">

@@ -51,6 +51,7 @@ import { blockUser, unblockUser } from "../_actions/user";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
+import { createAbbreviation } from "@/lib/utils";
 
 export function ListUser(props: { data: any; userId: string }) {
   const { data: session } = useSession();
@@ -96,22 +97,6 @@ export function ListUser(props: { data: any; userId: string }) {
       toast.error(res.error);
     }
   };
-
-  function createAbbreviation(sentence: string) {
-    // Split the sentence into words
-    const words = sentence.trim().split(" ");
-
-    // Initialize an empty string to store the abbreviation
-    let abbreviation = "";
-
-    // Loop through each word and append the first letter (up to 4 characters) to the abbreviation
-    for (let i = 0; i < words.length; i++) {
-      const firstLetter = words[i][0]; // Get the first letter of the word
-      abbreviation += firstLetter; // Append the first letter
-    }
-
-    return abbreviation.slice(0, 4);
-  }
 
   const handleMuteUser = async (min: number, userId: string) => {
     const payload = {

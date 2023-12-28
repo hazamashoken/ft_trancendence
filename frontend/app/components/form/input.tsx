@@ -19,6 +19,7 @@ type IInputFormProps = {
   lang?: string;
   msg?: boolean;
   help?: ReactElement;
+  disabled?: boolean;
   onFocus?: () => void;
 };
 
@@ -34,6 +35,7 @@ export function InputForm(props: IInputFormProps) {
     lang = "en-US",
     msg,
     help,
+    disabled,
     onFocus,
     ...rest
   } = props;
@@ -53,6 +55,7 @@ export function InputForm(props: IInputFormProps) {
               lang={lang}
               placeholder={placeholder}
               onFocus={onFocus}
+              disabled={disabled}
               {...field}
             />
           </FormControl>
