@@ -62,12 +62,10 @@ export function MessageArea(props: any) {
           member={chatUserList}
           name={chatMeta.name}
           type="channel"
-          apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`}
           socketUrl="/api/socket/messages"
           socketQuery={{
             channelId: chatMeta.id,
           }}
-          // chatData={chatData}
           paramKey="channelId"
           paramValue={chatMeta.id}
           chatId={chatId}

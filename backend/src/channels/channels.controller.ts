@@ -13,7 +13,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
-import { ApiBody, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -45,12 +52,22 @@ import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 import { dmCreate } from './dto/dm.dto';
-import { addUserByName, adminRemove, chatD, chatDelete, chatId, messageRem, muteD, userId } from './dto/userId.dto';
+import {
+  addUserByName,
+  adminRemove,
+  chatD,
+  chatDelete,
+  chatId,
+  messageRem,
+  muteD,
+  userId,
+} from './dto/userId.dto';
 import { chatType } from '@backend/typeorm/channel.entity';
 
 @Controller('channels')
-// @UseGuards(XKeyGuard, AuthGuard)
-// @ApiSecurity('x-api-key')
+@UseGuards(XKeyGuard, AuthGuard)
+@ApiBearerAuth()
+@ApiSecurity('x-api-key')
 @ApiTags('Channels')
 export class ChannelsController {
   constructor(
@@ -62,7 +79,7 @@ export class ChannelsController {
     private readonly bannedService: BannedService,
     private readonly messageService: MessagesService,
     private readonly chatGateway: SocketGateway,
-  ) { }
+  ) {}
 
   @Get('all')
   async findAll(): Promise<ChannelsEntity[]> {
@@ -72,7 +89,11 @@ export class ChannelsController {
   @Get(':userId/all')
   @ApiOperation({ summary: 'get all of user channels by user Id.' })
   @ApiParam({ name: 'userId', type: Number, example: 1 })
-  async findUserChats(@Param('userId') userId: number): Promise<ChannelsEntity[]> {
+  async findUserChats(
+    @AuthUser() authUser: AuthUserInterface,
+    @Param('userId') userId: number,
+  ): Promise<ChannelsEntity[]> {
+    Logger.log(authUser);
     return this.channelsService.findAllUserChannels(userId);
   }
 
@@ -106,7 +127,7 @@ export class ChannelsController {
   @ApiOperation({ summary: 'get all of user dm channels by user Id.' })
   @ApiParam({ name: 'userId', type: Number, example: 1 })
   async findDm(
-    @Param('userId') userId: number
+    @Param('userId') userId: number,
     // @Body() dto: userId,
   ): Promise<ChannelsEntity[]> {
     return this.channelsService.findUserDmChats(userId);
@@ -116,7 +137,7 @@ export class ChannelsController {
   @ApiOperation({ summary: 'get one channel by Id.' })
   @ApiParam({ name: 'chatId', type: Number, example: 1 })
   async findOne(
-    @Param('chatId') chatId: number
+    @Param('chatId') chatId: number,
     // @Body() dto: chatId,
   ): Promise<ChannelsEntity> {
     return this.channelsService.findOneById(chatId);
@@ -126,7 +147,7 @@ export class ChannelsController {
   @ApiOperation({ summary: 'get one channel owner by chat Id.' })
   @ApiParam({ name: 'chatId', type: Number, example: 1 })
   async owner(
-    @Param('chatId') chatId: number
+    @Param('chatId') chatId: number,
     // @Body() dto: chatId,
   ): Promise<ChatUserDto> {
     const owner = await this.channelsService.getOwnerById(chatId);
@@ -147,10 +168,14 @@ export class ChannelsController {
           hatOwner: 23,
           password: 'aaasssddd',
           maxUsers: null,
-          chatType: chatType.PUBLIC || chatType.DIRECT || chatType.PROTECTED || chatType.PRIVATE,
-        }
+          chatType:
+            chatType.PUBLIC ||
+            chatType.DIRECT ||
+            chatType.PROTECTED ||
+            chatType.PRIVATE,
+        },
       },
-    }
+    },
   })
   async create(@Body() dto: ChannelCreatedTO): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents('chat created');
@@ -158,9 +183,10 @@ export class ChannelsController {
   }
 
   @Post('createDm')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'create direct messages',
-    description: 'by default max_users will be set as 2 and chatType will be set as direct'
+    description:
+      'by default max_users will be set as 2 and chatType will be set as direct',
   })
   @ApiBody({
     description: 'Direct messages creation data',
@@ -170,32 +196,34 @@ export class ChannelsController {
         summary: 'A normal example',
         value: {
           user1: 1,
-          user2: 2
-        }
+          user2: 2,
+        },
       },
-    }
+    },
   })
   async createDm(@Body() dto: dmCreate): Promise<ChannelsEntity> {
-    this.chatGateway.sendEvents('dmCreated'), { user1: dto.user1, user2: dto.user2 };
+    this.chatGateway.sendEvents('dmCreated'),
+      { user1: dto.user1, user2: dto.user2 };
     return this.channelsService.createDm(dto.user1, dto.user2);
   }
 
   @Post(':chatId/delete/:userId')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'delete chat',
-    description: 'gets chat Id and Id of user who trying to delete the chat (will be changed when we get userSession)'
+    description:
+      'gets chat Id and Id of user who trying to delete the chat (will be changed when we get userSession)',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 23
+    example: 23,
   })
   @ApiParam({
     name: 'userId',
     type: Number,
     description: 'The ID of the user',
-    example: 42
+    example: 42,
   })
   async deleteChat(
     @Param('chatId') chatId: number,
@@ -206,15 +234,16 @@ export class ChannelsController {
   }
 
   @Post(':chatId/update')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'update chat',
-    description: 'gets Id of chat that need to be updadet and data with new values(if data is null params not changed)'
+    description:
+      'gets Id of chat that need to be updadet and data with new values(if data is null params not changed)',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiBody({
     description: 'Direct messages creation data',
@@ -226,10 +255,14 @@ export class ChannelsController {
           chatName: 'Updated chat',
           password: 'updated password',
           max_users: 23,
-          chatType: chatType.PROTECTED || chatType.PUBLIC || chatType.DIRECT || chatType.PRIVATE,
-        }
+          chatType:
+            chatType.PROTECTED ||
+            chatType.PUBLIC ||
+            chatType.DIRECT ||
+            chatType.PRIVATE,
+        },
       },
-    }
+    },
   })
   async update(
     @Param('chatId') chatId: number,
@@ -259,7 +292,11 @@ export class ChannelsController {
     // @Body() dto: addUserByName,
   ): Promise<ChatUserDto[]> {
     try {
-      this.chatGateway.sendEvents({ message: 'user added', chatId: chatId, event: 'getChatUsers' });
+      this.chatGateway.sendEvents({
+        message: 'user added',
+        chatId: chatId,
+        event: 'getChatUsers',
+      });
       return await this.channelsService.addUserToChatByName(chatId, userName);
     } catch (error) {
       throw new NotFoundException(error.message, 'Not Found');
@@ -267,39 +304,43 @@ export class ChannelsController {
   }
 
   @Post(':chatId/kick/:userId')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'kick user from chat',
-    description: 'gets Id of and id of user that need to be kicked)'
+    description: 'gets Id of and id of user that need to be kicked)',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiParam({
     name: 'userId',
     type: Number,
     description: 'The ID of the user',
-    example: 23
+    example: 23,
   })
   async removeUser(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
   ): Promise<ChatUserDto[] | null> {
-    this.chatGateway.sendEvents({ message: 'user removed', chatId: chatId, event: 'getChatUsers' });
+    this.chatGateway.sendEvents({
+      message: 'user removed',
+      chatId: chatId,
+      event: 'getChatUsers',
+    });
     return await this.channelsService.removeUserFromChat(chatId, userId);
   }
 
   @Get(':chatId/users')
   @ApiOperation({
-    summary: 'get all users in chat'
+    summary: 'get all users in chat',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   async getUsers(@Param('chatId') chatId: number): Promise<ChatUserDto[]> {
     try {
@@ -312,19 +353,19 @@ export class ChannelsController {
   @Post(':chatId/addAdmin/:userId')
   @ApiOperation({
     summary: 'add admin to chat',
-    description: 'gets chat id and user that will become admin in this chat'
+    description: 'gets chat id and user that will become admin in this chat',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 22
+    example: 22,
   })
   @ApiParam({
     name: 'userId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   async addAdmin(
     @Param('chatId') chatId: number,
@@ -332,7 +373,11 @@ export class ChannelsController {
     // @Body() dto: chatDelete,
   ): Promise<ChatUserDto[]> {
     try {
-      this.chatGateway.sendEvents({ message: 'admin added', chatId: chatId, event: 'getChatAdmins' });
+      this.chatGateway.sendEvents({
+        message: 'admin added',
+        chatId: chatId,
+        event: 'getChatAdmins',
+      });
       return await this.channelsService.addAdminToChat(chatId, userId);
     } catch (error) {
       throw new NotFoundException(error.message, 'Not Found');
@@ -342,19 +387,19 @@ export class ChannelsController {
   @Post(':chatId/removeAdmin/:adminId')
   @ApiOperation({
     summary: 'remove admin from chat',
-    description: 'gets chat id and admin that will be removed'
+    description: 'gets chat id and admin that will be removed',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 12
+    example: 12,
   })
   @ApiParam({
     name: 'adminId',
     type: Number,
     description: 'The ID of the chat',
-    example: 11
+    example: 11,
   })
   async removeAdmin(
     @Param('chatId') chatId: number,
@@ -362,7 +407,11 @@ export class ChannelsController {
     // @Body() dto: adminRemove,
   ): Promise<ChatUserDto[] | null> {
     try {
-      this.chatGateway.sendEvents({ message: 'admin removed', chatId: chatId, event: 'getChatAdmins' });
+      this.chatGateway.sendEvents({
+        message: 'admin removed',
+        chatId: chatId,
+        event: 'getChatAdmins',
+      });
       return await this.channelsService.removeAdminFromChat(chatId, adminId);
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -374,12 +423,12 @@ export class ChannelsController {
   }
 
   @Get(':chatId/admins')
-  @ApiOperation({summary: 'get all admins in chat'})
+  @ApiOperation({ summary: 'get all admins in chat' })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 22
+    example: 22,
   })
   async getAdmins(
     @Param('chatId') chatId: number,
@@ -395,12 +444,12 @@ export class ChannelsController {
   }
 
   @Get(':chatId/bannedUsers')
-  @ApiOperation({summary: 'get all admins in chat'})
+  @ApiOperation({ summary: 'get all admins in chat' })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 22
+    example: 22,
   })
   async getBanned(@Param('chatId') chatId: number): Promise<ReturnBannedDto[]> {
     return await this.bannedService.findAllBannedUsersInChat(chatId);
@@ -410,18 +459,19 @@ export class ChannelsController {
   @Post(':chatId/banUser/:adminId')
   @ApiOperation({
     summary: 'ban user in chat',
-    description: 'gets chat id and adminId as params + dto with ban info'
+    description: 'gets chat id and adminId as params + dto with ban info',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
-  })  @ApiParam({
+    example: 42,
+  })
+  @ApiParam({
     name: 'adminId',
     type: Number,
     description: 'The ID of the admin',
-    example: 22
+    example: 22,
   })
   @ApiBody({
     description: 'Ban info',
@@ -432,9 +482,9 @@ export class ChannelsController {
         value: {
           userId: 123,
           reasin: 'ban reason',
-        }
+        },
       },
-    }
+    },
   })
   async addBannedUserToChat(
     @Param('chatId') chatId: number,
@@ -442,7 +492,11 @@ export class ChannelsController {
     // @Body() dto1: adminRemove,
     @Body() dto: BanUserDto,
   ): Promise<ReturnBannedDto[]> {
-    this.chatGateway.sendEvents({ message: 'user banned', chatId: chatId, event: 'getChatBanned' });
+    this.chatGateway.sendEvents({
+      message: 'user banned',
+      chatId: chatId,
+      event: 'getChatBanned',
+    });
     return await this.bannedService.createBanned(
       chatId,
       dto.userId,
@@ -459,20 +513,24 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiParam({
     name: 'bannedId',
     type: Number,
     description: 'The ID of the banned user',
-    example: 24
+    example: 24,
   })
   async removeBanned(
     @Param('bannedId') bannedId: number,
     @Param('chatId') chatId: number,
     // @Body() dto: chatDelete,
   ): Promise<ReturnBannedDto[]> {
-    this.chatGateway.sendEvents({ message: 'user unbanned', chatId: chatId, event: 'removeBanned' });
+    this.chatGateway.sendEvents({
+      message: 'user unbanned',
+      chatId: chatId,
+      event: 'removeBanned',
+    });
     return await this.bannedService.removeBannedById(bannedId, chatId);
   }
 
@@ -484,7 +542,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiBody({
     description: 'id of user to unban',
@@ -494,15 +552,19 @@ export class ChannelsController {
         summary: 'A normal example',
         value: {
           userId: 123,
-        }
+        },
       },
-    }
+    },
   })
   async unbanUser(
     @Param('chatId') chatId: number,
     @Body() dto: { userId: number },
   ): Promise<ReturnBannedDto[]> {
-    this.chatGateway.sendEvents({ message: 'user unbanned', chatId: chatId, event: 'unbanUser' });
+    this.chatGateway.sendEvents({
+      message: 'user unbanned',
+      chatId: chatId,
+      event: 'unbanUser',
+    });
     return await this.bannedService.unbanUser(chatId, dto.userId);
   }
 
@@ -519,14 +581,17 @@ export class ChannelsController {
         value: {
           messageId: 123,
           message: 'updated message',
-        }
+        },
       },
-    }
+    },
   })
   async updateMessage(
     @Body() dto: UpdateMessageDto,
   ): Promise<ReturnMessageDto> {
-    this.chatGateway.sendEvents({ message: 'mesagre updated', event: 'getChatMessages' });
+    this.chatGateway.sendEvents({
+      message: 'mesagre updated',
+      event: 'getChatMessages',
+    });
     return await this.messageService.updateMessage(dto.messageId, dto.message);
   }
 
@@ -538,7 +603,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiBody({
     description: 'create message',
@@ -549,20 +614,25 @@ export class ChannelsController {
         value: {
           message: 'new message',
           userId: 123,
-        }
+        },
       },
-    }
+    },
   })
   async createMessage(
+    @AuthUser() authUser: AuthUserInterface,
     @Param('chatId') chatId: number,
     @Body() dto: CreateMessageDto,
   ): Promise<ReturnMessageDto> {
     // return await this.channelsService.createMessage
-    this.chatGateway.sendEvents({ message: 'mesagre created', chatId: chatId, event: 'getChatMessages' });
+    this.chatGateway.sendEvents({
+      message: 'mesagre created',
+      chatId: chatId,
+      event: 'getChatMessages',
+    });
     return await this.messageService.createMessage(
       chatId,
       dto.message,
-      dto.userId,
+      authUser.user.id,
     );
   }
 
@@ -574,23 +644,26 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiParam({
     name: 'messageId',
     type: Number,
     description: 'The ID of the message',
-    example: 24
+    example: 24,
   })
   async deleteMessage(
     @Param('messageId') messageId: number,
     @Param('chatId') chatId: number,
     // @Body() dto: messageRem,
   ): Promise<ReturnMessageDto[]> {
-    this.chatGateway.sendEvents({ message: 'mesagre deleted', chatId: chatId, event: 'getChatMessages' });
+    this.chatGateway.sendEvents({
+      message: 'mesagre deleted',
+      chatId: chatId,
+      event: 'getChatMessages',
+    });
     return await this.messageService.deleteMessage(messageId, chatId);
   }
-
 
   @Get(':chatId/messages')
   @ApiOperation({
@@ -600,7 +673,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   async chatMessages(
     @Param('chatId') chatId: number,
@@ -616,7 +689,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   async findAllMutedAtChat(
     @Param('chatId') chatId: number,
@@ -632,7 +705,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiBody({
     description: 'mute user in chat',
@@ -643,15 +716,19 @@ export class ChannelsController {
         value: {
           userId: 123,
           mutedById: 123,
-          mutedUntil: (new Date()),
-        }
+          mutedUntil: new Date(),
+        },
       },
-    }
+    },
   })
   async muteuUser(
     @Param('chatId') chatId: number,
-    @Body() dto: CreateMuteDto): Promise<ReturnMutedDto[]> {
-    this.chatGateway.sendEvents({ message: 'user muted', event: 'getChatMuted' });
+    @Body() dto: CreateMuteDto,
+  ): Promise<ReturnMutedDto[]> {
+    this.chatGateway.sendEvents({
+      message: 'user muted',
+      event: 'getChatMuted',
+    });
     return await this.channelsService.muteUser(
       dto.userId,
       chatId,
@@ -668,7 +745,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiBody({
     description: 'update mute user in chat',
@@ -678,16 +755,19 @@ export class ChannelsController {
         summary: 'Update mute user dto example',
         value: {
           muteId: 123,
-          mutedUntil: (new Date()),
-        }
+          mutedUntil: new Date(),
+        },
       },
-    }
+    },
   })
   async updateMute(
     @Param('chatId') chatId: number,
     @Body() dto: UpdateMuteDto,
   ): Promise<ReturnMutedDto[]> {
-    this.chatGateway.sendEvents({ message: 'user muted', event: 'getChatMuted' });
+    this.chatGateway.sendEvents({
+      message: 'user muted',
+      event: 'getChatMuted',
+    });
     return await this.channelsService.muteUpdated(
       dto.muteId,
       chatId,
@@ -703,7 +783,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiBody({
     description: 'unmute user in chat',
@@ -713,16 +793,19 @@ export class ChannelsController {
         summary: 'Unmute user dto example',
         value: {
           userId: 123,
-        }
+        },
       },
-    }
+    },
   })
   async unMute(
     // @Param('mutedId') mutedId: number,
     @Param('chatId') chatId: number,
     @Body() dto: muteD,
   ): Promise<ReturnMutedDto[]> {
-    this.chatGateway.sendEvents({ message: 'mute update', event: 'getChatMuted' });
+    this.chatGateway.sendEvents({
+      message: 'mute update',
+      event: 'getChatMuted',
+    });
     return await this.channelsService.unMute(dto.userId, chatId);
   }
 
@@ -734,20 +817,23 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiParam({
     name: 'userId',
     type: Number,
     description: 'The ID of the user',
-    example: 24
+    example: 24,
   })
   async join(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
     // @Body() dto: chatD,
   ): Promise<ChatUserDto[]> {
-    this.chatGateway.sendEvents({ message: 'user joinchat', event: 'getActiveUsers' });
+    this.chatGateway.sendEvents({
+      message: 'user joinchat',
+      event: 'getActiveUsers',
+    });
     return await this.channelsService.joinChannel(chatId, userId);
   }
 
@@ -759,20 +845,24 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   @ApiParam({
     name: 'userId',
     type: Number,
     description: 'The ID of the user',
-    example: 24
+    example: 24,
   })
   async quit(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
     // @Body() dto: chatD,
   ): Promise<ChatUserDto[]> {
-    this.chatGateway.sendEvents({ message: 'user quitChat', event: 'quitChat', chatId: chatId });
+    this.chatGateway.sendEvents({
+      message: 'user quitChat',
+      event: 'quitChat',
+      chatId: chatId,
+    });
     return await this.channelsService.quitChannel(chatId, userId);
   }
 
@@ -784,7 +874,7 @@ export class ChannelsController {
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 42
+    example: 42,
   })
   async active(@Param('chatId') chatId: number): Promise<ChatUserDto[]> {
     return await this.channelsService.getActiveUsers(chatId);
