@@ -114,18 +114,19 @@ export const ChatMessages = ({
   if (chatMessages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center flex-1 border-x">
-        <p className="text-xs text-center text-zinc-500 dark:text-zinc-400">
-          This is the beginning of your legendary conversation
-          {chatMeta.chatType !== "direct"
-            ? " in " + chatMeta.name + " channel"
-            : " with " +
-                getDmOther(chatMeta.data.chatUsers, userId)?.displayName ??
-              "unknown"}
-          .
-        </p>
+        <ChatWelcome
+          name={
+            chatMeta.chatType !== "direct"
+              ? chatMeta.name
+              : getDmOther(chatMeta.data.chatUsers, userId)?.displayName ??
+                "unknown"
+          }
+          type={chatMeta.chatType}
+        />
       </div>
     );
   }
+
   return (
     <div ref={chatRef} className="h-full py-4 overflow-y-auto border-x">
       <div className="flex flex-col mt-auto">
