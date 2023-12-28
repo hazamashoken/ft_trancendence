@@ -59,6 +59,7 @@ export class MessagesService {
       await this.channelService.unMute(authorId, channelId);
     if (user) {
       throw new ForbiddenException('User is muted');
+    }
     const newMessage = new MessagesEntity();
     newMessage.message = message;
     newMessage.author = author;

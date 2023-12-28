@@ -1,11 +1,13 @@
 export interface User {
   id: number;
   intraId: number;
+  // not in use
   intraLogin: string;
   intraUrl: string;
   email: string;
   firstName: string;
   lastName: string;
+  // to here
   displayName: string;
   imageUrl: string;
 }
@@ -20,5 +22,5 @@ export interface FtUser {
   displayname: string;
   image: {
     link: string;
-  }
+  };
 }
