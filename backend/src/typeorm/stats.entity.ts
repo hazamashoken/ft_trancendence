@@ -8,14 +8,10 @@ export class Stats {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @OneToOne(() => User, (user) => user.id)
-  @OneToOne(() => User, { nullable: false })
+  @OneToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
   
-  // @RelationId((state: Stats) => state.user)
-  // userId: number;
-
   @Column({ default: 0 })
   win: number;
 

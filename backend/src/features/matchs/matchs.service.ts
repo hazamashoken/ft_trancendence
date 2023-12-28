@@ -2,22 +2,113 @@ import { Injectable } from '@nestjs/common';
 import { CreateMatchsDto } from './dto/create-matchs.dto';
 import { UpdateMatchsDto } from './dto/update-matchs.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Match, User } from '@backend/typeorm';
+import { Match, Stats, User } from '@backend/typeorm';
 import { Repository } from 'typeorm';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
+import { matchStatus } from '@backend/typeorm/match.entity';
+import { StatsService } from '../stats/stats.service';
 
+const PONE_WIN = 1;
+const PTWO_WIN = 2;
 @Injectable()
 export class MatchsService {
   constructor(
-    @InjectRepository(Match) private readonly matchRepository: Repository<Match>,
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Match) private matchRepository: Repository<Match>,
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Stats) private statsRepository: Repository<Stats>,
   ) {}
+  /*
+  * [function] create a new match with defualt value |play2Id=NULL, player1Point=0, player2Point=0, status='WAITING'|.
+  * by input the userID of player who own the match.
+  * => [match] the match is success to created.
+  * => [-1] the match is fail to created. */
+  async createNewMatch(player1Id: number): Promise<number> {
+    const player1 = await this.userRepository.findOne({ where: { id: player1Id} });
+    if (!player1) {
+      console.log ('Player1 ID not found, Cannot create the match.');
+      return -1;
+    }
+    const newMatch = this.matchRepository.create({
+      player1: player1,
+    });
+    this.matchRepository.save(newMatch);
+    return newMatch.MatchId;
+  }
 
+  /*
+  * [function] update a match status type [ 'WAITING', 'PLAYING', 'FINISHED' ].
+  * by input the match-id and status.
+  * => [true] the match status is success to update.
+  * => [false] the math status is fail to update. */
+  async updateStatus(matchId: number, status: matchStatus): Promise<boolean> {
+    const match = await this.matchRepository.fineOne({ where: { matchId: matchId } });
+    if (!match) {
+      console.log('MatchId not found, Cannot update the match status.');
+      return false;
+    }
+    this.matchRepository.update({ matchId }, { matchStatus: status });
+    return true;
+  }
+
+  /*
+  * [fucntion] update a whole value of the match with out player1Id.
+  * [ player2Id, player1Point, player1Point, player2Point, matchStatus ]
+  * by input matchId and the match attribute.
+  * => [ture] the match status is success to update.
+  * => [false] ther match status is fail to update. */
+  async updateMatch(
+    matchId: number, player2Id: number, player1Point: number, player2Point: number, status?: matchStatus): Promise<boolean> {
+    const match = await this.matchRepository.fineOne({ where: { matchId: matchId} });
+    if (!match) {
+      console.log('MatchId not found, Cannot update the match value.');
+      return false;
+    }
+    const user = await this.userRepository.fineOne({ where: { id: player2Id} });
+    if (!user) {
+      console.log('Player2Id not found, Cannot update the match value.');
+      return false;
+    }
+    if (player1Point < 0 || player2Point < 0) {
+      console.log('PlayerPoint valuse is invalid, Cannot update the match value.');
+      return false;
+    }
+    this.matchRepository.update({ matchId: matchId }, {
+      player1Point: player1Point,
+      player2Id: player2Id,
+      player2Point: player2Point,
+      matchStatus: status,
+    });
+    console.log(`[Debug]::player1Id|${match.player1.id}|`)
+    const result = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
+    this.updatePlayersStats(match.player1.id, player2Id, result);
+    return true;
+  }
+  
+  private async updatePlayersStats(player1Id: number, player2Id: number, result: number): Promise<void> {
+    let stats: StatsService;
+    const player1Stats = await this.statsRepository.fineOne({ where: { user: player1Id} });
+    const player2Stats = await this.statsRepository.fineOne({ where: { user: player2Id} });
+    if (result == PONE_WIN) {
+      const point1 = player1Stats.point + 2;
+      const point2 = player2Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
+      stats.updateStatsByUser(player1Id, { win: (player1Stats.win + 1), lose: player1Stats.lose, point: point1 });
+      stats.updateStatsByUser(player1Id, { win: player1Stats.win, lose: (player1Stats.lose + 1), point: point2 });
+    }
+    else {
+      const point1 = player1Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
+      const point2 = player2Stats.point + 2;
+      stats.updateStatsByUser(player1Id, { win: player1Stats.win, lose: (player1Stats.lose + 1), point: point1 });
+      stats.updateStatsByUser(player1Id, { win: (player1Stats.win + 1), lose: player1Stats.lose, point: point2 });
+    }
+  }
+
+  // TODO add maxPoint comparation on this line..
   async createMatch(createMatchsDto: CreateMatchsDto) {
     const { player1Id, player2Id, ...matchDetail } = createMatchsDto;
+    let player2: User;
     const player1 = await this.userRepository.findOne({ where: { id: player1Id} });
     if (player1Id === player2Id) {
       throw new HttpException (
@@ -31,20 +122,26 @@ export class MatchsService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const player2 = await this.userRepository.findOne({ where: { id: player2Id } });
-    if (!player2) {
-      throw new HttpException (
-        'Player2 ID not found, Cannot create the match.',
-        HttpStatus.BAD_REQUEST,
-      )
+    if (player2Id) {
+      player2 = await this.userRepository.findOne({ where: { id: player2Id } });
+      if (!player2) {
+        throw new HttpException (
+          'Player2 ID not found, Cannot create the match.',
+          HttpStatus.BAD_REQUEST,
+        )
+      }
     }
-    // TODO add maxPoint comparation on this line..
     const newMatch = this.matchRepository.create({
       player1: player1,
       player2: player2,
       ...matchDetail,
     });
-    // TODO update the user WIN RATE state...
+    if (matchDetail.status === 'FINISHED' && player2) {
+      const player1Point = !Number(matchDetail.player1Point) ? 0 : matchDetail.player1Point;
+      const player2Point = !Number(matchDetail.player2Point) ? 0 : matchDetail.player2Point;
+      const result = player1Point >= player2Point ? PONE_WIN : PTWO_WIN;
+      this.updatePlayersStats(player1.id , player2.id, result);
+    }
     return this.matchRepository.save(newMatch);
   }
 
@@ -68,32 +165,7 @@ export class MatchsService {
   //
 
   // * for the pong game to add the match result into database 
-  async addNewMatch(player1Id: number, player2Id: number, player1Point: number, player2Point: number): Promise<boolean> {
-    const player1 = await this.userRepository.findOne({ where: { id: player1Id }, });
-    if (!player1) {
-     return false;
-    }
-    const player2 = await this.userRepository.findOne({ where: { id: player2Id } });
-    if (!player2) {
-      return false;
-    }
-    if (player1 === player2) {
-     return false;
-    }
-     // TODO add maxPoint comparation on this line..
-    const newMatch = this.matchRepository.create({
-      player1: player1,
-      player2: player2,
-      player1Point: player1Point,
-      player2Point: player2Point,
-    });
-    // TODO update the user WIN RATE state...
-    this.matchRepository.save(newMatch);
-    return true;
-  }
 
-
-  // TODO should return ERROR code for not found data in database.. ?
   findAll(
     playerId?: number,
     matchId?: number,

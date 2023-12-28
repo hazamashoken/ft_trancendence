@@ -1,5 +1,6 @@
-import { IsNumber, Max, Min, IsOptional } from 'class-validator';
+import { IsNumber, Max, Min, IsOptional, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { matchStatus } from '@backend/typeorm/match.entity';
 
 export class UpdateMatchsDto {
   @IsNumber()
@@ -25,4 +26,9 @@ export class UpdateMatchsDto {
   @Max(15)
   @IsOptional()
   player2Point: number;
+
+  @IsIn(['WAITING', 'PLAYING', 'FINISHED'])
+  @IsOptional()
+  @ApiProperty()
+  status: matchStatus
 }

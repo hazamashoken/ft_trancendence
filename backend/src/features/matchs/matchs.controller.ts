@@ -24,6 +24,21 @@ export class MatchsController {
   async createMatch(@Body() createMatchsDto: CreateMatchsDto) {
     await this.matchService.createMatch(createMatchsDto);
   }
+  
+  @Get('test/:num')
+  testFunction(@Param('num') num: number) {
+    if (num === 1) {
+      // * async createNewMatch(player1Id: number): Promise<number>
+      return this.matchService.createNewMatch(5);
+    } else if (num === 2) {
+      // * async updateStatus(matchId: number, status: matchStatus): Promise<boolean>
+      return this.matchService.updateStatus(3, 'FINISHED');
+    } else {
+      //* async updateMatch(
+      //* matchId: number, player2Id: number, player1Point: number, player2Point: number, status?: matchStatus): Promise<boolean> 
+      // return this.matchService.updateMatch()
+    }
+  }
 
   @Get()
   @ApiOperation({ summary: 'List all friendship record with query filter' })
@@ -41,14 +56,14 @@ export class MatchsController {
   @Get(':id')
   @ApiOperation({ summary: 'get a game match by match Id.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
-  getAMatchById(@Param('id', ParseIntPipe) id: number) {
+  getAMatchById(@Param('id', ParseIntPipe) id: string) {
     return this.matchService.findAMatchById(+id);
   }
 
   @Get('user/:id')
   @ApiOperation({ summary: 'list all of match by user Id.' })
   @ApiParam({ name: 'id', type: Number, example: 42 })
-  getMatchsByUser(@Param('id', ParseIntPipe) id: number) {
+  getMatchsByUser(@Param('id', ParseIntPipe) id: string) {
     return this.matchService.findMatchsByUser(+id);
   }
 
