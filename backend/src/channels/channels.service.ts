@@ -98,7 +98,7 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
       .whereInIds(ids)
       .getMany();
 
-    return channels;
+      return channels.map((chanel) => plainToClass(ChannelsEntity, chanel));
   }
 
   return [];
@@ -462,7 +462,7 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if(chat.chatOwner.id != authUser && chat.chatAdmins.find((admin) => admin.id == authUser == false))
+    if(chat.chatOwner.id != authUser || chat.chatAdmins.find((admin) => admin.id == authUser == false))
       throw new ForbiddenException(`Only owner or admin can remove user from chat`);
     const userRemove = chat.chatUsers.find((user) => user.id == userId);
 
