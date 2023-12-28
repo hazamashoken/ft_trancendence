@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useSocket } from "@/components/providers/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function ChatBox(props: any) {
+export function ChatBox(props: { userId: string }) {
   const { userId } = props;
   const [
     chatId,
@@ -82,7 +82,9 @@ export function ChatBox(props: any) {
       <CardContent className="flex h-[800px] p-1 space-x-1">
         <ListChannel data={chatList} userId={userId} />
         <MessageArea userId={userId} />
-        {chatId && <ListUser data={chatUserList} userId={userId} />}
+        {chatId && chatMeta.chatType && chatMeta.chatType !== "direct" && (
+          <ListUser data={chatUserList} userId={userId} />
+        )}
       </CardContent>
     </Card>
   );

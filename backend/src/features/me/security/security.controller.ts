@@ -10,7 +10,12 @@ import {
   Delete,
   Body,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SecurityService } from './security.service';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { User } from '@backend/typeorm';
@@ -38,7 +43,10 @@ export class SecurityController {
 
   @Patch('2fa/activate')
   @ApiOperation({ summary: 'Activate 2fa device for first time' })
-  async activate2faDevice(@AuthUser('user') user: User, @Body('code') code: string) {
+  async activate2faDevice(
+    @AuthUser('user') user: User,
+    @Body('code') code: string,
+  ) {
     const tfa = await this.securityService.get2faDevice(user.id);
     if (!tfa) {
       throw new BadRequestException('User has not been registered device');
@@ -59,7 +67,10 @@ export class SecurityController {
   }
 
   @Post('2fa')
-  @ApiOperation({ summary: 'Register a 2fa device', description: 'Server will generate register code for first active.' })
+  @ApiOperation({
+    summary: 'Register a 2fa device',
+    description: 'Server will generate register code for first active.',
+  })
   async register2faDevice(@AuthUser('user') user: User) {
     const tfa = await this.securityService.get2faDevice(user.id);
     if (tfa && tfa.status === 'ACTIVE') {
