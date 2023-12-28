@@ -58,15 +58,21 @@ export class MutedService {
     newMuted.mutedBy = muteBy;
     if (mutedUntil != null) newMuted.mutedUntill = mutedUntil;
     await this.mutedRepository.save(newMuted);
-    return await this.findAllMutedAtChat(channelId);
+    return await this.findAllMutedAtChat(channelId, mutedById);
   }
 
-  async findAllMutedAtChat(chatId: number): Promise<ReturnMutedDto[]> {
+  async findAllMutedAtChat(chatId: number, authUser: number): Promise<ReturnMutedDto[]> {
     const mutedUsers = await this.mutedRepository.find({
       where: { mutedAt: { chatId: chatId } },
       relations: ['user', 'mutedAt', 'mutedBy'],
     });
     if (mutedUsers.length < 1) return [];
+    const chat = await this.channelRepository.findOne({
+      where: { chatId: chatId },
+      relations: ['chatOwner', 'chatAdmins', 'chatUsers'],
+    })
+    if(chat.chatUsers.find((user) => user.id == authUser) == undefined)
+      throw new ForbiddenException('You are not in this chat');
     return mutedUsers.map((mutedUser) =>
       plainToClass(ReturnMutedDto, mutedUser),
     );
@@ -89,25 +95,35 @@ export class MutedService {
     id: number,
     mutedUntil: Date,
     chatId: number,
+    authUser: number,
   ): Promise<ReturnMutedDto[] | null> {
     const existingMuted = await this.findMutedById(id);
     if (!existingMuted) {
       throw new NotFoundException('Muted user not found');
     }
+    const chat = await this.channelRepository.findOne({
+      where: { chatId: chatId },
+      relations: ['chatOwner', 'chatAdmins'],
+    })
+    if(chat.chatOwner.id != authUser && !chat.chatAdmins.find((admin) => admin.id == authUser))
+      throw new ForbiddenException('Only owner or admin can update muted');
     existingMuted.mutedUntill = mutedUntil;
     await this.mutedRepository.save(existingMuted);
-    return this.findAllMutedAtChat(chatId);
+    return this.findAllMutedAtChat(chatId, authUser);
   }
 
   async deleteMuted(
     userId: number,
     chatId: number,
+    authUser: number,
   ): Promise<ReturnMutedDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: chatId },
-      relations: ['mutedUsers'],
+      relations: ['mutedUsers','chatOwner', 'chatAdmins'],
     });
     if (!chat) throw new NotFoundException('Chat not found');
+    if(chat.chatOwner.id != authUser && !chat.chatAdmins.find((admin) => admin.id == authUser))
+      throw new ForbiddenException('Only owner or admin can unmute user');
     if (!chat.mutedUsers.find((user) => (user.id = userId)))
       throw new NotFoundException('User not muted at this chat');
     const muted = await this.findMutedByUserId(userId, chatId);
@@ -115,6 +131,6 @@ export class MutedService {
       throw new NotFoundException('User not muted');
     }
     await this.mutedRepository.remove(muted);
-    return await this.findAllMutedAtChat(chatId);
+    return await this.findAllMutedAtChat(chatId, authUser);
   }
 }
