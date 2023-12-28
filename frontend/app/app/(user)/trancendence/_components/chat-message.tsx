@@ -5,10 +5,6 @@ import { format } from "date-fns";
 // import { Member, Message, Profile } from "@prisma/client";
 import { Loader2, ServerCrash } from "lucide-react";
 
-import { useChatQuery } from "@/lib/hooks/use-chat-query";
-// import { useChatSocket } from "@/lib/hooks/use-chat-socket";
-// import { useChatScroll } from "@/lib/hooks/use-chat-scroll";
-
 import { ChatWelcome } from "./chat-welcome";
 import { ChatItem } from "./chat-item";
 import { useQuery } from "@tanstack/react-query";

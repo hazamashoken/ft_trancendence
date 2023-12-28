@@ -17,24 +17,29 @@ export function MessageArea(props: any) {
     chatList,
     chatUserList,
     chatMeta,
+    chatIsLoading,
     setChatId,
     setChatList,
     setChatUserList,
     setChatMeta,
+    setChatIsLoading,
   ] = useChatStore((state: IChatStore) => [
     state.chatId,
     state.chatList,
     state.chatUserList,
     state.chatMeta,
+    state.chatIsLoading,
     state.setChatId,
     state.setChatList,
     state.setChatUserList,
     state.setChatMeta,
+    state.setChatIsLoading,
   ]);
 
   useEffect(() => {
     if (!chatId) return;
     const getChatMeta = async () => {
+      setChatIsLoading(true);
       const res = await getChannelData(chatId);
       const data = await res.data;
       setChatMeta({
@@ -44,6 +49,7 @@ export function MessageArea(props: any) {
         type: "text",
         data: data,
       });
+      setChatIsLoading(false);
     };
     getChatMeta();
   }, [chatId]);

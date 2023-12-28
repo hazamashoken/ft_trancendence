@@ -55,7 +55,7 @@ export class SessionGateway {
 
   listOnlineUsers() {
     const event = 'listOnlineUsers';
-    console.log('session:', this.userSession?.id);
+    // console.log('session:', this.userSession?.id);
     this.usSubscriber.getOnlineUsers().subscribe(users => {
       this.server.emit(event, { users });
     });
