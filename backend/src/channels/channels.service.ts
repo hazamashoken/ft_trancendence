@@ -621,7 +621,7 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
   async joinChannel(channelId: number, userId: number, password?: string): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: channelId },
-      relations: ['activeUsers', 'bannedUsers'],
+      relations: ['activeUsers', 'bannedUsers', 'chatUsers'],
     });
     if (!chat) {
       throw new NotFoundException('Chat not found');
@@ -638,10 +638,6 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     if (isUserBanned) {
       throw new ForbiddenException('User is banned in this channel');
     }
-    if (!chat.activeUsers) {
-      chat.activeUsers = [];
-    }
-    chat.activeUsers.push(existingUser);
 
     if (chat.password != null) {
       if (!await bcrypt.compare(password, chat.password))
@@ -650,6 +646,7 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     if (chat.chatType != 'public' && chat.chatUsers.some(user => user.id === userId)) {
       throw new ForbiddenException('U are not in this chat')
     }
+    chat.chatUsers.push(existingUser);
     await this.channelsRepository.save(chat);
     return await this.getActiveUsers(channelId);
   }

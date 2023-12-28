@@ -848,13 +848,13 @@ export class ChannelsController {
   async join(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
-    // @Body() dto: chatD,
+    @AuthUser() authUser: AuthUserInterface,
   ): Promise<ChatUserDto[]> {
     this.chatGateway.sendEvents({
       message: 'user joinchat',
       event: 'getActiveUsers',
     });
-    return await this.channelsService.joinChannel(chatId, userId);
+    return await this.channelsService.joinChannel(chatId, authUser.user.id);
   }
 
   @Post(':chatId/quitChat/:userId')
