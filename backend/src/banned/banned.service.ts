@@ -1,14 +1,17 @@
 import { BannedEntity, ChannelsEntity, User } from '@backend/typeorm';
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { ReturnBannedDto } from './dto/return-ban.dto';
+import { ChannelsService } from '@backend/channels/channels.service';
 
 @Injectable()
 export class BannedService {
@@ -19,6 +22,8 @@ export class BannedService {
     private readonly channelRepository: Repository<ChannelsEntity>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => ChannelsService))
+    private readonly channelService: ChannelsService,
   ) {}
 
   // async findAll(): Promise<void> {
@@ -124,7 +129,6 @@ export class BannedService {
       throw new ForbiddenException('You cant ban urself');
     }
 
-    Logger.log('bannedId');
     const isUserBanned = await this.bannedRepository.findOne({
       where: {
         bannedUser: { id: bannedId },
@@ -132,7 +136,7 @@ export class BannedService {
       },
       relations: ['bannedUser'],
     });
-    Logger.log(bannedId);
+
     if (isUserBanned) {
       throw new NotFoundException('User already banned at this chat');
     }
@@ -151,6 +155,7 @@ export class BannedService {
       .values(bannedUser)
       .execute();
 
+    await this.channelService.removeUserFromChat(chat1.chatId, bannedId);
     return await this.findAllBannedUsersInChat(chat1.chatId);
   }
 
@@ -182,5 +187,32 @@ export class BannedService {
     }
     await this.bannedRepository.remove(banned);
     return await this.findAllBannedUsersInChat(channelId);
+  }
+
+  async unbanUser (chatId: number, userId: number): Promise<ReturnBannedDto[]> {
+    const chat = await this.channelRepository.findOne({
+      where: { chatId: chatId },
+      relations: ['bannedUsers'],
+    });
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
+    if (
+      chat.bannedUsers &&
+      chat.bannedUsers.length > 0 &&
+      chat.bannedUsers.find(
+        (banned) => banned.bannedUser && banned.bannedUser.id != userId,
+      )
+    ) {
+      throw new NotFoundException('User not found at this chat');
+    }
+    const banned = await this.bannedRepository.findOne({
+      where: { bannedUser: { id: userId }, bannedAt: { chatId: chatId } },
+    });
+    if (banned == null) {
+      throw new NotFoundException(`Banned user with ID ${userId} not found`);
+    }
+    await this.bannedRepository.remove(banned);
+    return await this.findAllBannedUsersInChat(chatId);
   }
 }

@@ -12,7 +12,7 @@ import { useSocket } from "@/components/providers/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function ChatBox(props: any) {
-  const { userId = "4" } = props;
+  const { userId } = props;
   const [
     chatId,
     chatList,

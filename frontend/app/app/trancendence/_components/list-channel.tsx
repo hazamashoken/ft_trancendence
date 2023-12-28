@@ -42,7 +42,7 @@ const formSchema = z.object({
   chatType: z.string(),
 });
 
-export function ListChannel(props: { data: any }) {
+export function ListChannel(props: { data: any; userId: string }) {
   const { data, userId } = props;
   const [open, setOpen] = useState(false);
   const [
@@ -68,7 +68,7 @@ export function ListChannel(props: { data: any }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       chatName: null,
-      chatOwner: 4,
+      chatOwner: userId,
       password: null,
       chatType: "public" as "public" | "private",
     },
@@ -76,7 +76,7 @@ export function ListChannel(props: { data: any }) {
 
   const handleSubmit = async (values: any) => {
     const payload = {
-      chatOwner: values.chatOwner,
+      chatOwner: parseInt(values.chatOwner),
       chatName: values.chatName?.trim(),
       chatType: values.chatType,
       password: values.chatType == "private" ? values.password?.trim() : null,
@@ -97,10 +97,10 @@ export function ListChannel(props: { data: any }) {
   };
 
   const handleLeaveChannel = async (id: string) => {
-    const res = await leaveChannelAction(id, "4");
+    const res = await leaveChannelAction(id, userId);
     if (res.data) {
       toast.success("Channel left successfully");
-      getUserChats("4").then((data) => {
+      getUserChats(userId).then((data) => {
         setChatList(data.data);
       });
     } else {
@@ -137,7 +137,7 @@ export function ListChannel(props: { data: any }) {
               <Badge>Public</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
-              {data.map((channel: any, index: number) => {
+              {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "public") return null;
                 return (
                   <ContextMenu key={index}>
@@ -177,7 +177,7 @@ export function ListChannel(props: { data: any }) {
               <Badge>Private</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
-              {data.map((channel: any, index: number) => {
+              {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "private") return null;
                 return (
                   <ContextMenu key={index}>
@@ -214,7 +214,7 @@ export function ListChannel(props: { data: any }) {
               <Badge>Direct</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
-              {data.map((channel: any, index: number) => {
+              {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "direct") return null;
 
                 return (

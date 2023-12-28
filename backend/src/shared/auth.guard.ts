@@ -6,6 +6,7 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { EMPTY, Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { DataSource, Repository } from 'typeorm';
@@ -26,7 +27,9 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const auth: string = request.headers['authorization'] || request.headers['Authorization']; // eslint-disable-line prettier/prettier
+    const auth: string =
+      request.headers['authorization'] || request.headers['Authorization']; // eslint-disable-line prettier/prettier
+    Logger.log(auth, 'AuthGaurd Check Token');
     if (!auth || !auth.startsWith('Bearer ')) {
       throw new UnauthorizedException('jwt malformed');
     }
@@ -74,7 +77,8 @@ export class AuthGuard implements CanActivate {
       switchMap(tokenInfo => {
         console.log('tokenInfo:', tokenInfo);
         userSession.accessToken = accessToken;
-        userSession.expiredTokenTimestamp = Date.now() + tokenInfo.expires_in_seconds * 1000; // eslint-disable-line prettier/prettier
+        userSession.expiredTokenTimestamp =
+          Date.now() + tokenInfo.expires_in_seconds * 1000; // eslint-disable-line prettier/prettier
         return this.ftService.me(accessToken);
       }),
       switchMap(ft => {
