@@ -155,13 +155,14 @@ export class BannedService {
       .values(bannedUser)
       .execute();
 
-    await this.channelService.removeUserFromChat(chat1.chatId, bannedId);
+    await this.channelService.removeUserFromChat(chat1.chatId, bannedId, adminId);
     return await this.findAllBannedUsersInChat(chat1.chatId);
   }
 
   async removeBannedById(
     bannedId: number,
     channelId: number,
+    authUser: number,
   ): Promise<ReturnBannedDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: channelId },
@@ -170,6 +171,8 @@ export class BannedService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
+    if(chat.chatOwner.id != authUser && chat.chatAdmins.find((admin) => admin.id == authUser))
+      throw new ForbiddenException(`Only owner can remove banned user from chat`);
     if (
       chat.bannedUsers &&
       chat.bannedUsers.length > 0 &&
@@ -189,14 +192,16 @@ export class BannedService {
     return await this.findAllBannedUsersInChat(channelId);
   }
 
-  async unbanUser (chatId: number, userId: number): Promise<ReturnBannedDto[]> {
+  async unbanUser (chatId: number, userId: number, authUser: number): Promise<ReturnBannedDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: chatId },
-      relations: ['bannedUsers'],
+      relations: ['bannedUsers', 'chatOwner', 'chatAdmins'],
     });
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
+    if(chat.chatOwner.id != authUser && chat.chatAdmins.find((admin) => admin.id == authUser))
+      throw new ForbiddenException(`Only owner and admins can remove unban user`);
     if (
       chat.bannedUsers &&
       chat.bannedUsers.length > 0 &&
