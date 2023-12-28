@@ -15,13 +15,6 @@ export class StatsService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  // private winRateCalculate(win: number, matchs: number): number {
-  //   if (win === 0 && matchs === 0) {
-  //     return 100.0;
-  //   }
-  //   return Math.round((win / matchs) * 100) * 10;
-  // }
-
   private winRateCalculate(win: number, matchs: number): string {
     console.log(`[Debug]::win|${win}|matchs|${matchs}|`)
     if (!Number(win)) {
@@ -49,19 +42,26 @@ export class StatsService {
   async createNewStats(createStateDto: CreateStatsDto) {
     // console.log(createStateDto);
     let { userId } = createStateDto;
-    if (userId < 0) {
+    if (Number(userId) && userId > 0) {
       throw new HttpException(
         'Nagative user-id, fail to create new stats.',
         HttpStatus.BAD_REQUEST
       )
     }
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    // if (user) {
-    //   throw new HttpException(
-    //     'Duplicate stats, fail to create new stats.',
-    //     HttpStatus.BAD_REQUEST
-    //   )
-    // }
+    if (!user) {
+      throw new HttpException(
+        'No user for stats, fail to create new stats.',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+    const stats = await this.statsRepository.findOne({ where: { user: { id: userId} }});
+    if (stats) {
+      throw new HttpException(
+        'Duplicate stats, fail to create new stats.',
+        HttpStatus.BAD_REQUEST
+      )
+    }
     const newStats = this.statsRepository.create({
       user: user,
       winRate: this.winRateCalculate(0, 0),
@@ -99,11 +99,11 @@ export class StatsService {
   }
 
   listAllStats() {
-    return this.statsRepository.find();
+    return this.statsRepository.find({ relations: { user: true }});
   }
 
   findStatsByUser(id: number) {
-    return this.statsRepository.findOne({ where: { user: { id: id } }});
+    return this.statsRepository.findOne({ where: { user: { id: id } }, relations: { user: true }});
   }
 
   async updateStatsByUser(id: number, updateStatsDto: UpdateStatsDto){
@@ -134,7 +134,7 @@ export class StatsService {
   }
 
   listAllStatsInDescOrder() {
-    return this.statsRepository.find({ order: { point: 'DESC', }, })
+    return this.statsRepository.find({ order: { point: 'DESC', }, relations: { user: true }})
   }
 
   listStatsInDescOederLimit(num: number) {
@@ -142,6 +142,7 @@ export class StatsService {
       order: { point: "DESC" },
       skip: 0,
       take: num,
+      relations: { user: true },
     },)
   }
 }

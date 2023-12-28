@@ -11,8 +11,8 @@ import { TypeormUtil } from '@backend/utils/typeorm.util';
 import { MatchStatus } from '@backend/typeorm/match.entity';
 import { StatsService } from '../stats/stats.service';
 
-const PONE_WIN = 1;
-const PTWO_WIN = 2;
+const PONE_WIN: number = 1;
+const PTWO_WIN: number = 2;
 @Injectable()
 export class MatchsService {
   constructor(

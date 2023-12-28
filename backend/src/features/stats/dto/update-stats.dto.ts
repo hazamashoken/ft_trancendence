@@ -1,26 +1,39 @@
 import { IsNumber, IsPositive, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Optional } from '@nestjs/common';
+import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 
 export class UpdateStatsDto {
   @IsNumber()
-  // @IsPositive()
   @Min(0)
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    description: 'number of the match that user win the game.',
+    minimum: 0,
+    default: 0,
+    required: false,
+  })
   win: number;
   
   @IsNumber()
-  // @IsPositive()
   @Min(0)
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    description: 'number of the match that user lose the game.',
+    minimum: 0,
+    default: 0,
+    required: false,
+  })
   lose: number;
   
   @IsNumber()
-  // @IsPositive()
   @Min(0)
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    description: 'the point that acquire win/lose match, this will use to calulate the rank of user.',
+    minimum: 0,
+    default: POINT_DEFAULT,
+    required: false,
+  })
   point: number;
 }

@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, RelationId, JoinColumn, Unique, } from 'typeorm';
 import { User } from './user.entity';
 
+export const POINT_DEFAULT: number = 1000;
 @Entity({ name: 'user_stats' })
 @Unique([ "user" ])
 export class Stats {
@@ -24,6 +25,6 @@ export class Stats {
   @Column({ name: 'win_rate' })
   winRate: string;
 
-  @Column({ default: 1000 })
+  @Column({ default: POINT_DEFAULT })
   point: number;
 }
