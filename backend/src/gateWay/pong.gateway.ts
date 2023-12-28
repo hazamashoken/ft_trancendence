@@ -7,7 +7,7 @@ import {
   OnGatewayDisconnect,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Controller, Logger, UseGuards } from '@nestjs/common';
 import {
   PongServerToClientEvents,
   PongClientToServerEvents,
@@ -16,14 +16,24 @@ import {
 import { Server } from 'socket.io';
 import { PongGame } from '../pong/pong.game';
 import { startGameLoop, stopGameLoop } from '../pong/pong.gameloop';
+import { AuthGuard } from '@backend/shared/auth.guard';
+import { XKeyGuard } from '@backend/shared/x-key.guard';
+import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { AuthUser } from '@backend/pipe/auth-user.decorator';
+import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 
-let _game: PongGame = new PongGame();
+export let _gameInstance: PongGame = new PongGame();
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
+@Controller('channels')
+@UseGuards(XKeyGuard, AuthGuard)
+@ApiBearerAuth()
+@ApiSecurity('x-api-key')
+@ApiTags('Channels')
 export class PongGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -39,24 +49,25 @@ export class PongGateway
     return `${client.id}`;
   }
 
-  handleConnection(@ConnectedSocket() client: any)
+  handleConnection(@ConnectedSocket() client: any, @AuthUser() authUser: AuthUserInterface)
   {
-    var id: string = this.getClientID(client);
-  
-    this.logger.log('connect: ' + id);
-    _game.addUser(this.server, id, id, 'community_pong');
-    client.join('community_pong');
-    startGameLoop(_game.update);
+    let id: string = this.getClientID(client);
+    let name: string = authUser.user.intraLogin;
+
+    this.logger.log('connect: ' + id + ', ' + name);
+    _gameInstance.addUser(this.server, id, name, 'public channel');
+    client.join('public channel');
+    startGameLoop(_gameInstance.update);
   }
 
   handleDisconnect(@ConnectedSocket() client: any)
   {
-    var id: string = this.getClientID(client);
+    let id: string = this.getClientID(client);
   
     this.logger.log('disconnect: ' + id);
-    client.leave('community_pong');
-    _game.deleteUser(id);
-    if (_game.empty())
+    //client.leave('public channel');
+    _gameInstance.deleteUserByID(id);
+    if (_gameInstance.empty())
       stopGameLoop();
   }
 
@@ -64,9 +75,9 @@ export class PongGateway
   async handleReceiveKeypress(@ConnectedSocket() client: any, @MessageBody() payload: GameInstruction)
     : Promise<void>
   {
-    var id: string = this.getClientID(client);
+    let id: string = this.getClientID(client);
 
     this.logger.log('keypress: ' + payload.keypress);
-    _game.keypress(id, payload.keypress);
+    _gameInstance.keypress(id, payload.keypress);
   }
 }
