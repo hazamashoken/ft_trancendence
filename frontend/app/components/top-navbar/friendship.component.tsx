@@ -5,6 +5,7 @@ import { NotificationBtn } from "./friendship-btn";
 import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "../providers/socket-provider";
 import React from "react";
+import { FriendshipAddUserDialog } from "./friendship-add-dialong";
 
 export function Notification() {
   // const data = await getNotification();
@@ -24,7 +25,11 @@ export function Notification() {
     if (!data) return;
     setFriends(data);
   }, [data]);
-  console.log(data);
 
-  return <NotificationBtn {...friends} />;
+  return (
+    <>
+      <FriendshipAddUserDialog />
+      <NotificationBtn items={friends} loading={isLoading} />
+    </>
+  );
 }

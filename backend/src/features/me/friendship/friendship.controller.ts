@@ -21,11 +21,15 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { SaveFriendshipDto } from './dto/save-friendship.dto';
+import {
+  SaveFriendshipDto,
+  SaveFriendshipUsernameDto,
+} from './dto/save-friendship.dto';
 import { FriendshipService } from './friendship.service';
 import { FriendshipStatus } from '@backend/typeorm/friendship.entity';
 import { QueryOption } from '@backend/pipe/query-option.decorator';
 import { QueryOptionDto } from '@backend/dto/query-option.dto';
+import { UserService } from '@backend/features/user/user.service';
 
 @Controller('me/friends')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -37,7 +41,11 @@ export class FriendsController {
 
   @Get()
   @ApiOperation({ summary: 'list all friend request by user auth' })
-  @ApiQuery({ name: 'status', enum: ['REQUESTED', 'WAITING', 'ACCEPTED'], required: false}) // eslint-disable-line prettier/prettier
+  @ApiQuery({
+    name: 'status',
+    enum: ['REQUESTED', 'WAITING', 'ACCEPTED'],
+    required: false,
+  }) // eslint-disable-line prettier/prettier
   @ApiQuery({ name: 'option', type: QueryOptionDto, required: false })
   list(
     @AuthUser() authUser: AuthUserInterface,
@@ -59,6 +67,15 @@ export class FriendsController {
     @Body() body: SaveFriendshipDto,
   ) {
     return this.fsService.request(authUser.user.id, body.userId);
+  }
+
+  @Post('request-username/')
+  @ApiOperation({ summary: 'send friend request to other user' })
+  request_user(
+    @AuthUser() authUser: AuthUserInterface,
+    @Body() body: SaveFriendshipUsernameDto,
+  ) {
+    return this.fsService.request_user(authUser.user.id, body.username);
   }
 
   @Put('accept')

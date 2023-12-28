@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { NotificationItem } from "./friendship-item";
 
 // Icons
-import { Bell, BellOff, Loader2Icon } from "lucide-react";
+import { Contact, Loader2Icon } from "lucide-react";
 
 // // Types
 // import { INotification } from "./types";
@@ -29,16 +29,19 @@ import { Bell, BellOff, Loader2Icon } from "lucide-react";
 // import { useNotificationMutate } from "@/lib/data/mutate/use-notification-mutate";
 
 export function NotificationBtn(props: any) {
-  const { count, items } = props;
+  const { items, loading } = props;
 
-  const { handleNotifySeen, handleNotifyHidden, loading } = props;
-  // useNotificationMutate({ data: items });
+  const gotRequest = items?.filter((item: any) => item.status === "WAITING");
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button id="layout-notify-btn" variant="outline" size="icon">
-          <Bell className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all" />
+        <Button
+          id="layout-notify-btn"
+          variant={gotRequest?.length > 0 ? "default" : "outline"}
+          size="icon"
+        >
+          <Contact className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-[25.25rem] p-0" align="end">
@@ -48,35 +51,19 @@ export function NotificationBtn(props: any) {
               <CardTitle className="text-xl font-semibold -tracking-[0.009rem]">
                 Friendship
               </CardTitle>
-              {/* <Badge className="text-white bg-gradient-to-l from-blue-400 to-primary">
-                {items?.filter((i) => i.seen === false)?.length ?? 0}
-              </Badge> */}
             </div>
-            {Number(count) !== 0 && (
-              <Button
-                variant="link"
-                className={`text-primary text-xs`}
-                onClick={() => handleNotifySeen()}
-              >
-                add friend
-              </Button>
-            )}
           </CardHeader>
           <CardContent className="relative flex flex-col p-0">
             <ul className="p-0 list-none max-h-[34rem] overflow-x-hidden overflow-y-auto">
-              {!items && items?.length > 0 ? (
+              {!items || items?.length > 0 ? (
                 items?.map((item: any) => (
-                  <NotificationItem
-                    key={item.id}
-                    {...item}
-                    onHidden={handleNotifyHidden}
-                  />
+                  <NotificationItem key={item.id} {...item} />
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center h-[34rem] gap-4">
-                  <BellOff size={120} strokeWidth={0.5} color="#71717a" />
+                  <Contact size={120} strokeWidth={0.5} color="#71717a" />
                   <p className="font-medium text-zinc-500">
-                    คุณยังไม่มีการแจ้งเตือน
+                    YOU GOT NO FRIENDSHIP
                   </p>
                 </div>
               )}
@@ -87,18 +74,6 @@ export function NotificationBtn(props: any) {
               </div>
             )}
           </CardContent>
-          <CardFooter className="p-4 border-t border-zinc-200/90">
-            <Link
-              id="layout-notify-link"
-              href={"/notification"}
-              className={`${buttonVariants({
-                variant: "ghost",
-              })} text-blue-500 font-medium text-sm h-4 w-full`}
-              prefetch={false}
-            >
-              ดูทั้งหมด
-            </Link>
-          </CardFooter>
         </Card>
       </DropdownMenuContent>
     </DropdownMenu>
