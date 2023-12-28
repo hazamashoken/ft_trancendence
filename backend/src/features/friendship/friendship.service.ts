@@ -19,7 +19,7 @@ export class FriendshipService {
   constructor(
     @InjectRepository(Friendship)
     private fsRepository: Repository<Friendship>,
-  ) { }
+  ) {}
 
   static isValidStatus(status: string) {
     return (

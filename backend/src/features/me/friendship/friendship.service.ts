@@ -7,6 +7,7 @@ import {
 } from '@backend/typeorm/friendship.entity';
 import { FriendshipService as FsService } from '@backend/features/friendship/friendship.service';
 import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
+import { UserService } from '@backend/features/user/user.service';
 
 @Injectable()
 export class FriendshipService {
@@ -14,6 +15,7 @@ export class FriendshipService {
     @InjectRepository(Friendship)
     private readonly fsRepository: Repository<Friendship>,
     private readonly fsService: FsService,
+    private readonly userService: UserService,
   ) {}
 
   static isValidStatus(status: FriendshipStatus) {
@@ -30,9 +32,9 @@ export class FriendshipService {
 
   request(userId: number, friendId: number) {
     return this.fsService.getFriend(userId, friendId).then(freindship => {
-      if (freindship.status === 'REQUESTED') {
+      if (freindship && freindship.status === 'REQUESTED') {
         throw new BadRequestException('User has beed sent request');
-      } else if (freindship.status === 'ACCEPTED') {
+      } else if (freindship && freindship.status === 'ACCEPTED') {
         throw new BadRequestException('User has been friend');
       }
       return Promise.all([
@@ -40,6 +42,14 @@ export class FriendshipService {
         this.fsService.create(friendId, userId, 'WAITING'),
       ]).then(res => res[0]);
     });
+  }
+
+  async request_user(userId: number, friend_username: string) {
+    const user = await this.userService.getByUsername(friend_username);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return await this.request(userId, user.id);
   }
 
   accept(userId: number, friendId: number) {
