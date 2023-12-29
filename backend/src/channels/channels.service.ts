@@ -445,14 +445,15 @@ export class ChannelsService {
     }
     
     return chat.chatUsers.map(user => {
-      const userDto = plainToClass(ChatUserDto, user)
-      if(user.id === chat.chatOwner.id)
+      const userDto = plainToClass(ChatUserDto, user);
+      if (user.id === chat.chatOwner.id) {
         userDto.role = 'owner';
-      else if(chat.chatAdmins.find((user) => user.id === userDto.id))
+      } else if (chat.chatAdmins.some(admin => admin.id === user.id)) {
         userDto.role = 'admin';
-      else 
+      } else {
         userDto.role = 'user';
-      return userDto
+      }
+      return userDto;
     });
   }
 
