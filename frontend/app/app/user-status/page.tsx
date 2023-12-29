@@ -19,7 +19,7 @@ export default function Home() {
         }
         const token = session.data.accessToken;
         console.log('token:', token);
-        socket = io('http://localhost:3000/session', {
+        socket = io('http://localhost:3000/sessions', {
             extraHeaders: {
                 Authorization: `Bearer ${token}`
             }
@@ -28,7 +28,7 @@ export default function Home() {
             console.log('connect');
         });
         socket.on('listOnlineUsers', (...args) => {
-            console.log('listOnlineUsers', args);
+            // console.log('listOnlineUsers', args);
         })
         return () => {
             socket.disconnect()
