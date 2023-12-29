@@ -556,7 +556,7 @@ export class ChannelsService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if(userId == chat.chatOwner.id)
+    if(userId === chat.chatOwner.id)
       throw new ForbiddenException(`You can't remove owner from chat`);
     if (
       chat.chatOwner.id != authUser ||
@@ -775,31 +775,47 @@ export class ChannelsService {
   async quitChannel(channelId: number, userId: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: channelId },
-      relations: ['activeUsers', 'chatOwner'],
+      relations: ['activeUsers', 'chatOwner', 'chatAdmins', 'chatUsers'],
     });
+  
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if (!(await this.userRepository.findOne({ where: { id: userId } }))) {
+  
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
       throw new NotFoundException('User not found');
     }
+  
     await this.channelsRepository
       .createQueryBuilder()
       .relation(ChannelsEntity, 'activeUsers')
       .of(chat)
       .remove(userId);
-
-    if (chat.activeUsers.length < 1) chat.activeUsers = [];
-
-    if (chat.activeUsers.length == 0) {
-      await this.delete(chat.chatId, userId);
-      Logger.log(chat.chatName + ' is deleted');
-      return [];
+  
+    if (chat.chatOwner.id === userId) {
+      let newOwner;
+      if (chat.chatAdmins.length > 0) {
+        newOwner = chat.chatAdmins[0];
+      } else if (chat.chatUsers.length > 0) {
+        newOwner = chat.chatUsers.find(u => u.id !== userId);
+      }
+  
+      if (newOwner) {
+        chat.chatOwner = newOwner;
+      } else {
+        await this.delete(chat.chatId, userId);
+        Logger.log(chat.chatName + ' is deleted');
+        return [];
+      }
     }
-    if (chat.chatOwner.id == userId)
-      throw new ForbiddenException('Please set new owner before quit the chat');
+  
     await this.channelsRepository.save(chat);
-
+  
+    if (chat.chatOwner.id === userId) {
+      throw new ForbiddenException('Please set new owner before quitting the chat');
+    }
+  
     return await this.getActiveUsers(channelId);
   }
 
