@@ -32,8 +32,8 @@ services:
       - main
     volumes:
       - .env:/usr/src/app/.env
-      - ./backend/data:/app/data
-      - ./backend:/app    # for dev
+      # - ./backend/data:/app/data
+      - ./backend:/usr/src/app    # for dev
     restart: unless-stopped
     depends_on:
       - database

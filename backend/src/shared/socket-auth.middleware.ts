@@ -9,7 +9,6 @@ export type SocketIOMiddleWare = {
 export const SocketAuthMiddleware = (): SocketIOMiddleWare => {
   return (client, next) => {
     try {
-      console.log('Socket Guard')
       SocketAuthGuard.validateClient(client);
       next();
     } catch (err) {
@@ -17,5 +16,4 @@ export const SocketAuthMiddleware = (): SocketIOMiddleWare => {
     }
   }
 }
-
 
