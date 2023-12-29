@@ -30,7 +30,7 @@ export class AccountService {
     user.lastName = data.last_name;
     user.email = data.email;
     user.displayName = data.login;
-    user.imageUrl = data.image.link;
+    user.imageUrl = data.image.link ?? 'http://localhost:3000/public/images/avatar-default.jpg';
     return this.userRepository.save(user);
   }
 

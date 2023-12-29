@@ -15,6 +15,10 @@ async function bootstrap() {
     index: false,
     prefix: '/data',
   });
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    index: false,
+    prefix: '/public',
+  });
   app.enableCors({
     allowedHeaders: '*',
     origin: '*',
