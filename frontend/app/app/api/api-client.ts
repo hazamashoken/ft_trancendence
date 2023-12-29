@@ -22,20 +22,6 @@ const ApiClient = (env: "NODE" | "CLIENT" | string = "CLIENT") => {
     if (session) {
       request.headers.Authorization = `Bearer ${session.accessToken}`;
     }
-<<<<<<< HEAD
-    return request
-  })
-  instance.interceptors.response.use(
-    (response) => {
-      return response
-    },
-    (error) => {
-      console.log(`error`, error)
-    }
-  )
-  return instance
-}
-=======
     return request;
   });
   // instance.interceptors.response.use(
@@ -48,6 +34,5 @@ const ApiClient = (env: "NODE" | "CLIENT" | string = "CLIENT") => {
   // );
   return instance;
 };
->>>>>>> c0989560465192d0e2ad0f1cff6e90e4c7231c88
 
 export default ApiClient;
