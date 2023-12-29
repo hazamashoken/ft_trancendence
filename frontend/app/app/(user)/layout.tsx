@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { ChatBox } from "./trancendence/_components/chat-box";
+import { ChatBox } from "./trancendence/_components/chat/chat-box";
 import { authOptions } from "../api/auth/[...nextauth]/authOptions";
 import { redirect } from "next/navigation";
 

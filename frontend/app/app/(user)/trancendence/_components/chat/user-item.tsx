@@ -27,7 +27,7 @@ import {
   banChatUser,
   addChatAdmin,
   removeChatAdmin,
-} from "../_actions/chat";
+} from "../../_actions/chat";
 import {
   Tooltip,
   TooltipContent,
@@ -36,7 +36,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createAbbreviation } from "@/lib/utils";
 import { toast } from "sonner";
-import { blockUser, unblockUser } from "../_actions/user";
+import { blockUser, unblockUser } from "../../_actions/user";
 
 export function UserItem(props: any) {
   const { user, chatId, role } = props;

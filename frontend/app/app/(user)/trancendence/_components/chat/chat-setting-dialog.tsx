@@ -1,14 +1,12 @@
 import { InputForm } from "@/components/form/input";
-import { SelectForm } from "@/components/form/select";
 import { Button } from "@/components/ui/button";
-import { createChannelAction } from "../_actions/chat";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -18,26 +16,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import z from "zod";
-import { toast } from "sonner";
-import { ChatType } from "@/app/api/channels/interfaces";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { updateChannelAction } from "../../_actions/chat";
+import { IChatStore, useChatStore } from "@/store/chat";
+import { Loader2, Settings } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ChatType } from "@/app/api/channels/interfaces";
 import { Badge } from "@/components/ui/badge";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const formSchema = z
   .object({
-    chatName: z
-      .string({ required_error: "required" })
-      .min(1, "required")
-      .regex(
-        /^[a-zA-Z0-9\-\_]*$/,
-        "Only alphanumeric, dash and underscore characters are allowed"
-      ),
+    chatName: z.string({ required_error: "required" }).min(1, "required"),
     chatOwner: z.coerce.number(),
     password: z.string().optional(),
     chatType: z.string(),
@@ -52,35 +48,69 @@ const formSchema = z
     }
   });
 
-export function CreateChannelDialog(props: any) {
-  const { userId, setChatId, setOpen, open } = props;
+export function ChatSettingMenu() {
+  const { data: session } = useSession();
+  const [open, setOpen] = useState(false);
+  const [
+    chatId,
+    chatList,
+    chatUserList,
+    chatMeta,
+    setChatId,
+    setChatList,
+    setChatUserList,
+    setChatMeta,
+  ] = useChatStore((state: IChatStore) => [
+    state.chatId,
+    state.chatList,
+    state.chatUserList,
+    state.chatMeta,
+    state.setChatId,
+    state.setChatList,
+    state.setChatUserList,
+    state.setChatMeta,
+  ]);
   const form = useForm({
-    resolver: zodResolver(formSchema),
     defaultValues: {
-      chatName: "",
-      chatOwner: userId,
+      resolver: zodResolver(formSchema),
+      chatName: chatMeta.name,
       password: "",
-      chatType: "public" as "public" | "private" | "protected",
+      chatType: chatMeta.chatType as "public" | "private" | "protected",
     },
   });
 
+  useEffect(() => {
+    if (!chatMeta) return;
+    form.reset({
+      chatName: chatMeta.name,
+      password: "",
+      chatType: chatMeta.chatType as "public" | "private" | "protected",
+    });
+  }, [chatMeta, form]);
+
   const handleSubmit = async (values: any) => {
     const payload = {
-      chatOwner: parseInt(values.chatOwner),
+      chatOwner: values.chatOwner,
       chatName: values.chatName?.trim(),
       chatType: values.chatType,
-      password: values.chatType == "protected" ? values.password?.trim() : null,
+      password: values.chatType === "private" ? values.password?.trim() : null,
     };
-    const res = await createChannelAction(payload);
-    if (res.data) {
-      toast.success("Channel created successfully");
-      setChatId(res.data.chatId);
+    const res = await updateChannelAction(chatId, payload);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
       form.reset();
       setOpen(false);
-    } else {
-      toast.error(res.error);
+      setChatMeta({
+        ...chatMeta,
+        name: res.data.chatName,
+        chatType: res.data.chatType,
+        data: null,
+      });
+      toast.success("Update channel successfully");
     }
   };
+  const hidden = chatMeta?.data.chatOwner?.id !== session?.user?.id;
   return (
     <Dialog
       open={open}
@@ -89,12 +119,12 @@ export function CreateChannelDialog(props: any) {
         form.reset();
       }}
     >
+      <DialogTrigger hidden={hidden}>
+        <Settings />
+      </DialogTrigger>
       <DialogContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader>
               <DialogTitle>Create Channel</DialogTitle>
             </DialogHeader>
@@ -108,7 +138,7 @@ export function CreateChannelDialog(props: any) {
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
-                        defaultValue={ChatType.PUBLIC}
+                        defaultValue={chatMeta.chatType}
                         className="flex flex-row space-y-1"
                       >
                         {(
@@ -172,7 +202,7 @@ export function CreateChannelDialog(props: any) {
                 {form.formState.isSubmitting ? (
                   <Loader2 className="w-4 h-4 my-4 text-zinc-500 animate-spin" />
                 ) : (
-                  "create"
+                  "save"
                 )}
               </Button>
             </DialogFooter>

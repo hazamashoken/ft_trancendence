@@ -13,7 +13,7 @@ import {
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { addChannelUserAction } from "../_actions/chat";
+import { addChannelUserAction } from "../../_actions/chat";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 
