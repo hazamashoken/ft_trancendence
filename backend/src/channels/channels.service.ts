@@ -432,10 +432,9 @@ export class ChannelsService {
   async findAllUsers(chatId: number, authUser: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository
         .createQueryBuilder('chat')
-        .leftJoinAndSelect('chat.chatUsers', 'users')
         .where('chat.chatId = :chatId', { chatId })
         .leftJoinAndSelect('chat.chatOwner', 'owner')
-        .leftJoinAndSelect('chat.chatUsers', 'user')
+        .leftJoinAndSelect('chat.chatUsers', 'users')
         .leftJoinAndSelect('chat.chatAdmins', 'admins')
         .getOne();
     if (!chat) {
