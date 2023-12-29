@@ -8,12 +8,14 @@ import { ModeToggle } from "./mode-toggle.component";
 export async function TopNavBar() {
   const session = await getServerSession(authOptions);
 
+  const isRegistered = !!session?.user?.id;
+
   return (
-    <div className="border-b bg-inherit">
+    <div className="sticky top-0 z-40 border-b bg-inherit">
       <div className="flex items-center h-16 px-4">
         <MainNav className="mx-6" />
         <div className="flex items-center ml-auto space-x-4">
-          <FriendShipList />
+          {isRegistered && <FriendShipList />}
           <ModeToggle className="right-4 top-4 md:right-8 md:top-8" />
           <UserNav session={session} />
         </div>

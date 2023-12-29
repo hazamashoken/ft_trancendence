@@ -12,10 +12,10 @@ export class ResponseUtil {
   }
 
   static sleep(s: number) {
-    return new Promise((res) => setTimeout(() => {}, s * 1000));
+    return new Promise(res => setTimeout(() => {}, s * 1000));
   }
 
   static msleep(ms: number) {
-    return new Promise((res) => setTimeout(() => {}, ms));
+    return new Promise(res => setTimeout(() => {}, ms));
   }
 }

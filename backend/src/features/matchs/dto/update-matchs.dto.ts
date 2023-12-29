@@ -10,7 +10,7 @@ export class UpdateMatchsDto {
   })
   @IsOptional()
   player1Id: number;
-  
+
   @IsNumber()
   @ApiProperty()
   @ApiProperty({
@@ -18,7 +18,7 @@ export class UpdateMatchsDto {
     required: false,
   })
   player2Id: number;
-  
+
   @IsNumber()
   @ApiProperty({
     description: 'point of user who own the match (player1).',
@@ -30,7 +30,7 @@ export class UpdateMatchsDto {
   @Max(15)
   @IsOptional()
   player1Point: number;
-  
+
   @IsNumber()
   @ApiProperty({
     description: 'point of user who join the match (player2).',
@@ -46,8 +46,8 @@ export class UpdateMatchsDto {
   @IsIn(['WAITING', 'PLAYING', 'FINISHED'])
   @IsOptional()
   @ApiProperty({
-    description: 'the stats of the match [ \'WAITING\', \'PLAYING\', \'FINISHED\'].',
+    description: "the stats of the match [ 'WAITING', 'PLAYING', 'FINISHED'].",
     required: false,
   })
-  status: MatchStatus
+  status: MatchStatus;
 }

@@ -3,14 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 
-export type Match = {
+export type TMatch = {
   matchId: number;
   player1: any;
   player2: any;
   status: "WAITING" | "STARTING" | "PLAYING" | "FINISHED";
 };
 
-export const columns: ColumnDef<Match>[] = [
+export const columns: ColumnDef<TMatch>[] = [
   {
     header: "Player 1",
     accessorKey: "player1",

@@ -26,7 +26,7 @@ export class SessionGateway {
   private subscriptions = new Subscription();
 
   afterInit(client: Socket) {
-    client.use(SocketAuthMiddleware() as any)
+    client.use(SocketAuthMiddleware() as any);
     const timer$ = timer(0, 1000)
       .pipe(
         tap(() => this.listOnlineUsers()),
@@ -40,21 +40,31 @@ export class SessionGateway {
     if (!client.handshake.auth.accessToken) {
       client.disconnect();
     }
-    const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
+    const session = await this.usService.getSessionByToken(
+      client.handshake.auth.accessToken,
+    );
     if (!session) {
       console.error('Session Expired');
       client.disconnect();
     } else {
       console.log(`Connect ${client.id}:`, session.id);
-      await this.usService.repository.update({ id: session.id }, { status: 'ONLINE'})
+      await this.usService.repository.update(
+        { id: session.id },
+        { status: 'ONLINE' },
+      );
     }
   }
 
   async handleDisconnect(client: Socket) {
-    const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
+    const session = await this.usService.getSessionByToken(
+      client.handshake.auth.accessToken,
+    );
     if (session && session.id) {
       console.log(`Disconnect ${client.id}:`, session.id);
-      await this.usService.repository.update({ id: session.id }, { status: 'OFFLINE'})
+      await this.usService.repository.update(
+        { id: session.id },
+        { status: 'OFFLINE' },
+      );
     }
   }
 

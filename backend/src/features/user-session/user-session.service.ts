@@ -24,7 +24,7 @@ export class UserSessionService {
     return this.onlineUsers$.asObservable();
   }
 
-  get ingameUsers():Observable<Partial<UserSession>[]> {
+  get ingameUsers(): Observable<Partial<UserSession>[]> {
     return this.ingameUsers$.asObservable();
   }
 
@@ -38,7 +38,9 @@ export class UserSessionService {
     this.ingameUsers$.next(users);
   }
 
-  get repository() { return this.usRepository; }
+  get repository() {
+    return this.usRepository;
+  }
 
   list(option?: TypeormQueryOption) {
     const findOption = TypeormUtil.setFindOption(option);
@@ -69,7 +71,8 @@ export class UserSessionService {
       if (!session) {
         return this.create(authUser, { status });
       }
-      return this.usRepository.update({ id: session.id }, { status })
+      return this.usRepository
+        .update({ id: session.id }, { status })
         .then(res => this.get(session.id));
     });
   }
@@ -88,9 +91,9 @@ export class UserSessionService {
   getSessionByToken(accessToken: string) {
     return this.usRepository.findOne({
       relations: {
-        user: true
+        user: true,
       },
-      where: { accessToken }
+      where: { accessToken },
     });
   }
 
