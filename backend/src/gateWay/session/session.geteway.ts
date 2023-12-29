@@ -42,6 +42,7 @@ export class SessionGateway {
       client.disconnect();
     }
     const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
+    // console.log(client.handshake.auth.accessToken, session);
     if (!session) {
       console.error('Session Expired');
       client.disconnect();
