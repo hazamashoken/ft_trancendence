@@ -431,29 +431,29 @@ export class ChannelsService {
 
   async findAllUsers(chatId: number, authUser: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository
-        .createQueryBuilder('chat')
-        .where('chat.chatId = :chatId', { chatId })
-        .leftJoinAndSelect('chat.chatOwner', 'owner')
-        .leftJoinAndSelect('chat.chatUsers', 'users')
-        .leftJoinAndSelect('chat.chatAdmins', 'admins')
-        .getOne();
+      .createQueryBuilder('chat')
+      .where('chat.chatId = :chatId', { chatId })
+      .leftJoinAndSelect('chat.chatOwner', 'owner')
+      .leftJoinAndSelect('chat.chatUsers', 'users')
+      .leftJoinAndSelect('chat.chatAdmins', 'admins')
+      .getOne();
     if (!chat) {
       throw new NotFoundException(`Chat with ID ${chatId} not found`);
     }
-    if (!chat.chatUsers.find((user) => user.id === authUser)) {
+    if (!chat.chatUsers.find(user => user.id === authUser)) {
       throw new ForbiddenException('User not in this channel');
     }
-    
-    return chat.chatUsers.map(user => {
-      const userDto = plainToClass(ChatUserDto, user)
-      if(user.id === chat.chatOwner.id)
-        userDto.role = 'owner';
-      else if(chat.chatAdmins.find((user) => user.id === userDto.id))
+
+    const dto = chat.chatUsers.map(user => {
+      const userDto = plainToClass(ChatUserDto, user);
+      if (user.id === chat.chatOwner.id) userDto.role = 'owner';
+      else if (chat.chatAdmins.find(user => user.id === userDto.id))
         userDto.role = 'admin';
-      else 
-        userDto.role = 'user';
-      return userDto
+      else userDto.role = 'user';
+      return userDto;
     });
+    Logger.log(dto, 'ChannelsService.findAllUsers');
+    return dto;
   }
 
   async findAllAdmins(chatId: number): Promise<ChatUserDto[] | null> {
@@ -501,7 +501,7 @@ export class ChannelsService {
     chat.chatUsers.push(existingUser);
 
     await this.channelsRepository.save(chat);
-    return chat.chatUsers;
+    return chat.chatUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
   async addUserToChatByName(
@@ -538,7 +538,7 @@ export class ChannelsService {
     chat.chatUsers.push(existingUser);
 
     await this.channelsRepository.save(chat);
-    return chat.chatUsers;
+    return chat.chatUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
   async removeUserFromChat(
@@ -554,6 +554,8 @@ export class ChannelsService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
+    if (userId == chat.chatOwner.id)
+      throw new ForbiddenException(`You can't remove owner from chat`);
     if (
       chat.chatOwner.id != authUser ||
       chat.chatAdmins.find(admin => (admin.id == authUser) == false)

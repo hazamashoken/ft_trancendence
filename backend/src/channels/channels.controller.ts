@@ -431,8 +431,9 @@ export class ChannelsController {
   })
   async getUsers(
     @Param('chatId') chatId: number,
-    @AuthUser() authUser: AuthUserInterface 
-    ): Promise<ChatUserDto[]> {
+    @AuthUser() authUser: AuthUserInterface,
+  ): Promise<ChatUserDto[]> {
+    Logger.log('getUsers', 'getUsers');
     try {
       return await this.channelsService.findAllUsers(chatId, authUser.user.id);
     } catch (error) {

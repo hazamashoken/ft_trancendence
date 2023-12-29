@@ -29,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const formSchema = z
   .object({
@@ -48,6 +49,7 @@ const formSchema = z
   });
 
 export function ChatSettingMenu() {
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const [
     chatId,
@@ -84,7 +86,8 @@ export function ChatSettingMenu() {
       password: "",
       chatType: chatMeta.chatType as "public" | "private" | "protected",
     });
-  }, [chatMeta]);
+  }, [chatMeta, form]);
+
   const handleSubmit = async (values: any) => {
     const payload = {
       chatOwner: values.chatOwner,
@@ -107,6 +110,7 @@ export function ChatSettingMenu() {
       toast.success("Update channel successfully");
     }
   };
+  const hidden = chatMeta?.data.chatOwner?.id !== session?.user?.id;
   return (
     <Dialog
       open={open}
@@ -115,7 +119,7 @@ export function ChatSettingMenu() {
         form.reset();
       }}
     >
-      <DialogTrigger>
+      <DialogTrigger hidden={hidden}>
         <Settings />
       </DialogTrigger>
       <DialogContent>
