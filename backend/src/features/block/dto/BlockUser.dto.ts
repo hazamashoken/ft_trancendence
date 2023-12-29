@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinTable, BaseEntity } from "typeorm"
-import { User } from '../../typeorm/user.entity';
 import { IsNumber } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { User } from "@backend/typeorm";
 
 @Entity('BlockUser')
 export class BlockUser extends BaseEntity {

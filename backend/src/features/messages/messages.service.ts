@@ -21,9 +21,8 @@ import {
 import { plainToClass } from 'class-transformer';
 import { take } from 'rxjs';
 import { PaginationDto } from './dto/pagination.dto';
-import { BlockUser } from '@backend/block/dto/BlockUser.dto';
-import { BlockService } from '@backend/block/blockUser.service';
-import { ChannelsService } from '@backend/channels/channels.service';
+import { BlockService } from '../block/blockUser.service';
+import { ChannelsService } from '../channels/channels.service';
 
 @Injectable()
 export class MessagesService {

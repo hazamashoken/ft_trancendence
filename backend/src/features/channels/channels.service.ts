@@ -19,16 +19,12 @@ import { ChannelCreatedTO } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 import { ChatUserDto } from './dto/chat-user.dto';
 import { chatType } from '@backend/typeorm/channel.entity';
-import { BannedService } from '@backend/banned/banned.service';
-import {
-  ReturnCursorMessageDto,
-  ReturnMessageDto,
-} from '@backend/messages/dto/return-message.dto';
-import { MessagesService } from '@backend/messages/messages.service';
-import { MutedService } from '../muted/muted.service';
-import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
+import { ReturnMutedDto } from '@backend/features/muted/dto/return-muted.dto';
 import * as bcrypt from 'bcryptjs';
-import { PaginationDto } from '@backend/messages/dto/pagination.dto';
+import { BannedService } from '../banned/banned.service';
+import { MessagesService } from '../messages/messages.service';
+import { MutedService } from '@backend/features/muted/muted.service';
+import { ReturnMessageDto } from '../messages/dto/return-message.dto';
 
 @Injectable()
 export class ChannelsService {

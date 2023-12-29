@@ -11,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { ReturnBannedDto } from './dto/return-ban.dto';
-import { ChannelsService } from '@backend/channels/channels.service';
+import { ChannelsService } from '../channels/channels.service';
 
 @Injectable()
 export class BannedService {

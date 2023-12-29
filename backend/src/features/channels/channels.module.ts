@@ -9,15 +9,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChannelsController } from './channels.controller';
 import { ChannelsService } from './channels.service';
-import { BannedService } from '@backend/banned/banned.service';
-import { MessagesService } from '@backend/messages/messages.service';
-import { MutedService } from '@backend/muted/muted.service';
+import { MutedService } from '@backend/features/muted/muted.service';
 import { SharedModule } from '@backend/shared/shared.module';
 import { SocketService } from '@backend/gateWay/chatSocket.service';
 import { SocketGateway } from '@backend/gateWay/chat.gateway';
-import { BlockService } from '@backend/block/blockUser.service';
-import { BlockUserModule } from '@backend/block/blockUser.module';
-import { BlockUser } from '@backend/block/dto/BlockUser.dto';
+import { BlockUser } from '../block/dto/BlockUser.dto';
+import { BlockUserModule } from '../block/blockUser.module';
+import { BannedService } from '../banned/banned.service';
+import { MessagesService } from '../messages/messages.service';
+import { BlockService } from '../block/blockUser.service';
 
 @Module({
   imports: [

@@ -6,13 +6,9 @@ import { AppService } from './app.service';
 import entities from './typeorm';
 import { FeaturesModule } from './features/features.module';
 import { SharedModule } from './shared/shared.module';
-import { ChannelsModule } from './channels/channels.module';
-import { BannedModule } from './banned/banned.module';
-import { MessgesModule } from './messages/messages.module';
-import { MutedModule } from './muted/muted.module';
+import { MutedModule } from './features/muted/muted.module';
 import { ChatSocketModule } from './gateWay/chatSocket.module';
 import { PongModule } from './pong/pong.module';
-import { BlockUserModule } from './block/blockUser.module';
 
 @Module({
   imports: [
@@ -36,13 +32,9 @@ import { BlockUserModule } from './block/blockUser.module';
     }),
     SharedModule,
     FeaturesModule,
-    ChannelsModule,
-    BannedModule,
-    MessgesModule,
     MutedModule,
     ChatSocketModule,
     PongModule,
-    BlockUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
