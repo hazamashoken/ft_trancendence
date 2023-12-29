@@ -41,14 +41,14 @@ export class MatchsController {
   @Get(':id')
   @ApiOperation({ summary: 'get a game match by match Id.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
-  getAMatchById(@Param('id', ParseIntPipe) id: number) {
+  getAMatchById(@Param('id', ParseIntPipe) id: string) {
     return this.matchService.findAMatchById(+id);
   }
 
   @Get('user/:id')
   @ApiOperation({ summary: 'list all of match by user Id.' })
   @ApiParam({ name: 'id', type: Number, example: 42 })
-  getMatchsByUser(@Param('id', ParseIntPipe) id: number) {
+  getMatchsByUser(@Param('id', ParseIntPipe) id: string) {
     return this.matchService.findMatchsByUser(+id);
   }
 
@@ -56,6 +56,7 @@ export class MatchsController {
   @ApiOperation({ summary: 'update some property of a game match by match Id and body provided.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
   async updateMatchProperty(@Param('id') id: string, @Body() updateMatchDto: UpdateMatchsDto) {
+    console.log('hello');
     await this.matchService.updateMatchProperty(+id, updateMatchDto);
   }
 

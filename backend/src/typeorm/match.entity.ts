@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
+export type MatchStatus = 'WAITING' | 'PLAYING' | 'FINISHED'
+
 @Entity({ name: 'matchs' })
 export class Match {
 
@@ -28,12 +30,19 @@ export class Match {
   @RelationId((match: Match) => match.player2)
   player2Id: number;
 
-  @Column({ name: 'player1_point' })
+  @Column({ name: 'player1_point', default: 0 })
   player1Point: number;
 
-  @Column({ name: 'player2_point' })
+  @Column({ name: 'player2_point', default: 0 })
   player2Point: number;
 
   @Column({ name: 'match_date', default: new Date() })
   createAt: Date;
+
+  @Column({
+    type: 'enum',
+    enum: ['WAITING', 'PLAYING', 'FINISHED'],
+    default: 'WAITING'
+  })
+  status: MatchStatus;
 }
