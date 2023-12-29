@@ -21,10 +21,9 @@ import { UserSession } from '@backend/typeorm';
   cors: { origin: '*' },
 })
 export class SessionGateway {
-  constructor(private usSubscriber: UserSessionSubscriber, private usService: UserSessionService) {}
+  constructor(private usService: UserSessionService) {}
   @WebSocketServer() server: Server;
   private subscriptions = new Subscription();
-  private userSession: UserSession;
 
   afterInit(client: Socket) {
     client.use(SocketAuthMiddleware() as any)
@@ -42,30 +41,34 @@ export class SessionGateway {
       client.disconnect();
     }
     const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
-    // console.log(client.handshake.auth.accessToken, session);
     if (!session) {
       console.error('Session Expired');
       client.disconnect();
+    } else {
+      console.log(`Connect ${client.id}:`, session.id);
+      await this.usService.repository.update({ id: session.id }, { status: 'ONLINE'})
     }
-    this.userSession = session;
   }
 
-  handleDisconnect(client: Socket) {
-    console.log('Disconnected:', client.id);
+  async handleDisconnect(client: Socket) {
+    const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
+    if (session && session.id) {
+      console.log(`Disconnect ${client.id}:`, session.id);
+      await this.usService.repository.update({ id: session.id }, { status: 'OFFLINE'})
+    }
   }
 
   listOnlineUsers() {
     const event = 'listOnlineUsers';
-    // console.log('session:', this.userSession?.id);
-    this.usSubscriber.getOnlineUsers().subscribe(users => {
-      this.server.emit(event, { users });
+    this.usService.onlineUsers.subscribe(users => {
+      this.server.emit(event, { users, total: users.length });
     });
   }
 
   listIngameUsers() {
     const event = 'listIngameUsers';
-    this.usSubscriber.getIngameUsers().subscribe(users => {
-      this.server.emit(event, { users });
+    this.usService.ingameUsers.subscribe(users => {
+      this.server.emit(event, { users, total: users.length });
     });
   }
 

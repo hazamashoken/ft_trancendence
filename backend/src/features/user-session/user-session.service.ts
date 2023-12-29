@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthUser } from '@backend/interfaces/auth-user.interface';
 import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
-import { BehaviorSubject, from } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, from } from 'rxjs';
 
 @Injectable()
 export class UserSessionService {
@@ -16,6 +16,29 @@ export class UserSessionService {
     @InjectRepository(UserSession)
     private usRepository: Repository<UserSession>,
   ) {}
+
+  private onlineUsers$ = new Subject<Partial<UserSession>[]>();
+  private ingameUsers$ = new Subject<Partial<UserSession>[]>();
+
+  get onlineUsers(): Observable<Partial<UserSession>[]> {
+    return this.onlineUsers$.asObservable();
+  }
+
+  get ingameUsers():Observable<Partial<UserSession>[]> {
+    return this.ingameUsers$.asObservable();
+  }
+
+  set onlineUsers(users: Partial<UserSession>[]) {
+    console.log('onlineUsers:', users.length);
+    this.onlineUsers$.next(users);
+  }
+
+  set ingameUsers(users: Partial<UserSession>[]) {
+    console.log('ingameUsers:', users.length);
+    this.ingameUsers$.next(users);
+  }
+
+  get repository() { return this.usRepository; }
 
   list(option?: TypeormQueryOption) {
     const findOption = TypeormUtil.setFindOption(option);
@@ -38,8 +61,6 @@ export class UserSessionService {
     const session = new UserSession();
     session.id = data.id ?? authUser.user.id;
     session.status = data.status ?? 'OFFLINE';
-    // session.accessToken = authUser.accessToken;
-    // session.expiredTokenTimestamp = authUser.expiredTokenTimestamp;
     return this.usRepository.save(session);
   }
 
@@ -48,8 +69,8 @@ export class UserSessionService {
       if (!session) {
         return this.create(authUser, { status });
       }
-      session.status = status;
-      return this.usRepository.save(session);
+      return this.usRepository.update({ id: session.id }, { status })
+        .then(res => this.get(session.id));
     });
   }
 

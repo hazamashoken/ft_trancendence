@@ -3,6 +3,8 @@ PWD := $(shell pwd)
 all: run-backend run-database run-frontend
 
 dev:
+	npm install --prefix backend
+	npm install --prefix frontend/app
 	docker compose up --build --detach
 
 run-backend:
