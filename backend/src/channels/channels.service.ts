@@ -20,7 +20,10 @@ import { UpdateChannelDto } from './dto/update-channel.dto';
 import { ChatUserDto } from './dto/chat-user.dto';
 import { chatType } from '@backend/typeorm/channel.entity';
 import { BannedService } from '@backend/banned/banned.service';
-import { ReturnMessageDto } from '@backend/messages/dto/return-message.dto';
+import {
+  ReturnCursorMessageDto,
+  ReturnMessageDto,
+} from '@backend/messages/dto/return-message.dto';
 import { MessagesService } from '@backend/messages/messages.service';
 import { MutedService } from '../muted/muted.service';
 import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
@@ -129,17 +132,66 @@ export class ChannelsService {
     return plainToClass(ChannelsEntity, channel);
   }
 
-  async addUserToProtectedChat(chatName: string, userId: number): Promise<ChatUserDto[]> {
+  async addUserToProtectedChat(
+    chatName: string,
+    password: string,
+    userId: number,
+  ): Promise<ChatUserDto[]> {
+    const channel = await this.channelsRepository.findOne({
+      where: { chatName: chatName, chatType: chatType.PROTECTED },
+      relations: ['chatUsers'],
+    });
+    if (!channel) throw new NotFoundException('channelNotFound');
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('userNotFound');
+
+    if (channel.chatUsers.find(userA => userA.id == userId))
+      throw new ForbiddenException(`User already exist in this chat`);
+    channel.chatUsers.push(user);
+
+    // check if password is correct
+    const isPasswordCorrect = await bcrypt.compare(password, channel.password);
+
+    if (!isPasswordCorrect) {
+      throw new ForbiddenException('incorrect password');
+    }
+
+    await this.channelsRepository.save(channel);
+    return channel.chatUsers.map(user => plainToClass(ChatUserDto, user));
+  }
+
+  async addUserToPublicChat(
+    chatId: number,
+    userId: number,
+  ): Promise<ChatUserDto[]> {
+    const channel = await this.channelsRepository.findOne({
+      where: { chatId: chatId, chatType: chatType.PUBLIC },
+      relations: ['chatUsers'],
+    });
+    if (!channel) throw new NotFoundException('channelNotFound');
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('userNotFound');
+    if (channel.chatUsers.find(userA => userA.id == userId))
+      throw new ForbiddenException(`User already exist in this chat`);
+    channel.chatUsers.push(user);
+    await this.channelsRepository.save(channel);
+    return channel.chatUsers.map(user => plainToClass(ChatUserDto, user));
+  }
+
+  async addUserToProtectedChatId(
+    chatName: string,
+    userId: number,
+  ): Promise<ChatUserDto[]> {
     const channel = await this.channelsRepository.findOne({
       where: { chatName: chatName },
-      relations: [ 'chatUsers'],
+      relations: ['chatUsers'],
     });
     if (!channel) throw new NotFoundException('channelNotFound');
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('userNotFound');
     channel.chatUsers.push(user);
     await this.channelsRepository.save(channel);
-    return channel.chatUsers.map((user) => plainToClass(ChatUserDto, user));
+    return channel.chatUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
   async findOne(id: number): Promise<ChannelsEntity> {
@@ -594,21 +646,21 @@ export class ChannelsService {
     return await this.messageService.findAllMessagesByChannel(chatId, authUser);
   }
 
-  async updateMessage(
-    messageId: number,
-    message: string,
-    autUser: number,
-  ): Promise<ReturnMessageDto> {
-    return await this.messageService.updateMessage(messageId, message, autUser);
-  }
+  // async updateMessage(
+  //   messageId: number,
+  //   message: string,
+  //   autUser: number,
+  // ): Promise<ReturnMessageDto> {
+  //   return await this.messageService.updateMessage(messageId, message, autUser);
+  // }
 
-  async deleteMessage(
-    messageId: number,
-    chatId: number,
-    autUser: number,
-  ): Promise<ReturnMessageDto[]> {
-    return await this.messageService.deleteMessage(messageId, chatId, autUser);
-  }
+  // async deleteMessage(
+  //   messageId: number,
+  //   chatId: number,
+  //   autUser: number,
+  // ): Promise<ReturnMessageDto[]> {
+  //   return await this.messageService.deleteMessage(messageId, chatId, autUser);
+  // }
 
   async muteUser(
     userId: number,

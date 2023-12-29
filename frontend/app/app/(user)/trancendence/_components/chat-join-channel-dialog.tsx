@@ -5,6 +5,8 @@ import {
   createChannelAction,
   getPublicChat,
   getUserChats,
+  joinProtectedChat,
+  joinPublicChat,
 } from "../_actions/chat";
 import {
   Dialog,
@@ -31,19 +33,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 function ChannelItem(props: any) {
-  const { chatId, chatName, chatType, chatOwner } = props;
+  const { chatId, chatName, chatType, chatOwner, joinChat } = props;
 
   return (
     <div className="flex flex-col justify-center text-center w-14">
       <HoverCard openDelay={400} closeDelay={300}>
-        <HoverCardTrigger className="cursor-pointer">
-          <Avatar className="w-14 h-14">
-            <AvatarImage src={chatOwner.imageUrl} />
-            <AvatarFallback>{createAbbreviation(chatName)}</AvatarFallback>
-          </Avatar>
-        </HoverCardTrigger>
+        <ContextMenu>
+          <ContextMenuTrigger>
+            <HoverCardTrigger className="cursor-pointer">
+              <Avatar className="w-14 h-14">
+                <AvatarImage src={chatOwner.imageUrl} />
+                <AvatarFallback>{createAbbreviation(chatName)}</AvatarFallback>
+              </Avatar>
+            </HoverCardTrigger>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem onClick={() => joinChat(chatId)}>
+              join
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
         <HoverCardContent className="w-fit">
           <big className="truncate">chat name: {chatName}</big>
           <div className="flex flex-col gap-2">
@@ -82,16 +100,25 @@ export function JoinChannelDialog(props: any) {
     },
   });
 
-  const handleSubmit = async (values: any) => {
-    const payload = {
-      chatOwner: parseInt(values.chatOwner),
-      chatName: values.chatName?.trim(),
-      chatType: values.chatType,
-      password: values.chatType == "private" ? values.password?.trim() : null,
-    };
-    const res = await createChannelAction(payload);
+  const handleJoinPublic = async (chatId: string) => {
+    const res = await joinPublicChat(chatId);
     if (res.data) {
-      toast.success("Channel created successfully");
+      toast.success("Join public chat successfully");
+      setChatId(res.data.chatId);
+      setOpen(false);
+    } else {
+      toast.error(res.error);
+    }
+  };
+
+  const handleJoinProtected = async (values: any) => {
+    const payload = {
+      chatName: values.chatName.trim(),
+      password: values.password?.trim(),
+    };
+    const res = await joinProtectedChat(payload);
+    if (res.data) {
+      toast.success("Join protected chat successfully");
       setChatId(res.data.chatId);
       setOpen(false);
     } else {
@@ -129,7 +156,7 @@ export function JoinChannelDialog(props: any) {
         <Tabs>
           <TabsList>
             <TabsTrigger value="public">Public</TabsTrigger>
-            <TabsTrigger value="private">Protected</TabsTrigger>
+            <TabsTrigger value="protected">Protected</TabsTrigger>
           </TabsList>
           <TabsContent value="public" className="space-y-4">
             <Input
@@ -149,13 +176,17 @@ export function JoinChannelDialog(props: any) {
                           .indexOf(search.toLowerCase()) !== -1
                     )
                     .map((item: any) => (
-                      <ChannelItem key={item.chatId} {...item} />
+                      <ChannelItem
+                        key={item.chatId}
+                        joinChat={handleJoinPublic}
+                        {...item}
+                      />
                     ))}
             </div>
           </TabsContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)}>
-              <TabsContent value="private">
+            <form onSubmit={form.handleSubmit(handleJoinProtected)}>
+              <TabsContent value="protected">
                 <InputForm
                   name="chatName"
                   label="Chat Name"
@@ -171,7 +202,13 @@ export function JoinChannelDialog(props: any) {
                   isRequired
                 />
                 <DialogFooter>
-                  <Button type="submit">join</Button>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? (
+                      <Loader2 className="w-4 h-4 my-4 text-zinc-500 animate-spin" />
+                    ) : (
+                      "join"
+                    )}
+                  </Button>
                 </DialogFooter>
               </TabsContent>
             </form>

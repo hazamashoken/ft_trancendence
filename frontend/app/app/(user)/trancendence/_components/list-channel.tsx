@@ -96,7 +96,7 @@ export function ListChannel(props: { data: any; userId: string }) {
         >
           <AccordionItem value="public">
             <AccordionTrigger>
-              <Badge>Public</Badge>
+              <Badge className="w-full text-center">Public</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
               {data?.map((channel: any, index: number) => {
@@ -133,7 +133,44 @@ export function ListChannel(props: { data: any; userId: string }) {
           </AccordionItem>
           <AccordionItem value="protected">
             <AccordionTrigger>
-              <Badge>Private</Badge>
+              <Badge className="w-full text-center">Protected</Badge>
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col px-0 space-y-2">
+              {data?.map((channel: any, index: number) => {
+                if (channel.chatType !== "protected") return null;
+                return (
+                  <ContextMenu key={index}>
+                    <ContextMenuTrigger>
+                      <Tooltip delayDuration={10}>
+                        <TooltipTrigger>
+                          <Avatar onClick={() => handleViewChannel(channel)}>
+                            <AvatarFallback>
+                              {createAbbreviation(channel.chatName)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          {channel.chatName}
+                        </TooltipContent>
+                      </Tooltip>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem
+                        onClick={() => {
+                          handleLeaveChannel(channel.chatId);
+                        }}
+                      >
+                        leave channel
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
+                );
+              })}
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="private">
+            <AccordionTrigger>
+              <Badge className="w-full text-center">Private</Badge>
             </AccordionTrigger>
             <AccordionContent className="flex flex-col px-0 space-y-2">
               {data?.map((channel: any, index: number) => {
@@ -170,9 +207,9 @@ export function ListChannel(props: { data: any; userId: string }) {
           </AccordionItem>
           <AccordionItem value="dm">
             <AccordionTrigger>
-              <Badge>Direct</Badge>
+              <Badge className="w-full text-center">Direct</Badge>
             </AccordionTrigger>
-            <AccordionContent className="flex flex-col px-0 space-y-2">
+            <AccordionContent>
               {data?.map((channel: any, index: number) => {
                 if (channel.chatType !== "direct") return null;
                 return (

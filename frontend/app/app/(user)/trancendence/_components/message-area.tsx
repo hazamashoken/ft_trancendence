@@ -58,11 +58,12 @@ export function MessageArea(props: any) {
     <div className="w-[350px] h-full flex flex-col justify-between">
       <div className="flex flex-col h-full overflow-hidden">
         <ChatHeader
-          type="channel"
+          type={chatMeta?.chatType}
           chatId={chatId}
           chatMeta={chatMeta}
           chatUserList={chatUserList}
           userId={userId}
+          chatIsLoading={chatIsLoading}
         />
         <ChatMessages
           member={chatUserList}

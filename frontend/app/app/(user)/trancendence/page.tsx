@@ -10,8 +10,8 @@ export default async function ChatPage() {
   const userId = session?.user?.id;
   return (
     <div className="flex justify-center">
-      <GameLoop />
-      <Game width={"1200"} height={"700"} />
+      {/* <GameLoop />
+      <Game width={"1200"} height={"700"} /> */}
       {/* <ChatBox userId={"5"} /> */}
       {/* <ChatBox userId={userId?.toString()} /> */}
     </div>

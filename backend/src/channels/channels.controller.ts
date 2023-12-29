@@ -12,6 +12,7 @@ import {
   UseGuards,
   Query,
   UnprocessableEntityException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import {
@@ -36,7 +37,10 @@ import { ChannelCreatedTO } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 import { ChatUserDto } from './dto/chat-user.dto';
 import { BanUserDto } from '@backend/banned/dto/ban-user.dto';
-import { ReturnMessageDto } from '@backend/messages/dto/return-message.dto';
+import {
+  ReturnCursorMessageDto,
+  ReturnMessageDto,
+} from '@backend/messages/dto/return-message.dto';
 import { UpdateMessageDto } from '@backend/messages/dto/update-message.dto';
 import { CreateMessageDto } from '@backend/messages/dto/create-message.dto';
 import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
@@ -154,16 +158,43 @@ export class ChannelsController {
     return owner;
   }
 
-  @Post(':chatName/addUserProtected')
-  @ApiOperation({ summary: 'add user to protected chat' })
-  @ApiParam({ name: 'chatName', type: String, example: 'Im chat name' })
-  async addUserToProtectedChat(
-    @Param('chatName') chatName: string,
+  // @Post(':chatName/addUserProtected')
+  // @ApiOperation({ summary: 'add user to protected chat' })
+  // @ApiParam({ name: 'chatName', type: String, example: 'Im chat name' })
+  // async addUserToProtectedChat(
+  //   @Param('chatName') chatName: string,
+  //   @AuthUser() authUser: AuthUserInterface,
+  // ): Promise<ChatUserDto[]> {
+  //   this.chatGateway.sendEvents('user added to protected chat');
+  //   this.chatGateway.sendEvents({});
+  //   const name = chatName.trim();
+  //   return this.channelsService.addUserToProtectedChat(name, authUser.user.id);
+  // }
+
+  @Post('user-protected')
+  @ApiOperation({ summary: 'chat name password' })
+  // @ApiParam({ name: 'chatId', type: Number, example: '1' })
+  async addUserToProtectedChatId(
+    // @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface,
+    @Body() dto: { chatName: string; password: string },
   ): Promise<ChatUserDto[]> {
-    this.chatGateway.sendEvents('user added to protected chat');
-    const name = chatName.trim();
-    return this.channelsService.addUserToProtectedChat(name, authUser.user.id);
+    return this.channelsService.addUserToProtectedChat(
+      dto.chatName,
+      dto.password,
+      authUser.user.id,
+    );
+  }
+
+  @Post('public/:chatId')
+  @ApiOperation({ summary: 'join public chat' })
+  // @ApiParam({ name: 'chatId', type: Number, example: '1' })
+  async addUserToPublicChat(
+    @Param('chatId') chatId: number,
+    @AuthUser() authUser: AuthUserInterface,
+    // @Body() dto: { chatName: string; password: string },
+  ): Promise<ChatUserDto[]> {
+    return this.channelsService.addUserToPublicChat(chatId, authUser.user.id);
   }
 
   @Post('create')
@@ -644,37 +675,37 @@ export class ChannelsController {
     );
   }
 
-  @Post(':messageId/updateMessage')
-  @ApiOperation({
-    summary: 'update message',
-  })
-  @ApiBody({
-    description: 'update message',
-    type: UpdateMessageDto,
-    examples: {
-      NormalRequest: {
-        summary: 'Updated message dto example',
-        value: {
-          messageId: 123,
-          message: 'updated message',
-        },
-      },
-    },
-  })
-  async updateMessage(
-    @Body() dto: UpdateMessageDto,
-    @AuthUser() authUser: AuthUserInterface,
-  ): Promise<ReturnMessageDto> {
-    this.chatGateway.sendEvents({
-      message: 'mesagre updated',
-      event: 'getChatMessages',
-    });
-    return await this.messageService.updateMessage(
-      dto.messageId,
-      dto.message,
-      authUser.user.id,
-    );
-  }
+  // @Post(':messageId/updateMessage')
+  // @ApiOperation({
+  //   summary: 'update message',
+  // })
+  // @ApiBody({
+  //   description: 'update message',
+  //   type: UpdateMessageDto,
+  //   examples: {
+  //     NormalRequest: {
+  //       summary: 'Updated message dto example',
+  //       value: {
+  //         messageId: 123,
+  //         message: 'updated message',
+  //       },
+  //     },
+  //   },
+  // })
+  // async updateMessage(
+  //   @Body() dto: UpdateMessageDto,
+  //   @AuthUser() authUser: AuthUserInterface,
+  // ): Promise<ReturnMessageDto> {
+  //   this.chatGateway.sendEvents({
+  //     message: 'mesagre updated',
+  //     event: 'getChatMessages',
+  //   });
+  //   return await this.messageService.updateMessage(
+  //     dto.messageId,
+  //     dto.message,
+  //     authUser.user.id,
+  //   );
+  // }
 
   @Post(':chatId/createmessage')
   @ApiOperation({
@@ -717,39 +748,39 @@ export class ChannelsController {
     );
   }
 
-  @Post(':chatId/deleteMessage/:messageId')
-  @ApiOperation({
-    summary: 'delete message',
-  })
-  @ApiParam({
-    name: 'chatId',
-    type: Number,
-    description: 'The ID of the chat',
-    example: 42,
-  })
-  @ApiParam({
-    name: 'messageId',
-    type: Number,
-    description: 'The ID of the message',
-    example: 24,
-  })
-  async deleteMessage(
-    @Param('messageId') messageId: number,
-    @Param('chatId') chatId: number,
-    @AuthUser() authUser: AuthUserInterface,
-    // @Body() dto: messageRem,
-  ): Promise<ReturnMessageDto[]> {
-    this.chatGateway.sendEvents({
-      message: 'mesagre deleted',
-      chatId: chatId,
-      event: 'getChatMessages',
-    });
-    return await this.messageService.deleteMessage(
-      messageId,
-      chatId,
-      authUser.user.id,
-    );
-  }
+  // @Post(':chatId/deleteMessage/:messageId')
+  // @ApiOperation({
+  //   summary: 'delete message',
+  // })
+  // @ApiParam({
+  //   name: 'chatId',
+  //   type: Number,
+  //   description: 'The ID of the chat',
+  //   example: 42,
+  // })
+  // @ApiParam({
+  //   name: 'messageId',
+  //   type: Number,
+  //   description: 'The ID of the message',
+  //   example: 24,
+  // })
+  // async deleteMessage(
+  //   @Param('messageId') messageId: number,
+  //   @Param('chatId') chatId: number,
+  //   @AuthUser() authUser: AuthUserInterface,
+  //   // @Body() dto: messageRem,
+  // ): Promise<ReturnMessageDto[]> {
+  //   this.chatGateway.sendEvents({
+  //     message: 'mesagre deleted',
+  //     chatId: chatId,
+  //     event: 'getChatMessages',
+  //   });
+  //   return await this.messageService.deleteMessage(
+  //     messageId,
+  //     chatId,
+  //     authUser.user.id,
+  //   );
+  // }
 
   @Get(':chatId/messages')
   @ApiOperation({
@@ -764,10 +795,13 @@ export class ChannelsController {
   async chatMessages(
     @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface,
+    @Query('cursor') cursor: number,
   ): Promise<ReturnMessageDto[]> {
+    Logger.log(cursor);
     return await this.messageService.findAllMessagesByChannel(
       chatId,
       authUser.user.id,
+      cursor,
     );
   }
 

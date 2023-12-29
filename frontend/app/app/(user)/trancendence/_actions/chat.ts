@@ -33,6 +33,38 @@ export async function getPublicChat() {
   return { data };
 }
 
+export async function sendChatMessage(chatId: string, payload: any) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { error: "No session found" };
+  }
+  const accessToken = session?.accessToken;
+  if (!accessToken) {
+    return { error: "No registered" };
+  }
+
+  const response = await fetch(
+    `${process.env.BACKEND_URL}/channels/${chatId}/createmessage`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.X_API_KEY as string,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data };
+}
+
 export async function getUserChats(userId: string) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -53,7 +85,7 @@ export async function getUserChats(userId: string) {
         Authorization: `Bearer ${accessToken}`,
       },
       next: {
-        tags: [`user: chat`],
+        tags: [`user:chat`],
       },
       cache: "no-cache",
     }
@@ -250,10 +282,7 @@ export const leaveChannelAction = async (
   return { data };
 };
 
-export const updateChannelAction = async (
-  chatId: string = "1",
-  payload: any
-) => {
+export const updateChannelAction = async (chatId: string, payload: any) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return { error: "No session found" };
@@ -488,6 +517,65 @@ export const removeChatAdmin = async (chatId: string, userId: string) => {
     return { error: "No registered" };
   }
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/removeAdmin/${userId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: null,
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data };
+};
+
+export const joinProtectedChat = async (payload: {
+  chatName: string;
+  password: string;
+}) => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { error: "No session found" };
+  }
+  const accessToken = session?.accessToken;
+  if (!accessToken) {
+    return { error: "No registered" };
+  }
+  const url = `${process.env.BACKEND_URL}/channels/user-protected/`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data };
+};
+
+export const joinPublicChat = async (chatId: string) => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { error: "No session found" };
+  }
+  const accessToken = session?.accessToken;
+  if (!accessToken) {
+    return { error: "No registered" };
+  }
+  const url = `${process.env.BACKEND_URL}/channels/public/${chatId}`;
   const response = await fetch(url, {
     method: "POST",
     headers: {

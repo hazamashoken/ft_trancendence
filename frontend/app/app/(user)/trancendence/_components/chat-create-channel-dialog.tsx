@@ -25,19 +25,25 @@ import { toast } from "sonner";
 import { ChatType } from "@/app/api/channels/interfaces";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ValueOf } from "next/dist/shared/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z
   .object({
-    chatName: z.string({ required_error: "required" }).min(1, "required"),
+    chatName: z
+      .string({ required_error: "required" })
+      .min(1, "required")
+      .regex(
+        /^[a-zA-Z0-9\-\_]*$/,
+        "Only alphanumeric, dash and underscore characters are allowed"
+      ),
     chatOwner: z.coerce.number(),
-    password: z.string(),
+    password: z.string().optional(),
     chatType: z.string(),
   })
   .superRefine((v, ctx) => {
-    if (v.chatType === "private" && !v.password) {
+    if (v.chatType === "protected" && !v.password) {
       return ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Password is required",
@@ -45,6 +51,7 @@ const formSchema = z
       });
     }
   });
+
 export function CreateChannelDialog(props: any) {
   const { userId, setChatId, setOpen, open } = props;
   const form = useForm({
@@ -52,16 +59,17 @@ export function CreateChannelDialog(props: any) {
     defaultValues: {
       chatName: "",
       chatOwner: userId,
-      password: null,
-      chatType: "public" as "public" | "private",
+      password: "",
+      chatType: "public" as "public" | "private" | "protected",
     },
   });
+
   const handleSubmit = async (values: any) => {
     const payload = {
       chatOwner: parseInt(values.chatOwner),
       chatName: values.chatName?.trim(),
       chatType: values.chatType,
-      password: values.chatType == "private" ? values.password?.trim() : null,
+      password: values.chatType == "protected" ? values.password?.trim() : null,
     };
     const res = await createChannelAction(payload);
     if (res.data) {
@@ -83,7 +91,10 @@ export function CreateChannelDialog(props: any) {
     >
       <DialogContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <DialogHeader>
               <DialogTitle>Create Channel</DialogTitle>
             </DialogHeader>
@@ -109,8 +120,11 @@ export function CreateChannelDialog(props: any) {
                           ]
                         )
                           .filter((value) => value !== ChatType.DIRECT)
-                          .map((value) => (
-                            <FormItem className="flex items-center space-x-3 space-y-0">
+                          .map((value, index) => (
+                            <FormItem
+                              key={index}
+                              className="flex items-center space-x-3 space-y-0"
+                            >
                               <FormControl>
                                 <RadioGroupItem value={value} />
                               </FormControl>
@@ -132,7 +146,7 @@ export function CreateChannelDialog(props: any) {
                 isRequired
                 msg
               />
-              {form.watch("chatType") === "private" ? (
+              {form.watch("chatType") === "protected" ? (
                 <InputForm
                   label="Password"
                   name="password"
@@ -150,8 +164,16 @@ export function CreateChannelDialog(props: any) {
               )}
             </div>
             <DialogFooter>
-              <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
-                Create
+              <Button
+                type="submit"
+                onClick={form.handleSubmit(handleSubmit)}
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <Loader2 className="w-4 h-4 my-4 text-zinc-500 animate-spin" />
+                ) : (
+                  "create"
+                )}
               </Button>
             </DialogFooter>
           </form>

@@ -1,6 +1,4 @@
 "use client";
-// Next
-import Link from "next/link";
 
 // Components
 import {
@@ -15,20 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { NotificationItem } from "./friendship-item";
 
 // Icons
 import { Contact, Loader2Icon } from "lucide-react";
+import { FriendshipAddUserDialog } from "./friendship-add-dialong";
 
-// // Types
-// import { INotification } from "./types";
-
-// lib
-// import { useNotificationMutate } from "@/lib/data/mutate/use-notification-mutate";
-
-export function NotificationBtn(props: any) {
+export function FriendshipBtn(props: any) {
   const { items, loading } = props;
 
   const gotRequest = items?.filter((item: any) => item.status === "WAITING");
@@ -52,6 +44,7 @@ export function NotificationBtn(props: any) {
                 Friendship
               </CardTitle>
             </div>
+            <FriendshipAddUserDialog />
           </CardHeader>
           <CardContent className="relative flex flex-col p-0">
             <ul className="p-0 list-none max-h-[34rem] overflow-x-hidden overflow-y-auto">

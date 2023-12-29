@@ -4,7 +4,12 @@ import { CheckboxForm } from "@/components/form/checkbox";
 import { InputForm } from "@/components/form/input";
 import { SelectForm } from "@/components/form/select";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Loader2, ServerCrash } from "lucide-react";
@@ -52,6 +57,13 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 import { createAbbreviation } from "@/lib/utils";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const formSchema = z.object({
+  username: z.string().min(1, "username is required"),
+});
 
 export function ListUser(props: { data: any; userId: string }) {
   const { data: session } = useSession();
@@ -81,6 +93,7 @@ export function ListUser(props: { data: any; userId: string }) {
   ]);
   const { data } = props;
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
     },
@@ -114,10 +127,10 @@ export function ListUser(props: { data: any; userId: string }) {
   };
 
   return (
-    <div className="flex flex-col justify-between h-full p-2 pt-12 space-y-2">
+    <div className="flex flex-col justify-center h-full p-2 pt-12 space-y-2">
+      <Badge>User</Badge>
       <ScrollArea className="h-[750px] pl-3" scrollHideDelay={10}>
         <div className="container flex flex-col px-0 space-y-2">
-          <Badge>User</Badge>
           {!chatIsLoading ? (
             data.map((user: any, index: number) => {
               return (
@@ -339,8 +352,10 @@ export function ListUser(props: { data: any; userId: string }) {
               );
             })
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="my-4 h-7 w-7 text-zinc-500 animate-spin" />
+            <div className="container flex flex-col px-0 space-y-2">
+              <Skeleton className="relative flex w-10 h-10 overflow-hidden rounded-full shrink-0" />
+              <Skeleton className="relative flex w-10 h-10 overflow-hidden rounded-full shrink-0" />
+              <Skeleton className="relative flex w-10 h-10 overflow-hidden rounded-full shrink-0" />
             </div>
           )}
         </div>
@@ -365,13 +380,24 @@ export function ListUser(props: { data: any; userId: string }) {
         <DialogContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleAddUser)}>
-              <InputForm
-                label="Username"
-                name="username"
-                form={form}
-                isRequired
-              />
-              <Button>Create</Button>
+              <div>
+                <InputForm
+                  label="Username"
+                  name="username"
+                  form={form}
+                  isRequired
+                  msg
+                />
+                <DialogFooter>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? (
+                      <Loader2 className="w-4 h-4 my-4 text-zinc-500 animate-spin" />
+                    ) : (
+                      "invite"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </div>
             </form>
           </Form>
         </DialogContent>

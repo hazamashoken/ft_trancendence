@@ -7,7 +7,15 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { EmptyError, Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import {
+  EmptyError,
+  Observable,
+  catchError,
+  from,
+  map,
+  of,
+  switchMap,
+} from 'rxjs';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
@@ -26,18 +34,19 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    let auth : string;
+    let auth: string;
     if (context.getType() !== 'http') {
       return true;
     }
     if (request.headers['authorization'] || request.headers['Authorization']) {
-      auth = request.headers['authorization'] || request.headers['Authorization']; // eslint-disable-line prettier/prettier
+      auth =
+        request.headers['authorization'] || request.headers['Authorization']; // eslint-disable-line prettier/prettier
     }
     if (!auth || !auth.startsWith('Bearer ')) {
       throw new UnauthorizedException('jwt malformed');
     }
     const accessToken = auth.substring('Bearer '.length);
-    console.log('Token:', accessToken);
+    // console.log('Token:', accessToken);
     return this.validateToken(accessToken).pipe(
       map(authUser => {
         request.authUser = authUser;
@@ -82,18 +91,20 @@ export class AuthGuard implements CanActivate {
     );
   }
 
-  private refreshFtUserCache(accessToken: string): Observable<Partial<UserSession> | any> {
+  private refreshFtUserCache(
+    accessToken: string,
+  ): Observable<Partial<UserSession> | any> {
     const userSession = new UserSession();
     return this.ftService.oauthTokenInfo(accessToken).pipe(
       switchMap(tokenInfo => {
-        console.log('tokenInfo:', tokenInfo);
+        // console.log('tokenInfo:', tokenInfo);
         userSession.accessToken = accessToken;
         userSession.expiredTokenTimestamp =
           Date.now() + tokenInfo.expires_in_seconds * 1000; // eslint-disable-line prettier/prettier
         return this.ftService.me(accessToken);
       }),
       switchMap(ft => {
-        console.log(ft);
+        // console.log(ft);
         userSession.ftUser = ft;
         return this.userRepo.findOneBy({ intraId: ft.id });
       }),
@@ -114,7 +125,7 @@ export class AuthGuard implements CanActivate {
           throw new UnauthorizedException();
         }
         return of(EmptyError);
-      })
+      }),
     );
   }
 
