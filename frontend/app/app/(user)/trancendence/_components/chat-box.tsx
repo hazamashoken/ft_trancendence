@@ -78,7 +78,16 @@ export function ChatBox(props: { userId: string }) {
     return () => {
       socket?.off("event");
     };
-  }, [chatId]);
+  }, [
+    chatId,
+    socket,
+    queryClient,
+    userId,
+    setChatId,
+    setChatList,
+    setChatUserList,
+    setChatMeta,
+  ]);
 
   return (
     <Card className="m-1">
