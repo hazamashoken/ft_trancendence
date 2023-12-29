@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -76,7 +76,17 @@ export function FriendshipAddUserDialog({}) {
               />
             </div>
             <DialogFooter>
-              <Button onClick={form.handleSubmit(handleSubmit)}>send</Button>
+              <Button
+                type="submit"
+                onClick={form.handleSubmit(handleSubmit)}
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <Loader2 className="w-4 h-4 my-4 text-zinc-500 animate-spin" />
+                ) : (
+                  "send"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

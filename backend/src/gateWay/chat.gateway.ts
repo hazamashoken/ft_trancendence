@@ -510,4 +510,8 @@ export class SocketGateway implements OnGatewayConnection {
     this.server.emit('event', event);
     return event;
   }
+
+  emit(event: string, message: string) {
+    this.server.emit(event, message);
+  }
 }

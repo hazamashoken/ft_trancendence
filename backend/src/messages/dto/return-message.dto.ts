@@ -10,8 +10,14 @@ export class ReturnMessageDto {
   createAt: Date;
 
   updateAt: Date;
+}
 
-  my: string;
+export interface Cursor {
+  beforeCursor: string | null;
+  afterCursor: string | null;
+}
 
-  hm: string;
+export class ReturnCursorMessageDto {
+  data: ReturnMessageDto[];
+  cursor: Cursor;
 }

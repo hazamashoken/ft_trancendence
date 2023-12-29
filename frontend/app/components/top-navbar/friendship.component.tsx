@@ -1,15 +1,12 @@
 // import { getNotification } from "@/lib/data/get-data/get-notification";
 "use client";
 import ApiClient from "@/app/api/api-client";
-import { NotificationBtn } from "./friendship-btn";
+import { FriendshipBtn } from "./friendship-btn";
 import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "../providers/socket-provider";
 import React from "react";
-import { FriendshipAddUserDialog } from "./friendship-add-dialong";
 
-export function Notification() {
-  // const data = await getNotification();
-
+export function FriendShipList() {
   const { isConnected } = useSocket();
   const [friends, setFriends] = React.useState([]);
 
@@ -18,7 +15,7 @@ export function Notification() {
     queryKey: ["friends"],
     enabled: isConnected,
     queryFn: () => client.get(`/me/friends`).then((res) => res.data),
-    refetchInterval: 1000,
+    // refetchInterval: 1000,
   });
 
   React.useEffect(() => {
@@ -28,8 +25,7 @@ export function Notification() {
 
   return (
     <>
-      <FriendshipAddUserDialog />
-      <NotificationBtn items={friends} loading={isLoading} />
+      <FriendshipBtn items={friends} loading={isLoading} />
     </>
   );
 }

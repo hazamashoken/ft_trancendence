@@ -62,7 +62,7 @@ export const ChatMessages = ({
     enabled: isConnected && !!chatId,
     queryFn: () =>
       client.get(`/channels/${chatId}/messages`).then((res) => res.data),
-    refetchInterval: 1000,
+    // refetchInterval: 1000,
   });
 
   useEffect(() => {
