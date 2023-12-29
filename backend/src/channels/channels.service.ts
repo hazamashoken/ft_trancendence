@@ -429,19 +429,32 @@ export class ChannelsService {
     return plainToClass(ChatUserDto, chat.chatOwner);
   }
 
-  async findAllUsers(chatId: number): Promise<ChatUserDto[]> {
+  async findAllUsers(chatId: number, authUser: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository
-      .createQueryBuilder('chat')
-      .leftJoinAndSelect('chat.chatUsers', 'users')
-      .where('chat.chatId = :chatId', { chatId })
-      .leftJoinAndSelect('chat.chatOwner', 'owner')
-      .getOne();
-
+        .createQueryBuilder('chat')
+        .leftJoinAndSelect('chat.chatUsers', 'users')
+        .where('chat.chatId = :chatId', { chatId })
+        .leftJoinAndSelect('chat.chatOwner', 'owner')
+        .leftJoinAndSelect('chat.chatUsers', 'user')
+        .leftJoinAndSelect('chat.chatAdmins', 'admins')
+        .getOne();
     if (!chat) {
       throw new NotFoundException(`Chat with ID ${chatId} not found`);
     }
-
-    return chat.chatUsers.map(user => plainToClass(ChatUserDto, user));
+    if (!chat.chatUsers.find((user) => user.id === authUser)) {
+      throw new ForbiddenException('User not in this channel');
+    }
+    
+    return chat.chatUsers.map(user => {
+      const userDto = plainToClass(ChatUserDto, user)
+      if(user.id === chat.chatOwner.id)
+        userDto.role = 'owner';
+      else if(chat.chatAdmins.find((user) => user.id === userDto.id))
+        userDto.role = 'admin';
+      else 
+        userDto.role = 'user';
+      return userDto
+    });
   }
 
   async findAllAdmins(chatId: number): Promise<ChatUserDto[] | null> {
