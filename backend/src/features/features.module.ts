@@ -27,7 +27,7 @@ import { BlockUserModule } from './block/blockUser.module';
     ChannelsModule,
     BannedModule,
     MessgesModule,
-    BlockUserModule
+    BlockUserModule,
   ],
   exports: [
     MeModule,
@@ -42,7 +42,7 @@ import { BlockUserModule } from './block/blockUser.module';
     ChannelsModule,
     BannedModule,
     MessgesModule,
-    BlockUserModule
+    BlockUserModule,
   ],
 })
 export class FeaturesModule {}

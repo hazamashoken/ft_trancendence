@@ -42,7 +42,6 @@ import { CreateMuteDto } from '@backend/features/muted/dto/create-muted.dto';
 import { UpdateMuteDto } from '@backend/features/muted/dto/update-mute.dto';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { AuthGuard } from '@backend/shared/auth.guard';
-import { SocketGateway } from '@backend/gateWay/chat.gateway';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 import { dmCreate } from './dto/dm.dto';
@@ -63,6 +62,7 @@ import { MessagesService } from '../messages/messages.service';
 import { ReturnBannedDto } from '../banned/dto/return-ban.dto';
 import { ReturnMessageDto } from '../messages/dto/return-message.dto';
 import { CreateMessageDto } from '../messages/dto/create-message.dto';
+import { ChatGateway } from '@backend/gateWay/chat/chat.gateway';
 
 @Controller('channels')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -78,7 +78,7 @@ export class ChannelsController {
     private readonly mutedService: MutedService,
     private readonly bannedService: BannedService,
     private readonly messageService: MessagesService,
-    private readonly chatGateway: SocketGateway,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   @Get('all')

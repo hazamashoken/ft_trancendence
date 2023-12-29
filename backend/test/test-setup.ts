@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExecutionContext, INestApplication, NotFoundException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  INestApplication,
+  NotFoundException,
+} from '@nestjs/common';
 import { AppModule } from '@backend/app.module';
 import { appDataSource } from '@backend/utils/dbconfig';
 import { User } from '@backend/typeorm';
@@ -13,7 +17,8 @@ let app: INestApplication;
 let server: any;
 
 const mockAuthUser = {
-  accessToken: 'ab5f914256a0bc67cab30daa8f52a8c0d5e2524d1cc2875eb5d81c17b4df4afb',
+  accessToken:
+    'ab5f914256a0bc67cab30daa8f52a8c0d5e2524d1cc2875eb5d81c17b4df4afb',
   ft: {
     id: 103071,
     email: 'tsomsa@student.42bangkok.com',

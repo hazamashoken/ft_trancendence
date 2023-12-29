@@ -46,7 +46,7 @@ export class BannedService {
       where: { bannedAt: { chatId: chatId } },
       relations: ['bannedUser', 'bannedBy', 'bannedAt'],
     });
-    const retBanned = banned.map((ban) => {
+    const retBanned = banned.map(ban => {
       return this.entToDto(ban);
     });
     if (retBanned.length == 0) return null;
@@ -106,9 +106,9 @@ export class BannedService {
       banned_by = chat1.chatOwner;
     } else if (
       chat1.chatAdmins.length > 0 &&
-      chat1.chatAdmins.find((admin) => admin.id == adminId)
+      chat1.chatAdmins.find(admin => admin.id == adminId)
     ) {
-      banned_by = chat1.chatAdmins.find((admin) => admin.id == adminId);
+      banned_by = chat1.chatAdmins.find(admin => admin.id == adminId);
     } else {
       throw new ForbiddenException('User is not an admin in this channel');
     }
@@ -116,12 +116,12 @@ export class BannedService {
     if (!banned_by && banned_by.id != chat1.chatOwner.id) {
       throw new NotFoundException('Admin not found');
     } else if (
-      !chat1.chatAdmins.find((admin) => admin.id == adminId) &&
+      !chat1.chatAdmins.find(admin => admin.id == adminId) &&
       banned_by.id != chat1.chatOwner.id
     ) {
       throw new ForbiddenException('User is not an admin');
     } else if (
-      chat1.chatAdmins.find((admin) => admin.id == bannedId) &&
+      chat1.chatAdmins.find(admin => admin.id == bannedId) &&
       banned_by.id != chat1.chatOwner.id
     ) {
       throw new ForbiddenException('Only owner can ban admins');
@@ -155,7 +155,11 @@ export class BannedService {
       .values(bannedUser)
       .execute();
 
-    await this.channelService.removeUserFromChat(chat1.chatId, bannedId, adminId);
+    await this.channelService.removeUserFromChat(
+      chat1.chatId,
+      bannedId,
+      adminId,
+    );
     return await this.findAllBannedUsersInChat(chat1.chatId);
   }
 
@@ -171,13 +175,18 @@ export class BannedService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if(chat.chatOwner.id != authUser && chat.chatAdmins.find((admin) => admin.id == authUser))
-      throw new ForbiddenException(`Only owner can remove banned user from chat`);
+    if (
+      chat.chatOwner.id != authUser &&
+      chat.chatAdmins.find(admin => admin.id == authUser)
+    )
+      throw new ForbiddenException(
+        `Only owner can remove banned user from chat`,
+      );
     if (
       chat.bannedUsers &&
       chat.bannedUsers.length > 0 &&
       chat.bannedUsers.find(
-        (banned) => banned.bannedUser && banned.bannedUser.id != bannedId,
+        banned => banned.bannedUser && banned.bannedUser.id != bannedId,
       )
     ) {
       throw new NotFoundException('User not found at this chat');
@@ -192,7 +201,11 @@ export class BannedService {
     return await this.findAllBannedUsersInChat(channelId);
   }
 
-  async unbanUser (chatId: number, userId: number, authUser: number): Promise<ReturnBannedDto[]> {
+  async unbanUser(
+    chatId: number,
+    userId: number,
+    authUser: number,
+  ): Promise<ReturnBannedDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: chatId },
       relations: ['bannedUsers', 'chatOwner', 'chatAdmins'],
@@ -200,13 +213,18 @@ export class BannedService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if(chat.chatOwner.id != authUser && chat.chatAdmins.find((admin) => admin.id == authUser))
-      throw new ForbiddenException(`Only owner and admins can remove unban user`);
+    if (
+      chat.chatOwner.id != authUser &&
+      chat.chatAdmins.find(admin => admin.id == authUser)
+    )
+      throw new ForbiddenException(
+        `Only owner and admins can remove unban user`,
+      );
     if (
       chat.bannedUsers &&
       chat.bannedUsers.length > 0 &&
       chat.bannedUsers.find(
-        (banned) => banned.bannedUser && banned.bannedUser.id != userId,
+        banned => banned.bannedUser && banned.bannedUser.id != userId,
       )
     ) {
       throw new NotFoundException('User not found at this chat');

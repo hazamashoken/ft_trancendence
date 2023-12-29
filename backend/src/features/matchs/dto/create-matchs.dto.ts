@@ -2,7 +2,7 @@ import { IsNumber, Max, Min, IsOptional, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MatchStatus } from '@backend/typeorm/match.entity';
 
-const MAX_POINT: number = 15;
+const MAX_POINT = 15;
 export class CreateMatchsDto {
   @IsNumber()
   @ApiProperty({

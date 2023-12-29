@@ -3,7 +3,7 @@ import { StringUtil } from './string.util';
 export class ObjectUtil {
   static toSnakeKey(obj: any) {
     const result = {};
-    Object.keys(obj).forEach((key) => {
+    Object.keys(obj).forEach(key => {
       result[StringUtil.toSnakeCase(key)] = obj[key];
     });
     return result;
@@ -11,7 +11,7 @@ export class ObjectUtil {
 
   static toCamelKey(obj: any) {
     const result = {};
-    Object.keys(obj).forEach((key) => {
+    Object.keys(obj).forEach(key => {
       result[StringUtil.toCamelCase(key)] = obj[key];
     });
     return result;

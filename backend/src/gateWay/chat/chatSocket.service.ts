@@ -6,23 +6,22 @@ import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { ChannelsEntity } from '@backend/typeorm';
 import { Inject, Injectable, UseGuards, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { SocketGateway } from './chat.gateway';
+import { ChatGateway } from './chat.gateway';
 import { ChannelsService } from '@backend/features/channels/channels.service';
 import { MessagesService } from '@backend/features/messages/messages.service';
 import { BannedService } from '@backend/features/banned/banned.service';
 
 @Injectable()
 @UseGuards(XKeyGuard, AuthGuard)
-export class SocketService {
-
+export class ChatSocketService {
   private readonly connectedClients: Map<string, Socket> = new Map();
   constructor(
     private channelsService: ChannelsService,
     private bannedService: BannedService,
     private messageService: MessagesService,
-    @Inject(forwardRef(() => SocketGateway))
-    private chatGateway: SocketGateway,
-  ) { }
+    @Inject(forwardRef(() => ChatGateway))
+    private chatGateway: ChatGateway,
+  ) {}
 
   handleConnection(socket: Socket): void {
     const clientId = socket.id;

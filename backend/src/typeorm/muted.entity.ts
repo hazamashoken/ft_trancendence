@@ -19,7 +19,7 @@ export class MutedEntity extends BaseEntity {
   @JoinColumn({ name: 'muted_user' })
   user: User;
 
-  @ManyToOne(() => ChannelsEntity, (channel) => channel.mutedUsers, {
+  @ManyToOne(() => ChannelsEntity, channel => channel.mutedUsers, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'muted_at' })

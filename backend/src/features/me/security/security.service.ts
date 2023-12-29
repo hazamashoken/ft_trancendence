@@ -1,6 +1,11 @@
 import { Repository } from 'typeorm';
 import { User2fa } from '@backend/typeorm/user_2fa.entity';
-import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { authenticator } from 'otplib';
 import { User } from '@backend/typeorm';

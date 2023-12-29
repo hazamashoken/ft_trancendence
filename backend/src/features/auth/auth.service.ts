@@ -10,6 +10,6 @@ export class AuthService {
   verify(token: string) {
     return this.ftService
       .oauthTokenInfo(token)
-      .pipe(map((res) => ResponseUtil.succeed(res)));
+      .pipe(map(res => ResponseUtil.succeed(res)));
   }
 }

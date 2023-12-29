@@ -11,13 +11,13 @@ import { ChannelsController } from './channels.controller';
 import { ChannelsService } from './channels.service';
 import { MutedService } from '@backend/features/muted/muted.service';
 import { SharedModule } from '@backend/shared/shared.module';
-import { SocketService } from '@backend/gateWay/chatSocket.service';
-import { SocketGateway } from '@backend/gateWay/chat.gateway';
 import { BlockUser } from '../block/dto/BlockUser.dto';
 import { BlockUserModule } from '../block/blockUser.module';
 import { BannedService } from '../banned/banned.service';
 import { MessagesService } from '../messages/messages.service';
 import { BlockService } from '../block/blockUser.service';
+import { ChatSocketService } from '@backend/gateWay/chat/chatSocket.service';
+import { ChatGateway } from '@backend/gateWay/chat/chat.gateway';
 
 @Module({
   imports: [
@@ -30,9 +30,17 @@ import { BlockService } from '../block/blockUser.service';
       BlockUser,
     ]),
     SharedModule,
-    BlockUserModule
+    BlockUserModule,
   ],
-  providers: [ChannelsService, BannedService, MessagesService, MutedService, SocketService, SocketGateway, BlockService],
+  providers: [
+    ChannelsService,
+    BannedService,
+    MessagesService,
+    MutedService,
+    ChatSocketService,
+    ChatGateway,
+    BlockService,
+  ],
   controllers: [ChannelsController],
   exports: [ChannelsService],
 })

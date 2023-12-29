@@ -6,9 +6,6 @@ import { AppService } from './app.service';
 import entities from './typeorm';
 import { FeaturesModule } from './features/features.module';
 import { SharedModule } from './shared/shared.module';
-import { MutedModule } from './features/muted/muted.module';
-import { ChatSocketModule } from './gateWay/chatSocket.module';
-import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
@@ -32,9 +29,6 @@ import { PongModule } from './pong/pong.module';
     }),
     SharedModule,
     FeaturesModule,
-    MutedModule,
-    ChatSocketModule,
-    PongModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsString } from 'class-validator';
 
-export class dmCreate{
+export class dmCreate {
   @ApiProperty()
   @IsNumber()
   user1: number;
