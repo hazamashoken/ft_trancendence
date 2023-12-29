@@ -503,7 +503,7 @@ export class ChannelsService {
     chat.chatUsers.push(existingUser);
 
     await this.channelsRepository.save(chat);
-    return chat.chatUsers;
+    return chat.chatUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
   async addUserToChatByName(
@@ -540,7 +540,7 @@ export class ChannelsService {
     chat.chatUsers.push(existingUser);
 
     await this.channelsRepository.save(chat);
-    return chat.chatUsers;
+    return chat.bannedUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
   async removeUserFromChat(
