@@ -2,7 +2,18 @@
 PWD := $(shell pwd)
 all: run-backend run-database run-frontend
 
-dev: dev-frontend dev-backend 
+dev: 
+	npm install --prefix frontend/app
+	npm install --prefix backend
+	docker compose run \
+		--detach \
+		--rm \
+		--build \
+		--name nextjs \
+		--publish 8080:8080 \
+		--volume $(PWD)/frontend/app:/app \
+		--volume $(PWD)/backend:/usr/src/app \
+		frontend
 
 run-backend:
 	docker compose up --build --detach backend
@@ -28,7 +39,7 @@ dev-frontend:
 		--build \
 		--name nextjs \
 		--publish 8080:8080 \
-		--volume $(PWD)/frontend/app:/usr/src/app \
+		--volume $(PWD)/frontend/app:/app \
 		frontend
 
 backend-start-dev:
