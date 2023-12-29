@@ -1,7 +1,7 @@
 "use client";
 
-import { getChannelData, getUserChats } from "../_actions/chat";
-import { createChannelAction, leaveChannelAction } from "../_actions/chat";
+import { getChannelData, getUserChats } from "../../_actions/chat";
+import { createChannelAction, leaveChannelAction } from "../../_actions/chat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { IChatStore, useChatStore } from "@/store/chat";

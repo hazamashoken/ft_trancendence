@@ -10,7 +10,7 @@ export class CreateMatchsDto {
     required: true,
   })
   player1Id: number;
-  
+
   @IsNumber()
   @IsOptional()
   @ApiProperty({
@@ -18,7 +18,7 @@ export class CreateMatchsDto {
     required: false,
   })
   player2Id: number;
-  
+
   @IsNumber()
   @Min(0)
   @Max(MAX_POINT)
@@ -30,7 +30,7 @@ export class CreateMatchsDto {
     required: false,
   })
   player1Point: number;
-  
+
   @IsNumber()
   @Min(0)
   @Max(MAX_POINT)
@@ -46,8 +46,8 @@ export class CreateMatchsDto {
   @IsIn(['WAITING', 'PLAYING', 'FINISHED'])
   @IsOptional()
   @ApiProperty({
-    description: 'the stats of the match [ \'WAITING\', \'PLAYING\', \'FINISHED\'].',
+    description: "the stats of the match [ 'WAITING', 'PLAYING', 'FINISHED'].",
     required: false,
   })
-  status: MatchStatus
+  status: MatchStatus;
 }

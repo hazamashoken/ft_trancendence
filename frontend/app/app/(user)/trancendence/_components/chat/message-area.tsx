@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getChannelData, getUserChats } from "../_actions/chat";
+import { getChannelData, getUserChats } from "../../_actions/chat";
 import { ChatHeader, getDmOther } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessages } from "./chat-message";

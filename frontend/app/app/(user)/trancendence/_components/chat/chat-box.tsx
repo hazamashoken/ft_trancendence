@@ -6,7 +6,7 @@ import { ListUser } from "./list-user";
 
 import { useChatStore, IChatStore } from "@/store/chat";
 import { useEffect } from "react";
-import { getChatUser, getPublicChat, getUserChats } from "../_actions/chat";
+import { getChatUser, getPublicChat, getUserChats } from "../../_actions/chat";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSocket } from "@/components/providers/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";

@@ -7,7 +7,7 @@ import {
   getUserChats,
   joinProtectedChat,
   joinPublicChat,
-} from "../_actions/chat";
+} from "../../_actions/chat";
 import {
   Dialog,
   DialogContent,

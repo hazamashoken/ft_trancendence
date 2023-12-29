@@ -14,7 +14,7 @@ import { useModal } from "@/lib/hooks/use-modal-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import ApiClient from "@/app/api/api-client";
-import { sendChatMessage } from "../_actions/chat";
+import { sendChatMessage } from "../../_actions/chat";
 import { useSession } from "next-auth/react";
 
 interface ChatInputProps {

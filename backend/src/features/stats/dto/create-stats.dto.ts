@@ -4,12 +4,12 @@ import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 
 export class CreateStatsDto {
   @IsNumber()
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'id of the user that want to create the stats data.',
     required: true,
   })
   userId: number;
-  
+
   @IsNumber()
   @Min(0)
   @ApiProperty({
@@ -20,7 +20,7 @@ export class CreateStatsDto {
   })
   @IsOptional()
   win: number;
-  
+
   @IsNumber()
   @Min(0)
   @ApiProperty({
@@ -35,7 +35,8 @@ export class CreateStatsDto {
   @IsNumber()
   @Min(0)
   @ApiProperty({
-    description: 'the point that acquire win/lose match, this will use to calulate the rank of user.',
+    description:
+      'the point that acquire win/lose match, this will use to calulate the rank of user.',
     minimum: 0,
     default: POINT_DEFAULT,
     required: false,
