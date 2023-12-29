@@ -453,6 +453,7 @@ export class ChannelsService {
       } else {
         userDto.role = 'user';
       }
+      Logger.log(userDto);
       return userDto;
     });
   }
