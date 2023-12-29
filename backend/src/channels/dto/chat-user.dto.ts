@@ -1,16 +1,8 @@
+import { User } from '@backend/typeorm';
 import { Exclude } from 'class-transformer';
-import { IsEmpty } from 'class-validator';
+import { IsEmpty, IsString } from 'class-validator';
 
-export class ChatUserDto {
-  @IsEmpty()
-  id: number;
-
-  @IsEmpty()
-  intraId: number;
-
-  @IsEmpty()
-  firstName: string;
-
-  @IsEmpty()
+export class ChatUserDto extends User{
+  @IsString()
   role: string;
 }
