@@ -12,9 +12,9 @@ export default async function Layout({
   const userId = session?.user?.id;
   if (!userId) redirect("/sign-up");
   return (
-    <div className="flex">
+    <div className="relative flex justify-between w-full">
       {children}
-      <div className="absolute right-0">
+      <div className="sticky right-0">
         <ChatBox userId={userId.toString()} />
       </div>
     </div>
