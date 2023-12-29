@@ -374,7 +374,7 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     return plainToClass(ChatUserDto, chat.chatOwner);
   }
 
-  async findAllUsers(chatId: number): Promise<ChatUserDto[]> {
+  async findAllUsers(chatId: number, authUser: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository
       .createQueryBuilder('chat')
       .leftJoinAndSelect('chat.chatUsers', 'users')

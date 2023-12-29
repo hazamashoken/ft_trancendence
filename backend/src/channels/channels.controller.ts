@@ -367,9 +367,12 @@ export class ChannelsController {
     description: 'The ID of the chat',
     example: 42,
   })
-  async getUsers(@Param('chatId') chatId: number): Promise<ChatUserDto[]> {
+  async getUsers(
+    @Param('chatId') chatId: number,
+    @AuthUser() authUser: AuthUserInterface,
+    ): Promise<ChatUserDto[]> {
     try {
-      return await this.channelsService.findAllUsers(chatId);
+      return await this.channelsService.findAllUsers(chatId, authUser.user.id);
     } catch (error) {
       throw new NotFoundException(error.message, 'Not Found');
     }

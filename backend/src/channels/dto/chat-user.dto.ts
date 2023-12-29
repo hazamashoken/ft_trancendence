@@ -10,4 +10,6 @@ export class ChatUserDto {
 
   @IsEmpty()
   firstName: string;
+
+  role: string;
 }
