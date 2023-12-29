@@ -35,8 +35,8 @@ export class MatchsService {
     const newMatch = this.matchRepository.create({
       player1: player1,
     });
-    this.matchRepository.save(newMatch);
-    return newMatch.matchId;
+    const match =  await this.matchRepository.save(newMatch);
+    return match.matchId;
   }
 
   /*
@@ -79,18 +79,17 @@ export class MatchsService {
     }
     this.matchRepository.update({ matchId: matchId }, {
       player1Point: player1Point,
-      player2Id: player2Id,
+      player2: user,
       player2Point: player2Point,
       status: status,
     });
-    console.log(`[Debug]::player1Id|${match.player1.id}|`)
     const result: number = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
-    this.updatePlayersStats(match.player1.id, player2Id, result);
+    this.updatePlayersStats(match.player1Id, player2Id, result);
     return true;
   }
   
   private async updatePlayersStats(player1Id: number, player2Id: number, result: number): Promise<void> {
-    let stats: StatsService;
+    const stats: StatsService = new StatsService(this.statsRepository, this.userRepository);
     let player1Stats: Partial<Stats> = await stats.findStatsByUser(player1Id);
     if (!player1Stats) {
       player1Stats = await stats.createNewStats({ userId: player1Id, win: 0, lose: 0, point: POINT_DEFAULT });
@@ -103,13 +102,14 @@ export class MatchsService {
       const point1: number = player1Stats.point + 2;
       const point2: number = player2Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
       stats.updateStatsByUser(player1Id, { win: (player1Stats.win + 1), lose: player1Stats.lose, point: point1 });
-      stats.updateStatsByUser(player1Id, { win: player1Stats.win, lose: (player1Stats.lose + 1), point: point2 });
+      stats.updateStatsByUser(player2Id, { win: player2Stats.win, lose: (player2Stats.lose + 1), point: point2 });
     }
     else {
-      const point1: number = player1Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
+      const point1: number = player1Stats.point - 1 >= 0 ? player1Stats.point - 1 : 0;
       const point2: number = player2Stats.point + 2;
+      console.log(point1);
       stats.updateStatsByUser(player1Id, { win: player1Stats.win, lose: (player1Stats.lose + 1), point: point1 });
-      stats.updateStatsByUser(player1Id, { win: (player1Stats.win + 1), lose: player1Stats.lose, point: point2 });
+      stats.updateStatsByUser(player2Id, { win: (player2Stats.win + 1), lose: player2Stats.lose, point: point2 });
     }
   }
 
@@ -152,27 +152,6 @@ export class MatchsService {
     return this.matchRepository.save(newMatch);
   }
 
-  // async createExample() {
-  //   let player1Id: number;
-  //   let player2Id: number;
-  //
-  //   player1Id = randomInt(5) + 1;
-  //   player2Id = randomInt(5) + 1;
-  //   console.log(player1Id);
-  //   console.log(player2Id);
-  //   while (player1Id === player2Id) {
-  //     player2Id = randomInt(5) + 1;
-  //   }
-  //   const newMath = await this.addNewMatch(player1Id, player2Id, randomInt(10), randomInt(10));
-  //   if (!newMath) {
-  //     return 'FAIL! cannot add new match.'
-  //   }
-  //   return 'SUCESS!! new match was added.';
-  // }
-  //
-
-  // * for the pong game to add the match result into database 
-
   findAll(
     playerId?: number,
     matchId?: number,
@@ -213,8 +192,17 @@ export class MatchsService {
     });
   }
 
-  updateMatchProperty(id: number, updateMatchDto: UpdateMatchsDto) {
-    return this.matchRepository.update({ matchId: id }, { ...updateMatchDto });
+  async updateMatchProperty(id: number, updateMatchDto: UpdateMatchsDto) {
+    const { player2Id, ...matchDetail } = updateMatchDto;
+    const player2: Partial<User> = await this.userRepository.findOne({ where: {id: player2Id } });
+    if (!player2) {
+      throw new HttpException(
+        'the player2 cannot found by player2Id.',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+    return this.matchRepository.update({ matchId: id }, {
+      player2: player2, ...matchDetail});
   }
 
   removeMatchById(id: number) {

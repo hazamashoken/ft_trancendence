@@ -43,7 +43,8 @@ export class StatsService {
   async createNewStats(createStateDto: CreateStatsDto): Promise< Partial<Stats> > {
     // console.log(createStateDto);
     let { userId } = createStateDto;
-    if (Number(userId) && userId > 0) {
+    console.log(userId);
+    if (Number(userId) && userId < 0) {
       throw new HttpException(
         'Nagative user-id, fail to create new stats.',
         HttpStatus.BAD_REQUEST
@@ -149,6 +150,10 @@ export class StatsService {
     return this.statsRepository.delete({ user : { id: id } });
   }
 
+  removeStatsById(id: number) {
+    return this.statsRepository.delete({ id: id });
+  }
+
   listAllStatsInDescOrder(): Promise< Partial<Stats>[] > {
     return this.statsRepository.find({ order: { point: 'DESC', }, relations: { user: true }})
   }
@@ -160,5 +165,12 @@ export class StatsService {
       take: num,
       relations: { user: true },
     },)
+  }
+
+  async removeAllStats() {
+    const allStats: Partial<Stats>[] = await this.listAllStats();
+    for (let i = 0; i < allStats.length; ++i) {
+      this.removeStatsById(allStats.at(i).id);
+    }
   }
 }

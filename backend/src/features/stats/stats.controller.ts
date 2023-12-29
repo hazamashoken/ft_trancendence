@@ -58,7 +58,7 @@ export class StatsController {
     return this.statsService.listStatsInDescOederLimit(num);
   }
 
-  @ApiOperation({ summary: 'get a game match by match id.' })
+  @ApiOperation({ summary: 'update stats by user id.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
   @Patch(':id')
   async updateStatsByUser(
@@ -68,10 +68,17 @@ export class StatsController {
     await this.statsService.updateStatsByUser(+id, updateStatsDto);
   }
 
-  @ApiOperation({ summary: 'get a game match by match id.' })
+  @ApiOperation({ summary: 'delete all match.' })
+  @Delete('all')
+  async removeStatsAll() {
+    await this.statsService.removeAllStats();
+  }
+  
+  @ApiOperation({ summary: 'delete a match by user id.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
   @Delete(':id')
   async removeStatsByUser(@Param('id', ParseIntPipe) id: number) {
     await this.statsService.removeStatsByUser(+id);
   }
 }
+
