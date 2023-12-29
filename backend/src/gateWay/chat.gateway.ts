@@ -3,11 +3,8 @@ import { Socket } from 'socket.io';
 import { SocketService } from './chatSocket.service';
 import { ChannelsEntity } from '@backend/typeorm';
 import { ForbiddenException, Inject, Logger, forwardRef } from '@nestjs/common';
-import { ChannelCreatedTO } from '@backend/channels/dto/create-channel.dto';
-import { UpdateMessageDto } from '@backend/messages/dto/update-message.dto';
-import { CreateMuteDto } from '@backend/muted/dto/create-muted.dto';
+import { CreateMuteDto } from '@backend/features/muted/dto/create-muted.dto';
 import * as bcrypt from 'bcrypt'
-import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 
 @WebSocketGateway({
   cors: {
