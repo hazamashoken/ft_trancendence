@@ -1,8 +1,8 @@
 export enum ChatType {
-  PUBLIC = 'public',
-  PROTECTED = 'protected',
-  PRIVATE = 'private',
-  DIRECT = 'direct',
+  PUBLIC = "public",
+  PROTECTED = "protected",
+  PRIVATE = "private",
+  DIRECT = "direct",
 }
 
 export interface User {
@@ -75,7 +75,6 @@ export interface ReturnMutedDto {
   mutedBy: User;
   mutedUntil: Date;
 }
-
 
 export interface CreateMuteDto {
   userId: number;

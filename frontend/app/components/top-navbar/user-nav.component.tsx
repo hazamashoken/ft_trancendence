@@ -25,24 +25,25 @@ export function UserNav(props: any) {
   const [openChangeName, setOpenChangeName] = React.useState(false);
   const [openUploadAvatar, setOpenUploadAvatar] = React.useState(false);
 
-  const profile = session?.ftUser;
+  const profile = session?.user ?? session?.ftUser;
+  const url = profile?.imageUrl ?? profile?.image?.link;
+  const username = profile?.displayName ?? profile?.login;
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative w-8 h-8 rounded-full">
             <Avatar className="w-8 h-8">
-              <AvatarImage src={profile?.image?.link ?? ftLogo} alt="@shadcn" />
-              <AvatarFallback>{profile?.login ?? "42"}</AvatarFallback>
+              <AvatarImage src={url ?? ftLogo} alt="@shadcn" />
+              <AvatarFallback>{username ?? "42"}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {profile?.login}
-              </p>
+              <p className="text-sm font-medium leading-none">{username}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {profile?.email}
               </p>

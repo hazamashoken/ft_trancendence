@@ -19,9 +19,7 @@ export function UserCard(props: any) {
         <CardTitle>User Info</CardTitle>
       </CardHeader>
       <CardContent>
-        <pre className="truncate w-[400px]">
-          {JSON.stringify(props.session, null, 4)}
-        </pre>
+        <pre className="">{JSON.stringify(props.session, null, 4)}</pre>
       </CardContent>
       <CardFooter>
         <Button onClick={() => signOut()}>Sign Out</Button>

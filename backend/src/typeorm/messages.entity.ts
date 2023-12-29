@@ -15,7 +15,7 @@ export class MessagesEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'message_id' })
   messageId: number;
 
-  @ManyToOne(() => ChannelsEntity, (channel) => channel.chatMessages, {
+  @ManyToOne(() => ChannelsEntity, channel => channel.chatMessages, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'chat_id' })

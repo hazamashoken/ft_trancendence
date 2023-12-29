@@ -14,7 +14,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ReturnMessageDto } from './dto/return-message.dto';
+import {
+  ReturnCursorMessageDto,
+  ReturnMessageDto,
+} from './dto/return-message.dto';
 import { plainToClass } from 'class-transformer';
 import { take } from 'rxjs';
 import { PaginationDto } from './dto/pagination.dto';
@@ -59,8 +62,7 @@ export class MessagesService {
     if (user) {
       throw new ForbiddenException('User is muted');
     }
-    if(channel.bannedUsers.find((user) => user.id == authorId) != undefined)
-    {
+    if (channel.bannedUsers.find(user => user.id == authorId) != undefined) {
       throw new ForbiddenException('User is banned at this channel');
     }
     const newMessage = new MessagesEntity();
@@ -74,6 +76,7 @@ export class MessagesService {
   async findAllMessagesByChannel(
     channelId: number,
     authUser: number,
+    cursor = 0,
   ): Promise<ReturnMessageDto[]> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
@@ -82,21 +85,21 @@ export class MessagesService {
     if (!channel) {
       throw new NotFoundException('Channel not found');
     }
-    if(channel.chatUsers.find(user => user.id == authUser) == undefined)
-    {
+    if (channel.chatUsers.find(user => user.id == authUser) == undefined) {
       throw new ForbiddenException('You are not a member of this channel');
     }
-    const blockedUsers = await this.blockUserService.getAllBlockedUsers(authUser);
+    const blockedUsers = await this.blockUserService.getAllBlockedUsers(
+      authUser,
+    );
     const blockedUserIds = new Set(blockedUsers.map(user => user.id));
 
-    const messages = await this.messagesRepository.find({
-      where: { channel: { chatId: channelId } },
-      relations: ['author'],
-      order: {
-        createAt: 'DESC',
-      },
-      take: 100,
-    });
+    const messages = await this.messagesRepository
+      .createQueryBuilder('messages')
+      .innerJoinAndSelect('messages.author', 'author')
+      .andWhere('messages.channel = :channelId', { channelId })
+      .orderBy('messages.createAt', 'DESC')
+      .limit(100)
+      .getMany();
 
     messages.reverse();
 
@@ -105,80 +108,61 @@ export class MessagesService {
       return !blockedUserIds.has(message.author.id);
     });
 
-    if (messages.length < 1) return [];
-
     const formattedMessages: ReturnMessageDto[] = filteredMessages.map(
       message => ({
         massageId: message.messageId,
         message: message.message,
         athor: message.author, // Предполагается, что в MessageEntity есть связь с автором
-        my: `${message.createAt.getDate().toString().padStart(2, '0')}.${(
-          message.createAt.getMonth() + 1
-        )
-          .toString()
-          .padStart(2, '0')}.${message.createAt.getFullYear()}`,
-        hm: `${message.createAt.getHours()}:${message.createAt.getMinutes()}`,
         createAt: message.createAt,
         updateAt: !message.updateAt ? null : message.updateAt,
-        updatedAtmy: message.updateAt
-          ? `${message.updateAt.getDate().toString().padStart(2, '0')}.${(
-              message.updateAt.getMonth() + 1
-            )
-              .toString()
-              .padStart(2, '0')}.${message.updateAt.getFullYear()}`
-          : null,
-        updateAthm: message.updateAt
-          ? `${message.createAt.getHours()}:${message.createAt.getMinutes()}`
-          : null,
       }),
     );
 
     return formattedMessages;
   }
 
-  async findMessageById(id: number): Promise<MessagesEntity | null> {
-    return this.messagesRepository.findOne({ where: { messageId: id } });
-  }
+  // async findMessageById(id: number): Promise<MessagesEntity | null> {
+  //   return this.messagesRepository.findOne({ where: { messageId: id } });
+  // }
 
-  async updateMessage(
-    id: number,
-    message: string,
-    authUser: number,
-  ): Promise<ReturnMessageDto | null> {
-    const existingMessage = await this.findMessageById(id);
-    if (!existingMessage) {
-      throw new NotFoundException('Message not found');
-    }
-    if (existingMessage.author.id != authUser)
-      throw new ForbiddenException('You are not the author of this message');
-    existingMessage.message = message;
-    existingMessage.updateAt = new Date();
-    this.messagesRepository.save(existingMessage);
+  // async updateMessage(
+  //   id: number,
+  //   message: string,
+  //   authUser: number,
+  // ): Promise<ReturnMessageDto | null> {
+  //   const existingMessage = await this.findMessageById(id);
+  //   if (!existingMessage) {
+  //     throw new NotFoundException('Message not found');
+  //   }
+  //   if (existingMessage.author.id != authUser)
+  //     throw new ForbiddenException('You are not the author of this message');
+  //   existingMessage.message = message;
+  //   existingMessage.updateAt = new Date();
+  //   this.messagesRepository.save(existingMessage);
 
-    return plainToClass(ReturnMessageDto, existingMessage);
-  }
+  //   return plainToClass(ReturnMessageDto, existingMessage);
+  // }
 
-  async deleteMessage(
-    messageId: number,
-    chatId: number,
-    authUser: number,
-  ): Promise<ReturnMessageDto[]> {
-    const chat = await this.channelRepository.findOne({
-      where: { chatId: chatId },
-      relations: ['chatMessages'],
-    });
-    if (!chat) throw new NotFoundException('Chat not found');
-    const existMess = chat.chatMessages.find(
-      message => message.messageId == messageId,
-    );
-    if(existMess.author.id != authUser)
-    {
-      throw new ForbiddenException('You are not the author of this message');
-    }
-    if (!existMess)
-      throw new NotFoundException('Message not found at this chat');
+  // async deleteMessage(
+  //   messageId: number,
+  //   chatId: number,
+  //   authUser: number,
+  // ): Promise<ReturnMessageDto[]> {
+  //   const chat = await this.channelRepository.findOne({
+  //     where: { chatId: chatId },
+  //     relations: ['chatMessages'],
+  //   });
+  //   if (!chat) throw new NotFoundException('Chat not found');
+  //   const existMess = chat.chatMessages.find(
+  //     message => message.messageId == messageId,
+  //   );
+  //   if (existMess.author.id != authUser) {
+  //     throw new ForbiddenException('You are not the author of this message');
+  //   }
+  //   if (!existMess)
+  //     throw new NotFoundException('Message not found at this chat');
 
-    await this.messagesRepository.delete(messageId);
-    return await this.findAllMessagesByChannel(chatId, authUser);
-  }
+  //   await this.messagesRepository.delete(messageId);
+  //   return await this.findAllMessagesByChannel(chatId, authUser);
+  // }
 }
