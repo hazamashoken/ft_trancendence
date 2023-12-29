@@ -1,6 +1,6 @@
 import { chatType } from '@backend/typeorm/channel.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class ChannelCreatedTO {
   @ApiProperty({ default: null })
@@ -8,6 +8,7 @@ export class ChannelCreatedTO {
 
   @ApiProperty()
   @IsNumber()
+  @IsNotEmpty()
   chatOwner: number;
 
   @ApiProperty({ default: null })
