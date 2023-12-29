@@ -29,8 +29,6 @@ import { Badge } from "@/components/ui/badge";
 import { getDmOther } from "./chat-header";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { PopoverContent } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
