@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { HttpCode } from '@nestjs/common';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
+import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 
 @Injectable()
 export class StatsService {
@@ -39,7 +40,7 @@ export class StatsService {
     return 0;
   }
 
-  async createNewStats(createStateDto: CreateStatsDto) {
+  async createNewStats(createStateDto: CreateStatsDto): Promise< Partial<Stats> > {
     // console.log(createStateDto);
     let { userId } = createStateDto;
     if (Number(userId) && userId > 0) {
@@ -48,26 +49,41 @@ export class StatsService {
         HttpStatus.BAD_REQUEST
       )
     }
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user: Partial<User> = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new HttpException(
         'No user for stats, fail to create new stats.',
         HttpStatus.BAD_REQUEST
       )
     }
-    const stats = await this.statsRepository.findOne({ where: { user: { id: userId} }});
+    const stats: Partial<Stats> = await this.statsRepository.findOne({ where: { user: { id: userId} }});
     if (stats) {
       throw new HttpException(
         'Duplicate stats, fail to create new stats.',
         HttpStatus.BAD_REQUEST
       )
     }
-    const newStats = this.statsRepository.create({
+    const newStats: Partial<Stats> = this.statsRepository.create({
       user: user,
       winRate: this.winRateCalculate(0, 0),
     })
     return this.statsRepository.save(newStats);
   }
+
+    mockUpDefualtStats(): Partial<Stats> {
+    const win: number = 0;
+    const lose: number = 0;
+    const matchs: number = this.matchsCalculate(win, lose);
+    return this.statsRepository.create({
+      id: -1,
+      win: win,
+      lose: lose,
+      matchs: matchs,
+      winRate: this.winRateCalculate(win, matchs),
+      point: POINT_DEFAULT,
+      user: null,
+    });
+  } 
 
   async createCustomStats(createStatsDto: CreateStatsDto) {
     const { userId, ...statsDetail } = createStatsDto;
@@ -80,16 +96,16 @@ export class StatsService {
     // if (!Number(createStatsDto.point)) {
     //   createStatsDto.point = 1000;
     // }
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user: Partial<User> = await this.userRepository.findOne({ where: { id: userId } });
     if (user) {
       throw new HttpException(
         'Duplicate stats, fail to create new stats.',
         HttpStatus.BAD_REQUEST
       )
     }
-    const matchs = this.matchsCalculate(createStatsDto.win, createStatsDto.lose);
-    const winRate = this.winRateCalculate(createStatsDto.win, matchs);
-    const newStats = this.statsRepository.create({
+    const matchs: number = this.matchsCalculate(createStatsDto.win, createStatsDto.lose);
+    const winRate: string = this.winRateCalculate(createStatsDto.win, matchs);
+    const newStats: Partial<Stats> = this.statsRepository.create({
       user: user,
       matchs: matchs,
       winRate: winRate,
@@ -102,22 +118,22 @@ export class StatsService {
     return this.statsRepository.find({ relations: { user: true }});
   }
 
-  findStatsByUser(id: number) {
+  findStatsByUser(id: number): Promise< Partial<Stats> > {
     return this.statsRepository.findOne({ where: { user: { id: id } }, relations: { user: true }});
   }
 
   async updateStatsByUser(id: number, updateStatsDto: UpdateStatsDto){
-    const userMatch = await this.findStatsByUser(id);
+    const userMatch: Partial<Stats> = await this.findStatsByUser(id);
     if (!userMatch) {
       throw new HttpException(
         'Fail! to update the stats, the user-id is not found.',
         HttpStatus.BAD_REQUEST
       )
     }
-    const win = Number(updateStatsDto.win) ? updateStatsDto.win : userMatch.win;
-    const lose = Number(updateStatsDto.lose) ? updateStatsDto.lose : userMatch.lose;
-    const matchs = this.matchsCalculate(win, lose);
-    const winRate = this.winRateCalculate(win, matchs);
+    const win: number = Number(updateStatsDto.win) ? updateStatsDto.win : userMatch.win;
+    const lose: number = Number(updateStatsDto.lose) ? updateStatsDto.lose : userMatch.lose;
+    const matchs: number = this.matchsCalculate(win, lose);
+    const winRate: string = this.winRateCalculate(win, matchs);
     return this.statsRepository.update(
       {
         user: { id: id }
@@ -133,11 +149,11 @@ export class StatsService {
     return this.statsRepository.delete({ user : { id: id } });
   }
 
-  listAllStatsInDescOrder() {
+  listAllStatsInDescOrder(): Promise< Partial<Stats>[] > {
     return this.statsRepository.find({ order: { point: 'DESC', }, relations: { user: true }})
   }
 
-  listStatsInDescOederLimit(num: number) {
+  listStatsInDescOederLimit(num: number): Promise< Partial<Stats>[] > {
     return this.statsRepository.find({
       order: { point: "DESC" },
       skip: 0,

@@ -10,6 +10,7 @@ import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
 import { MatchStatus } from '@backend/typeorm/match.entity';
 import { StatsService } from '../stats/stats.service';
+import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 
 const PONE_WIN: number = 1;
 const PTWO_WIN: number = 2;
@@ -26,7 +27,7 @@ export class MatchsService {
   * => [match] the match is success to created.
   * => [-1] the match is fail to created. */
   async createNewMatch(player1Id: number): Promise<number> {
-    const player1 = await this.userRepository.findOne({ where: { id: player1Id} });
+    const player1: Partial<User> = await this.userRepository.findOne({ where: { id: player1Id} });
     if (!player1) {
       console.log ('Player1 ID not found, Cannot create the match.');
       return -1;
@@ -44,7 +45,7 @@ export class MatchsService {
   * => [true] the match status is success to update.
   * => [false] the math status is fail to update. */
   async updateStatus(matchId: number, status: MatchStatus): Promise<boolean> {
-    const match = await this.matchRepository.findOne({ where: { matchId: matchId } });
+    const match: Partial<Match> = await this.matchRepository.findOne({ where: { matchId: matchId } });
     if (!match) {
       console.log('MatchId not found, Cannot update the match status.');
       return false;
@@ -54,6 +55,7 @@ export class MatchsService {
   }
 
   /*
+  ? need to put at the end of the match because the new user stats will create at the end of the match.
   * [fucntion] update a whole value of the match with out player1Id.
   * [ player2Id, player1Point, player1Point, player2Point, MatchStatus ]
   * by input matchId and the match attribute.
@@ -61,12 +63,12 @@ export class MatchsService {
   * => [false] ther match status is fail to update. */
   async updateMatch(
     matchId: number, player2Id: number, player1Point: number, player2Point: number, status: MatchStatus): Promise<boolean> {
-    const match = await this.matchRepository.findOne({ where: { matchId: matchId } });
+    const match: Partial<Match> = await this.matchRepository.findOne({ where: { matchId: matchId } });
     if (!match) {
       console.log('MatchId not found, Cannot update the match value.');
       return false;
     }
-    const user = await this.userRepository.findOne({ where: { id: player2Id } });
+    const user: Partial<User> = await this.userRepository.findOne({ where: { id: player2Id } });
     if (!user) {
       console.log('Player2Id not found, Cannot update the match value.');
       return false;
@@ -82,34 +84,39 @@ export class MatchsService {
       status: status,
     });
     console.log(`[Debug]::player1Id|${match.player1.id}|`)
-    const result = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
+    const result: number = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
     this.updatePlayersStats(match.player1.id, player2Id, result);
     return true;
   }
   
   private async updatePlayersStats(player1Id: number, player2Id: number, result: number): Promise<void> {
     let stats: StatsService;
-    const player1Stats = await this.statsRepository.findOne({ where: { user: { id: player1Id } }});
-    const player2Stats = await this.statsRepository.findOne({ where: { user: { id: player2Id } }});
+    let player1Stats: Partial<Stats> = await stats.findStatsByUser(player1Id);
+    if (!player1Stats) {
+      player1Stats = await stats.createNewStats({ userId: player1Id, win: 0, lose: 0, point: POINT_DEFAULT });
+    }
+    let player2Stats: Partial<Stats> = await stats.findStatsByUser(player2Id);
+    if (!player2Stats) {
+      player2Stats = await stats.createNewStats({ userId: player2Id, win: 0, lose: 0, point: POINT_DEFAULT });
+    }
     if (result == PONE_WIN) {
-      const point1 = player1Stats.point + 2;
-      const point2 = player2Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
+      const point1: number = player1Stats.point + 2;
+      const point2: number = player2Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
       stats.updateStatsByUser(player1Id, { win: (player1Stats.win + 1), lose: player1Stats.lose, point: point1 });
       stats.updateStatsByUser(player1Id, { win: player1Stats.win, lose: (player1Stats.lose + 1), point: point2 });
     }
     else {
-      const point1 = player1Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
-      const point2 = player2Stats.point + 2;
+      const point1: number = player1Stats.point - 1 >= 0 ? player2Stats.point - 1 : 0;
+      const point2: number = player2Stats.point + 2;
       stats.updateStatsByUser(player1Id, { win: player1Stats.win, lose: (player1Stats.lose + 1), point: point1 });
       stats.updateStatsByUser(player1Id, { win: (player1Stats.win + 1), lose: player1Stats.lose, point: point2 });
     }
   }
 
-  // TODO add maxPoint comparation on this line..
-  async createMatch(createMatchsDto: CreateMatchsDto) {
+  async createMatch(createMatchsDto: CreateMatchsDto): Promise< Partial<Match> >{
     const { player1Id, player2Id, ...matchDetail } = createMatchsDto;
     let player2: Partial<User>;
-    const player1 = await this.userRepository.findOne({ where: { id: player1Id } });
+    const player1: Partial<User> = await this.userRepository.findOne({ where: { id: player1Id } });
     if (player1Id === player2Id) {
       throw new HttpException (
         'Player1 ID and Player2 ID cannot be the same person.',
@@ -131,7 +138,7 @@ export class MatchsService {
         )
       }
     }
-    const newMatch = this.matchRepository.create({
+    const newMatch: Partial<Match> = this.matchRepository.create({
       player1: player1,
       player2: player2,
       ...matchDetail,

@@ -1,6 +1,5 @@
 import { IsNumber, Min, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Optional } from '@nestjs/common';
 import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 
 export class CreateStatsDto {

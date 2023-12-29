@@ -2,7 +2,7 @@ import { IsNumber, Max, Min, IsOptional, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MatchStatus } from '@backend/typeorm/match.entity';
 
-// TODO ask Andre about max score
+const MAX_POINT: number = 15;
 export class CreateMatchsDto {
   @IsNumber()
   @ApiProperty({
@@ -21,7 +21,7 @@ export class CreateMatchsDto {
   
   @IsNumber()
   @Min(0)
-  @Max(15)
+  @Max(MAX_POINT)
   @IsOptional()
   @ApiProperty({
     description: 'point of user who own the match (player1).',
@@ -33,7 +33,7 @@ export class CreateMatchsDto {
   
   @IsNumber()
   @Min(0)
-  @Max(15)
+  @Max(MAX_POINT)
   @IsOptional()
   @ApiProperty({
     description: 'point of user who join the match (player2).',

@@ -10,6 +10,8 @@ import { AuthGuard } from '@backend/shared/auth.guard';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { UseGuards } from '@nestjs/common';
 import { QueryOptionDto } from '@backend/dto/query-option.dto';
+import { Stats } from '@backend/typeorm';
+import { stat } from 'fs';
 
 // @UseGuards(XKeyGuard, AuthGuard)
 @ApiBearerAuth()
@@ -40,8 +42,13 @@ export class StatsController {
   @ApiOperation({ summary: 'get a stat by user id.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
   @Get(':id')
-  findStatsByUser(@Param('id', ParseIntPipe) id: number) {
-    return this.statsService.findStatsByUser(+id);
+  async findStatsByUser(@Param('id', ParseIntPipe) id: number) {
+    const stats: Partial<Stats> = await this.statsService.findStatsByUser(+id);
+    if (!stats) {
+      console.log(`[Debug]::statsIsNull|${stats}|`);
+      return this.statsService.mockUpDefualtStats();
+    }
+    return stats;
   }
 
   @ApiOperation({ summary: 'list stats in database in descent order baes on point with limit data.' })
