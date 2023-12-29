@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -125,14 +126,21 @@ async findAllUserChannels(userId: number): Promise<ChannelsEntity[]> {
     return plainToClass(ChannelsEntity, channel);
   }
 
-  async addUserToProtectedChat(chatName: string, userId: number): Promise<ChatUserDto[]> {
+  async addUserToProtectedChat(chatName: string, password: string, userId: number): Promise<ChatUserDto[]> {
     const channel = await this.channelsRepository.findOne({
       where: { chatName: chatName },
       relations: [ 'chatUsers'],
     });
+    if (channel.chatUsers.some((user) => user.id === userId)) {
+      throw new ConflictException('User already in channel');
+    }
     if (!channel) throw new NotFoundException('channelNotFound');
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('userNotFound');
+    const isMatch = await bcrypt.compare(password, channel.password);
+    if (!isMatch) {
+      throw new ForbiddenException('Wrong password');
+    }
     channel.chatUsers.push(user);
     await this.channelsRepository.save(channel);
     return channel.chatUsers.map((user) => plainToClass(ChatUserDto, user));

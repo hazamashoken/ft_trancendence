@@ -153,16 +153,16 @@ export class ChannelsController {
     return owner;
   }
 
-  @Post(':chatName/addUserProtected')
+  @Post('addUserProtected')
   @ApiOperation({ summary: 'add user to protected chat' })
   @ApiParam({ name: 'chatName', type: String, example: 'Im chat name' })
   async addUserToProtectedChat(
-    @Param('chatName') chatName: string,
+    @Body() dto: { chatName: string; password: string },
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ChatUserDto[]> {
     this.chatGateway.sendEvents('user added to protected chat');
-    const name = chatName.trim();
-    return this.channelsService.addUserToProtectedChat(name, authUser.user.id);
+    const name = dto.chatName.trim();
+    return this.channelsService.addUserToProtectedChat(name, dto.password, authUser.user.id);
   }
 
   @Post('create')
@@ -435,7 +435,6 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     @Param('adminId') adminId: number,
     @AuthUser() authUser: AuthUserInterface,
-    // @Body() dto: adminRemove,
   ): Promise<ChatUserDto[] | null> {
     try {
       this.chatGateway.sendEvents({
