@@ -18,6 +18,8 @@ import { ChannelsService } from './channels.service';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiSecurity,
@@ -94,6 +96,10 @@ export class ChannelsController {
   @Get(':userId/all')
   @ApiOperation({ summary: 'get all of user channels by user Id.' })
   @ApiParam({ name: 'userId', type: Number, example: 1 })
+  @ApiOkResponse({
+    type: [ChannelsEntity],
+    description: 'get all of user channels by user Id.',
+  })
   async findUserChats(
     @AuthUser() authUser: AuthUserInterface,
     @Param('userId') userId: number,
@@ -104,6 +110,10 @@ export class ChannelsController {
 
   @Get('public')
   @ApiOperation({ summary: 'get all public channels' })
+  @ApiOkResponse({
+    type: [ChannelsEntity],
+    description: 'get all public channels',
+  })
   async findPublic(): Promise<ChannelsEntity[]> {
     return this.channelsService.findAllPublicChannels();
   }
@@ -111,6 +121,10 @@ export class ChannelsController {
   @Get('usersPrivate/:userId')
   @ApiOperation({ summary: 'get all of user private channels by user Id.' })
   @ApiParam({ name: 'userId', type: Number, example: 1 })
+  @ApiOkResponse({
+    type: [ChannelsEntity],
+    description: 'get all of user private channels by user Id.',
+  })
   async findPrivate(
     @AuthUser() authUser: AuthUserInterface,
     @Param('userId') userId: number,
@@ -142,6 +156,10 @@ export class ChannelsController {
   @Get(':chatId')
   @ApiOperation({ summary: 'get one channel by Id.' })
   @ApiParam({ name: 'chatId', type: Number, example: 1 })
+  @ApiOkResponse({
+    type: ChannelsEntity,
+    description: 'get one channel by Id.',
+  })
   async findOne(
     @Param('chatId') chatId: number,
     // @AuthUser() authUser: AuthUserInterface,
@@ -173,6 +191,10 @@ export class ChannelsController {
 
   @Post('user-protected')
   @ApiOperation({ summary: 'chat name password' })
+  @ApiCreatedResponse({
+    type: [ChatUserDto],
+    description: 'chat name password',
+  })
   async addUserToProtectedChatId(
     @AuthUser() authUser: AuthUserInterface,
     @Body() dto: { chatName: string; password: string },
@@ -187,6 +209,10 @@ export class ChannelsController {
   @Post('public/:chatId')
   @ApiOperation({ summary: 'join public chat' })
   @ApiParam({ name: 'chatId', type: Number, example: '1' })
+  @ApiCreatedResponse({
+    type: [ChatUserDto],
+    description: 'join public chat',
+  })
   async addUserToPublicChat(
     @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface,
@@ -215,6 +241,10 @@ export class ChannelsController {
         },
       },
     },
+  })
+  @ApiCreatedResponse({
+    type: ChannelsEntity,
+    description: 'create channel',
   })
   async create(
     @AuthUser() authUser: AuthUserInterface,
@@ -273,6 +303,10 @@ export class ChannelsController {
         },
       },
     },
+  })
+  @ApiCreatedResponse({
+    type: ChannelsEntity,
+    description: 'create direct messages',
   })
   async createDm(
     @Body() dto: dmCreate,
@@ -341,6 +375,7 @@ export class ChannelsController {
       },
     },
   })
+  @ApiCreatedResponse({ type: ChannelsEntity, description: 'update chat' })
   async update(
     @AuthUser() authUser: AuthUserInterface,
     @Param('chatId') chatId: number,
@@ -364,6 +399,15 @@ export class ChannelsController {
 //   // }
 
   @Post(':chatId/addUser/:userName')
+  @ApiOperation({
+    summary: 'add user to chat',
+    description: 'gets Id of and name of user that need to be added)',
+  })
+  @ApiCreatedResponse({
+    type: ChatUserDto,
+    isArray: true,
+    description: 'add user to chat',
+  })
   async addUserByName(
     @AuthUser() authUser: AuthUserInterface,
     @Param('chatId') chatId: number,
@@ -402,6 +446,11 @@ export class ChannelsController {
     description: 'The ID of the user',
     example: 23,
   })
+  @ApiCreatedResponse({
+    type: ChatUserDto,
+    isArray: true,
+    description: 'kick user from chat',
+  })
   async removeUser(
     @AuthUser() authUser: AuthUserInterface,
     @Param('chatId') chatId: number,
@@ -429,6 +478,7 @@ export class ChannelsController {
     description: 'The ID of the chat',
     example: 42,
   })
+  @ApiOkResponse({ type: ChatUserDto, isArray: true, description: 'get all users in chat' })
   async getUsers(
     @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface 
@@ -456,6 +506,11 @@ export class ChannelsController {
     type: Number,
     description: 'The ID of the chat',
     example: 42,
+  })
+  @ApiCreatedResponse({
+    type: ChatUserDto,
+    isArray: true,
+    description: 'add admin to chat',
   })
   async addAdmin(
     @Param('chatId') chatId: number,
@@ -494,6 +549,11 @@ export class ChannelsController {
     type: Number,
     description: 'The ID of the chat',
     example: 11,
+  })
+  @ApiCreatedResponse({
+    type: ChatUserDto,
+    isArray: true,
+    description: 'remove admin from chat',
   })
   async removeAdmin(
     @Param('chatId') chatId: number,
@@ -583,6 +643,11 @@ export class ChannelsController {
         },
       },
     },
+  })
+  @ApiCreatedResponse({
+    type: ReturnBannedDto,
+    isArray: true,
+    description: 'ban user in chat',
   })
   async addBannedUserToChat(
     @Param('chatId') chatId: number,
@@ -731,6 +796,10 @@ export class ChannelsController {
       },
     },
   })
+  @ApiCreatedResponse({
+    type: ReturnMessageDto,
+    description: 'The message has been successfully created',
+  })
   async createMessage(
     @AuthUser() authUser: AuthUserInterface,
     @Param('chatId') chatId: number,
@@ -792,6 +861,11 @@ export class ChannelsController {
     type: Number,
     description: 'The ID of the chat',
     example: 42,
+  })
+  @ApiOkResponse({
+    type: ReturnMessageDto,
+    isArray: true,
+    description: 'The chat messages',
   })
   async chatMessages(
     @Param('chatId') chatId: number,
@@ -927,6 +1001,7 @@ export class ChannelsController {
       },
     },
   })
+  @ApiCreatedResponse({ type: ReturnMutedDto, description: 'unmute user' })
   async unMute(
     // @Param('mutedId') mutedId: number,
     @AuthUser() authUser: AuthUserInterface,
@@ -988,6 +1063,7 @@ export class ChannelsController {
     description: 'The ID of the user',
     example: 24,
   })
+  @ApiCreatedResponse({ type: ChatUserDto, description: 'quit chat' })
   async quit(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
