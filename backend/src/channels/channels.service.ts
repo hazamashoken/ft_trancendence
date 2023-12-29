@@ -554,6 +554,8 @@ export class ChannelsService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
+    if (userId == chat.chatOwner.id)
+      throw new ForbiddenException(`You can't remove owner from chat`);
     if (
       chat.chatOwner.id != authUser ||
       chat.chatAdmins.find(admin => (admin.id == authUser) == false)
