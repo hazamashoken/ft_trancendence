@@ -16,6 +16,10 @@ export class ChannelCreatedTO {
   @ApiProperty({ default: null })
   maxUsers: number;
 
-  @ApiProperty({ default: chatType.PUBLIC })
-  chatType: chatType;
+  @ApiProperty({ default: chatType.PUBLIC, enum: chatType })
+  chatType:
+    | chatType.PUBLIC
+    | chatType.PRIVATE
+    | chatType.DIRECT
+    | chatType.PROTECTED;
 }

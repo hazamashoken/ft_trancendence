@@ -31,9 +31,15 @@ export class UserService {
     });
   }
 
+  getByUsername(username: string) {
+    return this.userRepository.findOneBy({
+      displayName: username,
+    });
+  }
+
   create(data: Partial<User>) {
     const user = this.userRepository.create(data);
-    return this.userRepository.save(user).catch((e) => {
+    return this.userRepository.save(user).catch(e => {
       throw new BadRequestException(e.driverError.message);
     });
   }
@@ -42,7 +48,7 @@ export class UserService {
     return this.userRepository
       .update({ id }, data)
       .then(() => this.findOne(id))
-      .catch((e) => {
+      .catch(e => {
         console.log(e);
         if (e.name === 'EntityPropertyNotFoundError') {
           throw new BadRequestException(e.message);

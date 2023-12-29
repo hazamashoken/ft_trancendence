@@ -10,6 +10,7 @@ export const AuthUser = createParamDecorator(
     if (data === 'user' && !request.authUser[data]) {
       throw new BadRequestException('User has been registered.');
     }
+    // console.log(request.authUser);
     return data ? request.authUser[data] : request.authUser;
   },
 );

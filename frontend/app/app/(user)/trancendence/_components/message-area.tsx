@@ -17,24 +17,29 @@ export function MessageArea(props: any) {
     chatList,
     chatUserList,
     chatMeta,
+    chatIsLoading,
     setChatId,
     setChatList,
     setChatUserList,
     setChatMeta,
+    setChatIsLoading,
   ] = useChatStore((state: IChatStore) => [
     state.chatId,
     state.chatList,
     state.chatUserList,
     state.chatMeta,
+    state.chatIsLoading,
     state.setChatId,
     state.setChatList,
     state.setChatUserList,
     state.setChatMeta,
+    state.setChatIsLoading,
   ]);
 
   useEffect(() => {
     if (!chatId) return;
     const getChatMeta = async () => {
+      setChatIsLoading(true);
       const res = await getChannelData(chatId);
       const data = await res.data;
       setChatMeta({
@@ -44,6 +49,7 @@ export function MessageArea(props: any) {
         type: "text",
         data: data,
       });
+      setChatIsLoading(false);
     };
     getChatMeta();
   }, [chatId]);
@@ -52,26 +58,26 @@ export function MessageArea(props: any) {
     <div className="w-[350px] h-full flex flex-col justify-between">
       <div className="flex flex-col h-full overflow-hidden">
         <ChatHeader
-          type="channel"
+          type={chatMeta?.chatType}
           chatId={chatId}
           chatMeta={chatMeta}
           chatUserList={chatUserList}
           userId={userId}
+          chatIsLoading={chatIsLoading}
         />
         <ChatMessages
           member={chatUserList}
           name={chatMeta.name}
           type="channel"
-          apiUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`}
           socketUrl="/api/socket/messages"
           socketQuery={{
             channelId: chatMeta.id,
           }}
-          // chatData={chatData}
           paramKey="channelId"
           paramValue={chatMeta.id}
           chatId={chatId}
           chatMeta={chatMeta}
+          userId={userId}
         />
       </div>
       {chatId && (

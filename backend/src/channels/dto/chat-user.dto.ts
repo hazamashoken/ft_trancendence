@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { IsEmpty } from 'class-validator';
+import { IsEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ChatUserDto {
   @IsEmpty()
@@ -10,4 +10,8 @@ export class ChatUserDto {
 
   @IsEmpty()
   firstName: string;
+
+  @IsOptional()
+  @IsString()
+  role: string;
 }

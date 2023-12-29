@@ -13,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import { useModal } from "@/lib/hooks/use-modal-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import ApiClient from "@/app/api/api-client";
+import { sendChatMessage } from "../_actions/chat";
+import { useSession } from "next-auth/react";
 
 interface ChatInputProps {
   apiUrl: string;
@@ -44,7 +47,7 @@ export const ChatInput = ({
     },
   });
 
-  const queryClient = useQueryClient();
+  const { data } = useSession();
 
   const isLoading = form.formState.isSubmitting;
 
@@ -52,15 +55,30 @@ export const ChatInput = ({
     if (!chatId) {
       return;
     }
-    try {
-      const url = apiUrl;
-      await axios.post(url, values);
-      form.reset();
-      queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
-    } catch (error: any) {
-      toast.error(error.response.data.message);
+
+    const accessToken = data?.accessToken;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/createmessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(values),
+      }
+    );
+    const d = await res.json();
+
+    if (!res.ok) {
+      toast.error(d);
+      return;
     }
+    form.reset();
   };
+
   return (
     <>
       <Form {...form}>

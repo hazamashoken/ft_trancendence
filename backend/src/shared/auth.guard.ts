@@ -7,7 +7,15 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { EMPTY, Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import {
+  EmptyError,
+  Observable,
+  catchError,
+  from,
+  map,
+  of,
+  switchMap,
+} from 'rxjs';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
@@ -26,13 +34,33 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const auth: string = request.headers['authorization'] || request.headers['Authorization']; // eslint-disable-line prettier/prettier
+    let auth: string;
+    if (context.getType() !== 'http') {
+      return true;
+    }
+    if (request.headers['authorization'] || request.headers['Authorization']) {
+      auth =
+        request.headers['authorization'] || request.headers['Authorization']; // eslint-disable-line prettier/prettier
+    }
     if (!auth || !auth.startsWith('Bearer ')) {
       throw new UnauthorizedException('jwt malformed');
     }
     const accessToken = auth.substring('Bearer '.length);
+    // console.log('Token:', accessToken);
+    return this.validateToken(accessToken).pipe(
+      map(authUser => {
+        request.authUser = authUser;
+        return true;
+      }),
+      catchError(e => {
+        console.log(e);
+        throw new UnauthorizedException(e.message);
+      }),
+    );
+  }
+
+  private validateToken(accessToken: string): Observable<AuthUser> {
     let authUser: AuthUser;
-    console.log('Token:', accessToken);
     return from(this.usRepo.findOneBy({ accessToken })).pipe(
       switchMap(session => {
         if (!session) {
@@ -58,27 +86,25 @@ export class AuthGuard implements CanActivate {
       }),
       map(user => {
         authUser.user = user;
-        request.authUser = authUser;
-        return true;
-      }),
-      catchError(e => {
-        console.log(e);
-        throw new UnauthorizedException(e.message);
+        return authUser;
       }),
     );
   }
 
-  refreshFtUserCache(accessToken: string): Observable<Partial<UserSession>> {
+  private refreshFtUserCache(
+    accessToken: string,
+  ): Observable<Partial<UserSession> | any> {
     const userSession = new UserSession();
     return this.ftService.oauthTokenInfo(accessToken).pipe(
       switchMap(tokenInfo => {
-        console.log('tokenInfo:', tokenInfo);
+        // console.log('tokenInfo:', tokenInfo);
         userSession.accessToken = accessToken;
-        userSession.expiredTokenTimestamp = Date.now() + tokenInfo.expires_in_seconds * 1000; // eslint-disable-line prettier/prettier
+        userSession.expiredTokenTimestamp =
+          Date.now() + tokenInfo.expires_in_seconds * 1000; // eslint-disable-line prettier/prettier
         return this.ftService.me(accessToken);
       }),
       switchMap(ft => {
-        console.log(ft);
+        // console.log(ft);
         userSession.ftUser = ft;
         return this.userRepo.findOneBy({ intraId: ft.id });
       }),
@@ -92,10 +118,18 @@ export class AuthGuard implements CanActivate {
         }
       }),
       map(() => userSession),
+      catchError(e => {
+        console.log('Error:', e.error);
+        // throw new WsException(e.message)
+        if (e.error === 'invalid_request') {
+          throw new UnauthorizedException();
+        }
+        return of(EmptyError);
+      }),
     );
   }
 
-  saveSession(userSession) {
+  private saveSession(userSession) {
     return this.usRepo.findOneBy({ id: userSession.id }).then(session => {
       if (session) {
         session.ftUser = userSession.ftUser;

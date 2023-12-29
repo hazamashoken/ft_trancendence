@@ -2,7 +2,18 @@ import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 import { AuthGuard } from '@backend/shared/auth.guard';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
-import { BadRequestException, Body, Controller, Get, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AccountService } from './account.service';
 import { User } from '@backend/typeorm';
 import { UpdateUserDto } from '@backend/features/user/dto/update-user.dto';
@@ -46,12 +57,17 @@ export class AccountController {
     if (!user) {
       throw new BadRequestException('User has not been created');
     }
+    Logger.log(body);
     return this.accountService.update(user.id, body);
   }
 
   @Post('avatar')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'upload user avatar', description: 'limit `jpg` and `png` file type and max size is 2MB. it will update `imageUrl` after save file succeed' }) // eslint-disable-line prettier/prettier
+  @ApiOperation({
+    summary: 'upload user avatar',
+    description:
+      'limit `jpg` and `png` file type and max size is 2MB. it will update `imageUrl` after save file succeed',
+  }) // eslint-disable-line prettier/prettier
   uploadFile(
     @AuthUser('user') user: User,
     @UploadedFile() file: Express.Multer.File,

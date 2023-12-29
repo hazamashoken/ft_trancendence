@@ -6,10 +6,12 @@ import { XKeyGuard } from './x-key.guard';
 import { AuthGuard } from './auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserSession } from '@backend/typeorm/user-session.entity';
+import { SocketAuthGuard } from './socket-auth.guard';
+import { User } from '@backend/typeorm/user.entity';
 
 @Module({
-  imports: [HttpModule, ConfigModule, TypeOrmModule.forFeature([UserSession])],
-  providers: [FtService, XKeyGuard, AuthGuard],
-  exports: [FtService, XKeyGuard, AuthGuard],
+  imports: [HttpModule, ConfigModule, TypeOrmModule.forFeature([UserSession, User])],
+  providers: [FtService, XKeyGuard, AuthGuard, SocketAuthGuard],
+  exports: [FtService, XKeyGuard, AuthGuard, SocketAuthGuard],
 })
 export class SharedModule {}
