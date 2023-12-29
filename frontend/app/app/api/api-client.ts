@@ -3,7 +3,9 @@ import { getSession } from 'next-auth/react'
 
 const ApiClient = (env: 'NODE' | 'CLIENT' | string = 'CLIENT') => {
   const instance = axios.create({
-    baseURL: env === 'NODE' ? process.env.BACKEND_URL : process.env.NEXT_PUBLIC_BACKEND_URL,
+    baseURL: env === 'NODE' ? 'http://nestjs:3000' : process.env.NEXT_PUBLIC_BACKEND_URL,
+    // baseURL: env === 'NODE' ? process.env.BACKEND_URL : process.env.NEXT_PUBLIC_BACKEND_URL,
+    // baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
     timeout: 3000,
     headers: {
       'Content-Type': 'application/json',
@@ -18,14 +20,14 @@ const ApiClient = (env: 'NODE' | 'CLIENT' | string = 'CLIENT') => {
     }
     return request
   })
-  // instance.interceptors.response.use(
-  //   (response) => {
-  //     return response
-  //   },
-  //   (error) => {
-  //     console.log(`error`, error)
-  //   }
-  // )
+  instance.interceptors.response.use(
+    (response) => {
+      return response
+    },
+    (error) => {
+      console.log(`error`, error)
+    }
+  )
   return instance
 }
 
