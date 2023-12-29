@@ -13,7 +13,7 @@ import { ModeToggle } from "@/components/top-navbar/mode-toggle.component";
 import FTLogo from "@/public/42_logo.svg";
 
 // Custom
-import { authOptions } from "../api/auth/[...nextauth]/authOptions";
+import { authOptions } from "../../api/auth/[...nextauth]/authOptions";
 import { SignInCard } from "@/components/sign-in";
 
 export const metadata: Metadata = {
@@ -23,13 +23,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const session = await getServerSession(authOptions);
-  if (session?.accessToken) {
-    console.log("session:", session);
-    if (session.user) {
-      redirect("/profile");
-    }
-    redirect("/sign-up");
-  }
+  if (session) redirect("/trancendence");
   return (
     <>
       <div className="container relative flex-col items-center justify-center hidden h-screen md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">

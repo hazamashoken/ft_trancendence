@@ -40,9 +40,9 @@ export class SecurityService {
     tfa.secret = secret;
     tfa.status = 'INACTIVE';
     tfa.user = user;
-    return this.user2faRepository
-      .save(tfa)
-      .then(() => authenticator.keyuri(username, projName, secret));
+    return this.user2faRepository.save(tfa).then(() => ({
+      qrcode: authenticator.keyuri(username, projName, secret),
+    }));
   }
 
   async activate2faDevice(userId: number, code: string) {
