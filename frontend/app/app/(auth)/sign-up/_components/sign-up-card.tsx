@@ -21,6 +21,7 @@ import { Loader2 } from "lucide-react";
 import { Form } from "@/components/ui/form";
 import { ImageUpload } from "@/components/top-navbar/upload-avatar";
 import { updateAccount } from "@/components/top-navbar/_actions/account";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   displayName: z
@@ -34,6 +35,7 @@ export function SignUpCard() {
   const { data, status, update } = useSession();
   const [open, setOpen] = React.useState(false);
   const [url, setUrl] = React.useState<string>("");
+  const router = useRouter();
   React.useEffect(() => {
     setOpen(true);
   }, []);
@@ -63,7 +65,7 @@ export function SignUpCard() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-xl text-center">
-            Choose your username
+            User Settings
           </AlertDialogTitle>
         </AlertDialogHeader>
         <Form {...form}>
@@ -97,6 +99,14 @@ export function SignUpCard() {
           logo={url}
           setUrl={setUrl}
         />
+        <Button
+          type="button"
+          onClick={() => {
+            router.push("/otp");
+          }}
+        >
+          Next
+        </Button>
       </AlertDialogContent>
     </AlertDialog>
   );

@@ -1,22 +1,32 @@
-import type { NextAuthOptions } from 'next-auth'
+import type { NextAuthOptions } from "next-auth";
 import FortyTwoProvider from "next-auth/providers/42-school";
-import _ from 'lodash';
-import { MeApi } from '../../me/meApi';
+import _ from "lodash";
+import { MeApi } from "../../me/meApi";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-      FortyTwoProvider({
-        clientId: `${process.env.FORTY_TWO_CLIENT_ID}`,
-        clientSecret: `${process.env.FORTY_TWO_CLIENT_SECRET}`,
-      })
+    FortyTwoProvider({
+      clientId: `${process.env.FORTY_TWO_CLIENT_ID}`,
+      clientSecret: `${process.env.FORTY_TWO_CLIENT_SECRET}`,
+    }),
   ],
   callbacks: {
-    async redirect({url, baseUrl}: {url: string, baseUrl: string}) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       // console.log('redirect');
-      return baseUrl + '/sign-in';
+      return baseUrl + "/";
     },
     // returns token object to be consumed by session()
-    async jwt({ token, user, account, profile }: { token: any, user: any, account: any, profile?: any }) {
+    async jwt({
+      token,
+      user,
+      account,
+      profile,
+    }: {
+      token: any;
+      user: any;
+      account: any;
+      profile?: any;
+    }) {
       // console.log('JWT:', token);
       if (account && user) {
         return {
@@ -30,9 +40,12 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     // consumes token object; returns session object
-    async session({ session, token }: { session: any, token: any }) {
-      const meApi = new MeApi({accessToken: token.accessToken, isClient: false});
-      const user = await meApi.getAccount().catch(e => undefined);
+    async session({ session, token }: { session: any; token: any }) {
+      const meApi = new MeApi({
+        accessToken: token.accessToken,
+        isClient: false,
+      });
+      const user = await meApi.getAccount().catch((e) => undefined);
       session.accessToken = token.accessToken;
       session.ftUser = token.ftUser;
       session.user = user;
@@ -40,11 +53,18 @@ export const authOptions: NextAuthOptions = {
       // console.log('Session:', session);
       return session;
     },
-  }
-}
+  },
+};
 
-function mapFtProfile (profile: any) {
+function mapFtProfile(profile: any) {
   return _.pick(profile, [
-    'id', 'email', 'login', 'first_name', 'last_name', 'url', 'displayname', 'image.link'
+    "id",
+    "email",
+    "login",
+    "first_name",
+    "last_name",
+    "url",
+    "displayname",
+    "image.link",
   ]);
 }

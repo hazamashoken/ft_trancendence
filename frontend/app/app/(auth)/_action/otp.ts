@@ -26,10 +26,10 @@ export async function getOtp() {
   const data = await response.json();
 
   if (!response.ok) {
-    return { error: data.message };
+    return { is_otp_enabled: false, error: data.message };
   }
 
-  return { data };
+  return { is_otp_enabled: true, error: null };
 }
 export async function registerOtp() {
   const session = await getServerSession(authOptions);

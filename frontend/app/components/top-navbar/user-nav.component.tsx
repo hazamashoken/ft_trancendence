@@ -76,7 +76,7 @@ export function UserNav(props: any) {
               }}
             >
               <Settings className="w-4 h-4 mr-2" />
-              <span>enable OTP</span>
+              <span>OTP settings</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

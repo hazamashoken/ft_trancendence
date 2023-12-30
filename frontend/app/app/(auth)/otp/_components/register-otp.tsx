@@ -43,18 +43,20 @@ export function RegisterOTP() {
   React.useEffect(() => {
     const handleSubmit = async () => {
       setIsLoading(true);
-      const res = await activateOtp({ code: otp });
-      if (!res?.data?.success) {
-        setIsError(true);
-        toast.error("Invalid OTP");
-      } else {
-        update({ ...data, otp: true });
-        router.push("/trancendence");
-        return;
-      }
-      setIsLoading(false);
+      activateOtp({ code: otp }).then((res) => {
+        if (!res?.data?.success) {
+          setIsError(true);
+          toast.error("Invalid OTP");
+        } else {
+          update({ ...data, otp: true });
+          router.push("/trancendence");
+          toast.success("OTP registered successfully");
+          return;
+        }
+        setIsLoading(false);
+      });
     };
-    if (otp.length === 6 && !isError) {
+    if (otp.length === 6 && !isError && !isLoading) {
       handleSubmit();
     }
   }, [otp, data, update]);

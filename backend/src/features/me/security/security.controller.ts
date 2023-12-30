@@ -71,7 +71,6 @@ export class SecurityController {
     if (!tfaUser) {
       throw new BadRequestException('User has not been registered device');
     }
-    Logger.log(tfaUser, 'SecurityController::get2faDevice');
     return tfaUser;
   }
 

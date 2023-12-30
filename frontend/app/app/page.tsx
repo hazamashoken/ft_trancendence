@@ -15,6 +15,7 @@ export default async function Home() {
 
   if (!session?.user?.id) {
     const res = await registerMe();
+    redirect("/sign-up");
   }
 
   redirect("/trancendence");
