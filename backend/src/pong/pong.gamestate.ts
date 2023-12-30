@@ -1,5 +1,5 @@
-import { GameState } from "../interfaces/pong.interface";
-import { Pong, Phase } from "./pong.enum";
+import { GameState } from '../interfaces/pong.interface';
+import { Pong, Phase } from './pong.enum';
 
 export function newGameState()
 : GameState
@@ -25,8 +25,8 @@ export function newGameState()
       powerups: 3,
     },
     ball: {
-      position: { x: 0, y: 0.5, },
-      direction: { x: 0, y: 0, },
+      position: { x: 0, y: 0.5 },
+      direction: { x: 0, y: 0 },
       visible: false,
     },
     multiball: [],

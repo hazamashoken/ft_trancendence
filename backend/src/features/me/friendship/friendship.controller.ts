@@ -12,6 +12,7 @@ import {
   Post,
   Put,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -56,6 +57,9 @@ export class FriendsController {
       throw new BadRequestException(
         'Friend status is not valid, REQUESTED or WATING or ACCPETED',
       );
+    }
+    if (!authUser.user) {
+      throw new UnauthorizedException('User has not created.');
     }
     return this.fsService.list(authUser.user.id, status, option);
   }

@@ -23,12 +23,13 @@ export default async function RootLayout({
 }) {
   const session = await getServerSession(authOptions);
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={cn(inter.className)}>
+    <html lang="en" suppressHydrationWarning className="w-screen h-screen">
+      <body className={cn(inter.className, "w-screen h-screen")}>
         <Providers>
           {session && <TopNavBar />}
           {children}
           <Toaster richColors />
+          {/* <pre>{JSON.stringify(process.env, null, 4)}</pre> */}
         </Providers>
       </body>
     </html>

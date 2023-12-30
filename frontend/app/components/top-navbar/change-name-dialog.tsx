@@ -38,6 +38,7 @@ export function ChangeNameDialog(props: any) {
   useEffect(() => {
     form.reset();
   }, [open, form]);
+
   const handleSubmit = async (values: any) => {
     const res = await updateAccount(values);
     if (res.error) {
