@@ -83,7 +83,7 @@ export class MatchsController {
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<boolean> {
     const match = await this.matchService.leaveMatch(+matchId, authUser.user.id);
-    await this.matchService.deleteIfEmptyMatch(match.matchId);
+    // this.matchService.deleteIfEmptyMatch(match.matchId);
     return true;
   }
 
