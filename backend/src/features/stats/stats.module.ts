@@ -9,5 +9,6 @@ import { SharedModule } from '@backend/shared/shared.module';
   imports: [TypeOrmModule.forFeature([Stats, User]), SharedModule],
   controllers: [StatsController],
   providers: [StatsService],
+  exports: [StatsService]
 })
 export class StatsModule {}

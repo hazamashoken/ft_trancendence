@@ -19,12 +19,8 @@ export class AccountService {
 
   get(id: number) {
     return this.userRepository.findOne({
-      // relations: {
-      //   stats: true,
-      // },
-      where: {
-        id,
-      }
+      relations: { stats: true },
+      where: { id }
     });
   }
 

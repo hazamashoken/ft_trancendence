@@ -22,12 +22,16 @@ export class UserService {
   }
 
   findOne(id: number) {
-    return this.userRepository.findOneBy({ id });
+    return this.userRepository.findOne({
+      where: { id },
+      relations: { stats: true }
+    });
   }
 
   getByIntraId(intraId: number) {
-    return this.userRepository.findOneBy({
-      intraId: intraId,
+    return this.userRepository.findOne({
+      where: { intraId: intraId },
+      relations: ['stats']
     });
   }
 

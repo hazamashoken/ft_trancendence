@@ -3,7 +3,6 @@ import {
   Column,
   Entity,
   OneToOne,
-  JoinColumn,
   Unique,
   PrimaryGeneratedColumn,
   CreateDateColumn,
@@ -49,6 +48,10 @@ export class User {
   @ApiProperty()
   @Column({ name: 'image_url' })
   imageUrl: string;
+
+  @ApiProperty()
+  @OneToOne(() => Stats, (stats) => stats.user)
+  stats: Stats;
 
   @ApiProperty()
   @CreateDateColumn({ name: 'created_at' })

@@ -6,8 +6,9 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    command: npm run start
+    command: npm run dev
     volumes:
+      - ./frontend/app:/app  # for dev
       - .env:/app/.env
     restart: unless-stopped
     ports:
@@ -15,12 +16,13 @@ services:
     networks:
       - main
 
+  # https://blog.logrocket.com/containerized-development-nestjs-docker/
   backend:
     container_name: nestjs
     build:
       context: backend
       dockerfile: Dockerfile
-    command: npm run start:prod
+    command: npm run start:debug
     ports:
       - 3000:3000
       - 9229:9229
@@ -28,7 +30,7 @@ services:
       - main
     volumes:
       - .env:/usr/src/app/.env
-      - ./backend/data:/app/data
+      - ./backend:/usr/src/app    # for dev
     restart: unless-stopped
     depends_on:
       - database
