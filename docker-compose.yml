@@ -6,7 +6,7 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    command: npm run start:prod
+    command: npm run start
     volumes:
       - .env:/app/.env
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    command: npm run start
+    command: npm run start:prod
     ports:
       - 3000:3000
       - 9229:9229
