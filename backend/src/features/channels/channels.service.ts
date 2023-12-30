@@ -427,29 +427,31 @@ export class ChannelsService {
 
   async findAllUsers(chatId: number, authUser: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository
-      .createQueryBuilder('chat')
-      .where('chat.chatId = :chatId', { chatId })
-      .leftJoinAndSelect('chat.chatOwner', 'owner')
-      .leftJoinAndSelect('chat.chatUsers', 'users')
-      .leftJoinAndSelect('chat.chatAdmins', 'admins')
-      .getOne();
+        .createQueryBuilder('chat')
+        .where('chat.chatId = :chatId', { chatId })
+        .leftJoinAndSelect('chat.chatOwner', 'owner')
+        .leftJoinAndSelect('chat.chatUsers', 'users')
+        .leftJoinAndSelect('chat.chatAdmins', 'admins')
+        .getOne();
     if (!chat) {
       throw new NotFoundException(`Chat with ID ${chatId} not found`);
     }
-    if (!chat.chatUsers.find(user => user.id === authUser)) {
+    if (!chat.chatUsers.find((user) => user.id === authUser)) {
       throw new ForbiddenException('User not in this channel');
     }
-
-    const dto = chat.chatUsers.map(user => {
+    
+    return chat.chatUsers.map(user => {
       const userDto = plainToClass(ChatUserDto, user);
-      if (user.id === chat.chatOwner.id) userDto.role = 'owner';
-      else if (chat.chatAdmins.find(user => user.id === userDto.id))
+      if (user.id === chat.chatOwner.id) {
+        userDto.role = 'owner';
+      } else if (chat.chatAdmins.some(admin => admin.id === user.id)) {
         userDto.role = 'admin';
-      else userDto.role = 'user';
+      } else {
+        userDto.role = 'user';
+      }
+      Logger.log(userDto);
       return userDto;
     });
-    Logger.log(dto, 'ChannelsService.findAllUsers');
-    return dto;
   }
 
   async findAllAdmins(chatId: number): Promise<ChatUserDto[] | null> {
@@ -534,7 +536,7 @@ export class ChannelsService {
     chat.chatUsers.push(existingUser);
 
     await this.channelsRepository.save(chat);
-    return chat.chatUsers.map(user => plainToClass(ChatUserDto, user));
+    return chat.bannedUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
   async removeUserFromChat(
@@ -550,7 +552,7 @@ export class ChannelsService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if (userId == chat.chatOwner.id)
+    if(userId === chat.chatOwner.id)
       throw new ForbiddenException(`You can't remove owner from chat`);
     if (
       chat.chatOwner.id != authUser ||
@@ -769,31 +771,47 @@ export class ChannelsService {
   async quitChannel(channelId: number, userId: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: channelId },
-      relations: ['activeUsers', 'chatOwner'],
+      relations: ['activeUsers', 'chatOwner', 'chatAdmins', 'chatUsers'],
     });
+  
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if (!(await this.userRepository.findOne({ where: { id: userId } }))) {
+  
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
       throw new NotFoundException('User not found');
     }
+  
     await this.channelsRepository
       .createQueryBuilder()
       .relation(ChannelsEntity, 'activeUsers')
       .of(chat)
       .remove(userId);
-
-    if (chat.activeUsers.length < 1) chat.activeUsers = [];
-
-    if (chat.activeUsers.length == 0) {
-      await this.delete(chat.chatId, userId);
-      Logger.log(chat.chatName + ' is deleted');
-      return [];
+  
+    if (chat.chatOwner.id === userId) {
+      let newOwner;
+      if (chat.chatAdmins.length > 0) {
+        newOwner = chat.chatAdmins[0];
+      } else if (chat.chatUsers.length > 0) {
+        newOwner = chat.chatUsers.find(u => u.id !== userId);
+      }
+  
+      if (newOwner) {
+        chat.chatOwner = newOwner;
+      } else {
+        await this.delete(chat.chatId, userId);
+        Logger.log(chat.chatName + ' is deleted');
+        return [];
+      }
     }
-    if (chat.chatOwner.id == userId)
-      throw new ForbiddenException('Please set new owner before quit the chat');
+  
     await this.channelsRepository.save(chat);
-
+  
+    if (chat.chatOwner.id === userId) {
+      throw new ForbiddenException('Please set new owner before quitting the chat');
+    }
+  
     return await this.getActiveUsers(channelId);
   }
 
@@ -811,10 +829,10 @@ export class ChannelsService {
     return chat.activeUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
-  async getPassword(chatId: number): Promise<string> {
-    const chat = await this.channelsRepository.findOne({
-      where: { chatId: chatId },
-    });
-    return chat.password;
-  }
+  // async getPassword(chatId: number): Promise<string> {
+  //   const chat = await this.channelsRepository.findOne({
+  //     where: { chatId: chatId },
+  //   });
+  //   return chat.password;
+  // }
 }
