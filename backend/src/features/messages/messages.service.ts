@@ -61,7 +61,7 @@ export class MessagesService {
     if (user) {
       throw new ForbiddenException('User is muted');
     }
-    if (channel.bannedUsers.find(user => user.id == authorId) != undefined) {
+    if (channel.bannedUsers.find((user) => user.id == authorId)) {
       throw new ForbiddenException('User is banned at this channel');
     }
     const newMessage = new MessagesEntity();

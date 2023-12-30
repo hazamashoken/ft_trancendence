@@ -8,6 +8,7 @@ import { ClientRequest } from 'http';
 import { send } from 'process';
 import { MatchsService } from '@backend/features/matchs/matchs.service';
 
+
 export class PongGame {
   _server: Server;
   _users: Map<string, PongUser>;
@@ -78,11 +79,14 @@ export class PongGame {
   public moveUserByID(id: string, room: string, team: string = Team.viewer) {
     if (this._users.has(id)) {
       const name: string = this._users.get(id).name;
+      const oldRoom: string = this._users.get(id).room;
+      this._server.in(id).socketsLeave(oldRoom);
       this.deleteUserByID(id);
       this.addUser(this._server, id, name, room, team);
       this._states.get(room).single = true;
       console.log(id + ' ' + name + ' joined ' + room);
       this.keypress(id, Keypress.release);
+
     }
   }
 

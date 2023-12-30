@@ -26,7 +26,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import {
   BannedEntity,
   ChannelsEntity,

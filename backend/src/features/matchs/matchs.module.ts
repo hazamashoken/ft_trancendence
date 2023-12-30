@@ -6,7 +6,6 @@ import { Match, Stats, User } from '@backend/typeorm';
 import { SharedModule } from '@backend/shared/shared.module';
 import { PongGateway } from '@backend/gateWay/pong.gateway';
 import { GatewayModule } from '@backend/gateWay/gateway.module';
-// import { PongModule } from '@backend/pong/pong.module';
 import { UserSessionModule } from '../user-session/user-session.module';
 
 @Module({

@@ -30,8 +30,10 @@ import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.int
 import { UserSessionService } from '@backend/features/user-session/user-session.service';
 import { SocketAuthMiddleware } from '@backend/shared/socket-auth.middleware';
 import { SocketAuthGuard } from '@backend/shared/socket-auth.guard';
+
 import { MatchsService } from '@backend/features/matchs/matchs.service';
 import { Team } from '@backend/pong/pong.enum';
+
 
 // export const _gameInstance: PongGame = new PongGame();
 
@@ -49,6 +51,7 @@ export class PongGateway {
     @Inject(forwardRef(() => MatchsService))
     private readonly matchService: MatchsService,
   ) {}
+
   @WebSocketServer()
   public server: Server = new Server<
     PongServerToClientEvents,
