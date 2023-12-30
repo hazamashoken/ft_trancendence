@@ -110,7 +110,7 @@ export function ChatSettingMenu() {
       toast.success("Update channel successfully");
     }
   };
-  const hidden = chatMeta?.data.chatOwner?.id !== session?.user?.id;
+  const hidden = chatMeta?.data?.chatOwner?.id !== session?.user?.id;
   return (
     <Dialog
       open={open}
