@@ -9,6 +9,8 @@ import { MessgesModule } from '@backend/features/messages/messages.module';
 import { MutedModule } from '@backend/features/muted/muted.module';
 import { ChatSocketService } from './chat/chatSocket.service';
 import { PongGateway } from './pong.gateway';
+import { MatchsModule } from '@backend/features/matchs/matchs.module';
+
 
 @Module({
   providers: [SessionGateway, ChatGateway, ChatSocketService, PongGateway],

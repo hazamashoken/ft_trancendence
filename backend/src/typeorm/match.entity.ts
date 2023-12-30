@@ -18,7 +18,7 @@ export class Match {
   matchId: number;
 
   @ApiProperty()
-  @ManyToOne(() => User, user => user.id)
+  @ManyToOne(() => User, user => user)
   @JoinColumn({ name: 'player1_id' })
   player1: User;
 
