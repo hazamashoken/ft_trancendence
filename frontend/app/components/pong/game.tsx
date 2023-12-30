@@ -78,7 +78,7 @@ export default function Game(props: any) {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex flex-row items-center m-1">
+      {/* <div className="flex flex-row items-center m-1">
         <Button
           className="mt-1 mb-1 ml-4 mr-4"
           variant={
@@ -103,7 +103,7 @@ export default function Game(props: any) {
         >
           Player 2
         </Button>
-      </div>
+      </div> */}
       <canvas
         id="game_canvas"
         width={props.width ?? "640"}

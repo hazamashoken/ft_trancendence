@@ -3,7 +3,8 @@ import { Pong, Phase, Team, Keypress } from './pong.enum';
 import { collision, winner } from './pong.collision';
 import { newGameState } from './pong.gamestate';
 
-const WIN_SCORE = 5;
+// TODO: change it bacck
+const WIN_SCORE = 1;
 const RESTART_DELAY = 10000;
 
 export class PongState {
@@ -32,38 +33,29 @@ export class PongState {
     this._state.changed = true;
   }
 
-  public get room()
-  : string
-  {
+  public get room(): string {
     return this._state.room;
   }
 
-  public set room(name: string)
-  {
+  public set room(name: string) {
     this._state.room = name;
     this._state.changed = true;
   }
 
-  public get player1()
-  : string
-  {
+  public get player1(): string {
     return this._state.player1.name;
   }
 
-  public set player1(name: string)
-  {
+  public set player1(name: string) {
     this._state.player1.name = name;
     this._state.changed = true;
   }
 
-  public get player2()
-  : string
-  {
+  public get player2(): string {
     return this._state.player2.name;
   }
 
-  public set player2(name: string)
-  {
+  public set player2(name: string) {
     this._state.player2.name = name;
     this._state.changed = true;
   }
@@ -92,25 +84,21 @@ export class PongState {
     this._single = single;
   }
 
-  public player1score()
-  {
+  public player1score() {
     return this._state.player1.score;
   }
 
-  public player2score()
-  {
+  public player2score() {
     return this._state.player1.score;
   }
 
-  public disableMultiball()
-  {
+  public disableMultiball() {
     this._state.player1.multiballs = 0;
     this._state.player2.multiballs = 0;
     this._state.multiball = [];
   }
 
-  public disablePowerup()
-  {
+  public disablePowerup() {
     this._state.player1.powerups = 0;
     this._state.player2.powerups = 0;
     this._state.player1.powerup = false;

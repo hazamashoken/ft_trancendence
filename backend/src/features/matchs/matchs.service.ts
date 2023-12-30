@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -162,35 +163,6 @@ export class MatchsService {
       throw new NotFoundException('MatchId not found, Cannot join the match.');
     }
 
-    //     if (!match.player1) {
-    //       // move player 1 to room
-    //       this.pongGateway
-    //         .getGameInstance()
-    //         .moveUserByName(
-    //           user.intraLogin,
-    //           match.matchId.toString(),
-    //           Team.player1,
-    //         );
-    //       return await this.matchRepository.save({
-    //         ...match,
-    //         player1: user,
-    //         status: 'STARTING',
-    //       });
-    //     } else if (!match.player2) {
-    //       // move player 2 to room
-    //       this.pongGateway
-    //         .getGameInstance()
-    //         .moveUserByName(
-    //           user.intraLogin,
-    //           match.matchId.toString(),
-    //           Team.player2,
-    //         );
-    //       return await this.matchRepository.save({
-    //         ...match,
-    //         player2: user,
-    //         status: 'STARTING',
-    //       });
-    // =======
     const userX = await this.userRepository.findOne({ where: { id: userId } });
     if (!userX)
       throw new HttpException(
@@ -198,9 +170,27 @@ export class MatchsService {
         HttpStatus.BAD_REQUEST,
       );
     if (
-      await this.matchRepository.findOne({
-        where: [{ player1: { id: userId } }, { player2: { id: userId } }],
-      })
+      await this.matchRepository
+        .createQueryBuilder('match')
+        .where(
+          '(match.player1.id = :user AND (match.status = :waiting OR match.status = :starting OR match.status = :playing))',
+          {
+            user: userId,
+            waiting: 'WAITING',
+            starting: 'STARTING',
+            playing: 'PLAYING',
+          },
+        )
+        .orWhere(
+          '(match.player2.id = :user AND (match.status = :waiting OR match.status = :starting OR match.status = :playing))',
+          {
+            user: userId,
+            waiting: 'WAITING',
+            starting: 'STARTING',
+            playing: 'PLAYING',
+          },
+        )
+        .getOne()
     ) {
       throw new HttpException(
         'User already in a match, Cannot join the match.',
@@ -282,7 +272,7 @@ export class MatchsService {
   //   return await this.matchRepository.save(match);
   // }
 
-  async leaveMatch(matchId: number, userId: number): Promise<Match> {
+  async leaveMatch(matchId: number, userId: number): Promise<Partial<Match>> {
     const match: Partial<Match> = await this.matchRepository.findOne({
       where: { matchId },
       relations: ['player1', 'player2'],
@@ -290,6 +280,14 @@ export class MatchsService {
 
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot leave the match.');
+    }
+    if (match.status === 'PLAYING') {
+      throw new BadRequestException(
+        'Match is playing, Cannot leave the match.',
+      );
+    }
+    if (match.status === 'FINISHED') {
+      return match;
     }
     // <<<<<<< feat/fix-pong
     //     if (match?.player1?.id === user.id) {
@@ -369,10 +367,12 @@ export class MatchsService {
   async startMatch(matchId: number): Promise<Match> {
     const match: Partial<Match> = await this.matchRepository.findOne({
       where: { matchId: matchId },
+      relations: ['player1', 'player2'],
     });
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot start the match.');
     }
+    if (match.status === 'PLAYING') return;
     return await this.matchRepository.save({
       ...match,
       status: 'PLAYING',
@@ -386,12 +386,14 @@ export class MatchsService {
   ): Promise<Match> {
     const match: Partial<Match> = await this.matchRepository.findOne({
       where: { matchId: matchId },
+      relations: ['player1', 'player2'],
     });
     if (!match) {
       throw new NotFoundException(
         'MatchId not found, Cannot finish the match.',
       );
     }
+    Logger.log(match, 'Match');
     const result: number = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
     this.updatePlayersStats(match.player1.id, match.player2.id, result);
     return await this.matchRepository.save({
@@ -623,9 +625,10 @@ export class MatchsService {
   async watchAMatch(matchId: number, authUser: string): Promise<Match> {
     const match = await this.matchRepository.findOne({
       where: { matchId: matchId },
-    })
-    if(!match)
+    });
+    if (!match) {
       throw new NotFoundException('Match not found, you cannot watch it.');
+    }
     const game = this.pongGateway.getGameInstance();
     game.moveUserByName(authUser, matchId.toString(), Team.spectator);
     return match;

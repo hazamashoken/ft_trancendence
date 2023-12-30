@@ -162,12 +162,15 @@ export class MatchsController {
 
   //Features
 
-  @Post('watch/:matchId')
-  @ApiOperation({summary: 'Watch a game match by match Id.',})
+  @Post(':matchId/watch')
+  @ApiOperation({ summary: 'Watch a game match by match Id.' })
   async watchAMatch(
     @Param('matchId') matchId: number,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<Match> {
-    return await this.matchService.watchAMatch(matchId, authUser.user.intraLogin);
+    return await this.matchService.watchAMatch(
+      matchId,
+      authUser.user.intraLogin,
+    );
   }
 }

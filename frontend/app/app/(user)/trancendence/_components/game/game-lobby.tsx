@@ -9,6 +9,7 @@ import { createMatch } from "../../_actions/game";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function GameLobby(props: { data: TMatch[] }) {
   const { data } = props;
@@ -29,13 +30,49 @@ export function GameLobby(props: { data: TMatch[] }) {
       <Button onClick={handleCreateRoom} disabled={isLoading}>
         Create Room
       </Button>
-      <ScrollArea className="border rounded-md">
-        <div className="space-y-1 h-[785px]">
-          {data.map((match, index) => (
-            <MatchItem key={index} {...match} />
-          ))}
-        </div>
-      </ScrollArea>
+      <Tabs defaultValue="1">
+        <TabsList>
+          <TabsTrigger value="1">WAITING</TabsTrigger>
+          <TabsTrigger value="2">ON GOING</TabsTrigger>
+          <TabsTrigger value="3">DONE</TabsTrigger>
+        </TabsList>
+        <TabsContent value="1">
+          <ScrollArea className="border rounded-md">
+            <div className="space-y-1 h-[785px]">
+              {data
+                .filter(
+                  (match) =>
+                    match.status === "WAITING" || match.status === "STARTING"
+                )
+                .map((match, index) => (
+                  <MatchItem key={index} {...match} />
+                ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="2">
+          <ScrollArea className="border rounded-md">
+            <div className="space-y-1 h-[785px]">
+              {data
+                .filter((match) => match.status === "PLAYING")
+                .map((match, index) => (
+                  <MatchItem key={index} {...match} />
+                ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="3">
+          <ScrollArea className="border rounded-md">
+            <div className="space-y-1 h-[785px]">
+              {data
+                .filter((match) => match.status === "FINISHED")
+                .map((match, index) => (
+                  <MatchItem key={index} {...match} />
+                ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </Card>
   );
 }

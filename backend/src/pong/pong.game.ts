@@ -7,8 +7,7 @@ import { newGameState } from './pong.gamestate';
 import { ClientRequest } from 'http';
 import { send } from 'process';
 import { MatchsService } from '@backend/features/matchs/matchs.service';
-import { startGameLoop,  } from './pong.gameloop';
-
+import { startGameLoop } from './pong.gameloop';
 
 export class PongGame {
   _server: Server;
@@ -87,7 +86,6 @@ export class PongGame {
       this._states.get(room).single = true;
       console.log(id + ' ' + name + ' joined ' + room);
       this.keypress(id, Keypress.release);
-
     }
   }
 
@@ -155,7 +153,11 @@ export class PongGame {
           const match = await this.matchService.findAMatchById(matchId);
           if (match) {
             if (match.status != 'FINISHED') {
-              this.matchService.finishMatch(matchId, state.player1score(), state.player2score());
+              this.matchService.finishMatch(
+                matchId,
+                state.player1score(),
+                state.player2score(),
+              );
             }
           }
         }
@@ -187,10 +189,15 @@ export class PongGame {
 
   public keypress(id: string, keypress: string) {
     const user: PongUser = this._users.get(id);
+    if (!user) return;
     const state: PongState = this._states.get(user.room);
 
     // if a spectator ignore key press
-    if (user.team == Team.spectator || state.phase == Phase.disconnect || state.phase == Phase.finish) {
+    if (
+      user.team == Team.spectator ||
+      state.phase == Phase.disconnect ||
+      state.phase == Phase.finish
+    ) {
       return;
     }
 
@@ -241,6 +248,7 @@ export class PongGame {
       state.phase == Phase.ready
     ) {
       // remove powerups for classic
+      this.matchService.startMatch(parseInt(user.room));
       if (keypress == Keypress.classic) {
         state.disableMultiball();
         state.disablePowerup();
