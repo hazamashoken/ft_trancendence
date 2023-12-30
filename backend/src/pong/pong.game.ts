@@ -7,6 +7,7 @@ import { newGameState } from './pong.gamestate';
 import { ClientRequest } from 'http';
 import { send } from 'process';
 import { MatchsService } from '@backend/features/matchs/matchs.service';
+import { startGameLoop,  } from './pong.gameloop';
 
 
 export class PongGame {
@@ -18,6 +19,7 @@ export class PongGame {
     this._users = new Map<string, PongUser>();
     this._states = new Map<string, PongState>();
     this.matchService = matchService;
+    startGameLoop(this.update);
   }
 
   public addUser(
@@ -52,7 +54,6 @@ export class PongGame {
       this.keypress(id, Keypress.player2);
     } else if (team == Team.spectator)
       this._users.get(id).team = Team.spectator;
-
     console.log(`User ${name} joined room ${room}`);
   }
 
@@ -135,7 +136,6 @@ export class PongGame {
     for (const user of this._users.values()) {
       if (user.room == room) {
         this._server.to(user.id).emit('pong_state', state);
-        console.log(user.id + ' ' + room);
       }
     }
     //console.log(state);
