@@ -69,7 +69,7 @@ export class MatchsController {
     @Param('matchId') matchId: string,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<Match> {
-    return this.matchService.joinMatch(+matchId, authUser.user);
+    return await this.matchService.joinMatch(+matchId, authUser.user.id);
   }
 
   @Delete(':matchId/leave')
@@ -83,7 +83,7 @@ export class MatchsController {
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<boolean> {
     const match = await this.matchService.leaveMatch(+matchId, authUser.user.id);
-    this.matchService.deleteIfEmptyMatch(match.matchId);
+    // this.matchService.deleteIfEmptyMatch(match.matchId);
     return true;
   }
 

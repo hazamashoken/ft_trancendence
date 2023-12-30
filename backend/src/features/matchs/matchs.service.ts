@@ -72,79 +72,129 @@ export class MatchsService {
     return newMatch;
   }
 
-  async joinMatch(matchId: number, user: User): Promise<Match> {
+  async joinMatch(matchId: number, userId: number): Promise<Match> {
     const match: Partial<Match> = await this.matchRepository.findOne({
-      where: { matchId: matchId },
+      where: { matchId },
+      relations: ['player1', 'player2'],
     });
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot join the match.');
     }
-
+    const userX = await this.userRepository.findOne({ where: { id: userId } });
+    if (!userX)
+      throw new HttpException(
+        'User not found, Cannot join the match.',
+        HttpStatus.BAD_REQUEST,
+      );
+    if (await this.matchRepository.findOne({
+      where: [
+        { player1: { id: userId } },
+        { player2: { id: userId } }
+      ]
+    })) {
+      throw new HttpException(
+        'User already in a match, Cannot join the match.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     if (!match.player1) {
-      // move player 1 to room
       _gameInstance.moveUserByName(
-        user.intraLogin,
+        userX.intraLogin,
         match.matchId.toString(),
         Team.player1,
       );
-      return await this.matchRepository.save({
-        ...match,
-        player1: user,
-        status: 'STARTING',
-      });
-    } else if (!match.player2) {
-      // move player 2 to room
+      match.player1 = userX;
+      match.status = 'WAITING';
+      return await this.matchRepository.save(match);
+    }
+
+    if (!match.player2) {
       _gameInstance.moveUserByName(
-        user.intraLogin,
+        userX.intraLogin,
         match.matchId.toString(),
         Team.player2,
       );
-      return await this.matchRepository.save({
-        ...match,
-        player2: user,
-        status: 'STARTING',
-      });
+      match.player2 = userX;
+      match.status = 'STARTING';
+      return await this.matchRepository.save(match);
     }
+  
     throw new HttpException(
       'Match is full, Cannot join the match.',
       HttpStatus.BAD_REQUEST,
     );
   }
 
-  async leaveMatch(matchId: number, user: number): Promise<Match> {
+  // async leaveMatch(matchId: number, user: number): Promise<Match> {
+  //   const match: Partial<Match> = await this.matchRepository.findOne({
+  //     where: { matchId: matchId },
+  //     relations: ['player1', 'player2'],
+  //   });
+  //   if (!match) {
+  //     throw new NotFoundException('MatchId not found, Cannot leave the match.');
+  //   }
+  //   const userX = await this.userRepository.findOne({ where: { id: user } });
+  //   if (match?.player1?.id === user) {
+  //     // move player to public channel
+  //     _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+  //     // return await this.matchRepository.save({
+  //     //   ...match,
+  //     //   player1: null,
+  //     //   status: 'WAITING',
+  //     // });
+  //     match.player1 = userX;
+  //     match.status = 'WAITING';
+  //     return await this.matchRepository.save(match);
+  //   } else if (match?.player2?.id === user) {
+  //     // move player to public channel
+  //     _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+  //     // return await this.matchRepository.save({
+  //     //   ...match,
+  //     //   player2: null,
+  //     //   status: 'WAITING',
+  //     // });
+  //     match.player2 = null;
+  //     match.status = 'WAITING';
+  //     return await this.matchRepository.save(match);
+  //   }
+
+  //   throw new HttpException(
+  //     'User is not in the match, Cannot leave the match.',
+  //     HttpStatus.BAD_REQUEST,
+  //   );
+  //   return await this.matchRepository.save(match);
+  // }
+
+  async leaveMatch(matchId: number, userId: number): Promise<Match> {
     const match: Partial<Match> = await this.matchRepository.findOne({
-      where: { matchId: matchId },
+      where: { matchId },
+      relations: ['player1', 'player2'],
     });
+  
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot leave the match.');
     }
-    const userX = await this.userRepository.findOne({ where: { id: user } });
-    if (match?.player1?.id === user) {
-      // move player to public channel
+  
+    const userX = await this.userRepository.findOne({ where: { id: userId } });
+  
+    if (match?.player1?.id === userId) {
       _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
-      // return await this.matchRepository.save({
-      //   ...match,
-      //   player1: null,
-      //   status: 'WAITING',
-      // });
-      let newMatch = {...match};
-      newMatch.player1 = null;
-      newMatch.status = 'WAITING';
-      return await this.matchRepository.save(newMatch);
-    } else if (match?.player2?.id === user) {
-      // move player to public channel
+      match.player1 = null;
+      match.status = 'WAITING';
+      if (!match?.player2) {
+        this.matchRepository.delete({ matchId: matchId });
+      }
+      return await this.matchRepository.save(match);
+    } else if (match?.player2?.id === userId) {
       _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
-      // return await this.matchRepository.save({
-      //   ...match,
-      //   player2: null,
-      //   status: 'WAITING',
-      // });
-      let newMatch = {...match};
-      newMatch.player1 = null;
-      newMatch.status = 'WAITING';
-      return await this.matchRepository.save(newMatch);
+      match.player2 = null;
+      match.status = 'WAITING';
+      if (!match?.player1) {
+        this.matchRepository.delete({ matchId: matchId });
+      }
+      return await this.matchRepository.save(match);
     }
-
+  
     throw new HttpException(
       'User is not in the match, Cannot leave the match.',
       HttpStatus.BAD_REQUEST,
