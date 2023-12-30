@@ -2,6 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
+  OneToOne,
+  JoinColumn,
   Unique,
   OneToOne,
   JoinColumn,
@@ -61,4 +63,9 @@ export class User {
   @ApiProperty()
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  // @ApiProperty()
+  // @OneToOne(() => Stats, (stats) => stats.user)
+  // @JoinColumn()
+  // stats: Stats;
 }

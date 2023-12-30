@@ -76,6 +76,55 @@ export class MatchsService {
     return newMatch;
   }
 
+  /*
+   * [function] invite a player to a match by input the playerId and matchId.
+   * => [match] the match is success to invite a player.
+   * => [-1] the match is fail to invite a player. */
+  async invitePlayer(playerId: number, matchId: number): Promise<Match> {
+    const match: Partial<Match> = await this.matchRepository.findOne({
+      where: { matchId: matchId },
+    });
+    if (!match) {
+      throw new NotFoundException(
+        'You are not in a game, Cannot invite the player.',
+      );
+    }
+    const player: Partial<User> = await this.userRepository.findOne({
+      where: { id: playerId },
+    });
+    if (!player) {
+      throw new NotFoundException(
+        'PlayerId not found, Cannot invite the player.',
+      );
+    }
+    if (match.player2) {
+      throw new HttpException(
+        'Match is full, Cannot invite the player.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const otherMatch = await this.matchRepository
+      .createQueryBuilder('match')
+      .where(
+        '(match.player1.id = :user AND (match.status = :waiting OR match.status = :starting))',
+        { user: player.id, waiting: 'WAITING', starting: 'STARTING' },
+      )
+      .orWhere(
+        '(match.player2.id = :user AND (match.status = :waiting OR match.status = :starting))',
+        { user: player.id, waiting: 'WAITING', starting: 'STARTING' },
+      )
+      .getOne();
+
+    if (otherMatch) {
+      throw new ConflictException('Player is already in a match.');
+    }
+    return await this.matchRepository.save({
+      ...match,
+      player2: player,
+      status: 'STARTING',
+    });
+  }
+
   async joinMatch(matchId: number, userId: number): Promise<Match> {
     const match: Partial<Match> = await this.matchRepository.findOne({
       where: { matchId },
@@ -85,47 +134,46 @@ export class MatchsService {
       throw new NotFoundException('MatchId not found, Cannot join the match.');
     }
 
-//     if (!match.player1) {
-//       // move player 1 to room
-//       this.pongGateway
-//         .getGameInstance()
-//         .moveUserByName(
-//           user.intraLogin,
-//           match.matchId.toString(),
-//           Team.player1,
-//         );
-//       return await this.matchRepository.save({
-//         ...match,
-//         player1: user,
-//         status: 'STARTING',
-//       });
-//     } else if (!match.player2) {
-//       // move player 2 to room
-//       this.pongGateway
-//         .getGameInstance()
-//         .moveUserByName(
-//           user.intraLogin,
-//           match.matchId.toString(),
-//           Team.player2,
-//         );
-//       return await this.matchRepository.save({
-//         ...match,
-//         player2: user,
-//         status: 'STARTING',
-//       });
-// =======
+    //     if (!match.player1) {
+    //       // move player 1 to room
+    //       this.pongGateway
+    //         .getGameInstance()
+    //         .moveUserByName(
+    //           user.intraLogin,
+    //           match.matchId.toString(),
+    //           Team.player1,
+    //         );
+    //       return await this.matchRepository.save({
+    //         ...match,
+    //         player1: user,
+    //         status: 'STARTING',
+    //       });
+    //     } else if (!match.player2) {
+    //       // move player 2 to room
+    //       this.pongGateway
+    //         .getGameInstance()
+    //         .moveUserByName(
+    //           user.intraLogin,
+    //           match.matchId.toString(),
+    //           Team.player2,
+    //         );
+    //       return await this.matchRepository.save({
+    //         ...match,
+    //         player2: user,
+    //         status: 'STARTING',
+    //       });
+    // =======
     const userX = await this.userRepository.findOne({ where: { id: userId } });
     if (!userX)
       throw new HttpException(
         'User not found, Cannot join the match.',
         HttpStatus.BAD_REQUEST,
       );
-    if (await this.matchRepository.findOne({
-      where: [
-        { player1: { id: userId } },
-        { player2: { id: userId } }
-      ]
-    })) {
+    if (
+      await this.matchRepository.findOne({
+        where: [{ player1: { id: userId } }, { player2: { id: userId } }],
+      })
+    ) {
       throw new HttpException(
         'User already in a match, Cannot join the match.',
         HttpStatus.BAD_REQUEST,
@@ -155,9 +203,9 @@ export class MatchsService {
       match.player2 = userX;
       match.status = 'STARTING';
       return await this.matchRepository.save(match);
-// >>>>>>> dev
+      // >>>>>>> dev
     }
-  
+
     throw new HttpException(
       'Match is full, Cannot join the match.',
       HttpStatus.BAD_REQUEST,
@@ -175,7 +223,8 @@ export class MatchsService {
   //   const userX = await this.userRepository.findOne({ where: { id: user } });
   //   if (match?.player1?.id === user) {
   //     // move player to public channel
-  //     _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+  //     this.pongGateway
+  // .getGameInstance().moveUserByName(userX.intraLogin, 'public channel');
   //     // return await this.matchRepository.save({
   //     //   ...match,
   //     //   player1: null,
@@ -186,7 +235,8 @@ export class MatchsService {
   //     return await this.matchRepository.save(match);
   //   } else if (match?.player2?.id === user) {
   //     // move player to public channel
-  //     _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+  //     this.pongGateway
+  // .getGameInstance().moveUserByName(userX.intraLogin, 'public channel');
   //     // return await this.matchRepository.save({
   //     //   ...match,
   //     //   player2: null,
@@ -209,37 +259,36 @@ export class MatchsService {
       where: { matchId },
       relations: ['player1', 'player2'],
     });
-  
+
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot leave the match.');
     }
-// <<<<<<< feat/fix-pong
-//     if (match?.player1?.id === user.id) {
-//       // move player to public channel
-//       this.pongGateway
-//         .getGameInstance()
-//         .moveUserByName(user.intraLogin, 'public channel');
-//       return await this.matchRepository.save({
-//         ...match,
-//         player1: null,
-//         status: 'WAITING',
-//       });
-//     } else if (match?.player2?.id === user.id) {
-//       // move player to public channel
-//       this.pongGateway
-//         .getGameInstance()
-//         .moveUserByName(user.intraLogin, 'public channel');
-//       return await this.matchRepository.save({
-//         ...match,
-//         player2: null,
-//         status: 'WAITING',
-//       });
-// =======
-  
+    // <<<<<<< feat/fix-pong
+    //     if (match?.player1?.id === user.id) {
+    //       // move player to public channel
+    //       this.pongGateway
+    //         .getGameInstance()
+    //         .moveUserByName(user.intraLogin, 'public channel');
+    //       return await this.matchRepository.save({
+    //         ...match,
+    //         player1: null,
+    //         status: 'WAITING',
+    //       });
+    //     } else if (match?.player2?.id === user.id) {
+    //       // move player to public channel
+    //       this.pongGateway
+    //         .getGameInstance()
+    //         .moveUserByName(user.intraLogin, 'public channel');
+    //       return await this.matchRepository.save({
+    //         ...match,
+    //         player2: null,
+    //         status: 'WAITING',
+    //       });
+    // =======
+
     const userX = await this.userRepository.findOne({ where: { id: userId } });
-  
+
     if (match?.player1?.id === userId) {
-      // _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
       this.pongGateway
         .getGameInstance()
         .moveUserByName(userX.intraLogin, 'public channel');
@@ -250,7 +299,6 @@ export class MatchsService {
       }
       return await this.matchRepository.save(match);
     } else if (match?.player2?.id === userId) {
-      // _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
       this.pongGateway
         .getGameInstance()
         .moveUserByName(userX.intraLogin, 'public channel');
@@ -260,9 +308,9 @@ export class MatchsService {
         this.matchRepository.delete({ matchId: matchId });
       }
       return await this.matchRepository.save(match);
-// >>>>>>> dev
+      // >>>>>>> dev
     }
-  
+
     throw new HttpException(
       'User is not in the match, Cannot leave the match.',
       HttpStatus.BAD_REQUEST,

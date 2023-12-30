@@ -31,6 +31,7 @@ export function ChangeNameDialog(props: any) {
   const { session, open, setOpen } = props;
   const form = useForm({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       displayName: session?.ftUser?.displayName,
     },

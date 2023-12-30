@@ -15,7 +15,7 @@ export function FriendShipList() {
     queryKey: ["friends"],
     enabled: isConnected,
     queryFn: () => client.get(`/me/friends`).then((res) => res.data),
-    // refetchInterval: 1000,
+    refetchInterval: 2000,
   });
 
   React.useEffect(() => {

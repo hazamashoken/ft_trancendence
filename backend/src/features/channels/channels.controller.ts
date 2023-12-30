@@ -211,7 +211,7 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ChatUserDto[]> {
-    return this.channelsService.addUserToPublicChat(chatId, authUser.user.id);
+    return await this.channelsService.addUserToPublicChat(chatId, authUser.user.id);
   }
 
   @Post('create')
@@ -306,7 +306,10 @@ export class ChannelsController {
     @Body() dto: dmCreate,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ChannelsEntity> {
-    this.chatGateway.sendEvents('dmCreated'),
+    this.chatGateway.sendEvents({
+      event: 'dmCreated',
+      userId: dto.user2.toString(),
+    }),
       { user1: authUser.user.id, user2: dto.user2 };
     return this.channelsService.createDm(dto.user1, dto.user2);
   }
@@ -412,6 +415,7 @@ export class ChannelsController {
         message: 'user added',
         chatId: chatId,
         event: 'addUsersToChat',
+        userName: userName,
       });
       return await this.channelsService.addUserToChatByName(
         chatId,
@@ -454,6 +458,7 @@ export class ChannelsController {
       message: 'user removed',
       chatId: chatId,
       event: 'getChatUsers',
+      userId: userId,
     });
     return await this.channelsService.removeUserFromChat(
       chatId,
@@ -519,7 +524,7 @@ export class ChannelsController {
       this.chatGateway.sendEvents({
         message: 'admin added',
         chatId: chatId,
-        event: 'getChatAdmins',
+        event: 'getChatUsers',
       });
       return await this.channelsService.addAdminToChat(
         chatId,
@@ -562,7 +567,7 @@ export class ChannelsController {
       this.chatGateway.sendEvents({
         message: 'admin removed',
         chatId: chatId,
-        event: 'getChatAdmins',
+        event: 'getChatUsers',
       });
       return await this.channelsService.removeAdminFromChat(
         chatId,
@@ -655,7 +660,7 @@ export class ChannelsController {
     this.chatGateway.sendEvents({
       message: 'user banned',
       chatId: chatId,
-      event: 'getChatBanned',
+      event: 'getChatUsers',
     });
     return await this.bannedService.createBanned(
       chatId,
