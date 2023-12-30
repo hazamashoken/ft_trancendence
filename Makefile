@@ -1,14 +1,29 @@
 
 PWD := $(shell pwd)
-all: run-backend run-database run-frontend
+
+DEV_FILE="docker-compose.dev.yml"
+PROD_FILE="docker-compose.yml"
+
+all: prod
+
+prod:
+	# mkdir -p backend/data
+	# mkdir -p database/data
+	docker compose up --build --detach
+
+run-frontend:
+	docker compose up --build --detach frontend
+
+run-backend:
+	docker compose up --build --detach backend
+
+run-database:
+	docker compose up --build --detach database
 
 dev:
 	npm install --prefix frontend/app
 	npm install --prefix backend
-	docker compose up --build --detach
-
-run-backend:
-	docker compose up --build --detach backend
+	docker compose --file ${DEV_FILE} up --build --detach
 
 dev-backend:
 	npm install --prefix backend
@@ -34,26 +49,16 @@ dev-frontend:
 		--volume $(PWD)/frontend/app:/app \
 		frontend
 
-backend-start-dev:
-	docker exec -ti nestjs npm run start:dev
-
 dev-kill:
 	docker compose kill
 
-run-database:
-	docker compose up --build --detach database
-
-run-frontend:
-	docker compose up --build --detach frontend
 
 seed-database:
 	cd database && npm install && npm run start
 
-re-backend: clean run-backend
+re: clean prod
 
-re-frontend: clean run-frontend
-
-re: clean run-backend
+re-dev: clean dev
 
 stop:
 	docker compose stop
@@ -74,4 +79,4 @@ fclean: clean
 	-sudo rm -rf database/node_modules
 	-sudo rm -rf frontend/app/node_modules
 
-.PHONY: dev-backend dev-kill run-backend re-backend run-frontend all stop down re clean
+.PHONY: prod dev dev-frontend dev-backend dev-kill run-backend re-backend run-frontend all stop down re clean
