@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { GameSocketProvider } from "@/components/providers/game-socket-provider";
+import { StatusSocketProvider } from "@/components/providers/status-socket.provider";
 
 type INextAuthProvider = {
   children?: React.ReactNode;
@@ -61,15 +62,17 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       <QueryProvider client={queryClient}>
         <SocketProvider>
           <GameSocketProvider>
-            <TooltipProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="light"
-                enableSystem={false}
-              >
-                {children}
-              </ThemeProvider>
-            </TooltipProvider>
+            <StatusSocketProvider>
+              <TooltipProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="light"
+                  enableSystem={false}
+                >
+                  {children}
+                </ThemeProvider>
+              </TooltipProvider>
+            </StatusSocketProvider>
           </GameSocketProvider>
         </SocketProvider>
       </QueryProvider>

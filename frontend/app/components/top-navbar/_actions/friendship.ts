@@ -37,6 +37,40 @@ export async function addFriendUsername(values: { username: string }) {
 
   return { data };
 }
+
+export async function addFriendId(values: { userId: number }) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { error: "No session found" };
+  }
+  const accessToken = session?.accessToken;
+  if (!accessToken) {
+    return { error: "No registered" };
+  }
+
+  const response = await fetch(
+    `${process.env.BACKEND_URL}/me/friends/request`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.X_API_KEY as string,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(values),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  revalidateTag("friends");
+
+  return { data };
+}
 export async function acceptFriend(values: { userId: number }) {
   const session = await getServerSession(authOptions);
   if (!session) {

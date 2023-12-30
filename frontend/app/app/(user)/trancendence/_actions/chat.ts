@@ -385,6 +385,8 @@ export const muteChatUser = async (payload: {
     body.mutedById = parseInt(body.mutedById);
   }
 
+  console.log(body);
+
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/muteUser`;
   const response = await fetch(url, {
     method: "POST",
@@ -416,10 +418,15 @@ export const unMuteChatUser = async (payload: {
   if (!accessToken) {
     return { error: "No registered" };
   }
-  const { chatId, ...body } = payload;
-  if (typeof body.userId === "string") {
-    body.userId = parseInt(body.userId);
+  const { chatId, userId } = payload;
+  let body = {
+    userId: userId,
+  };
+  if (typeof userId === "string") {
+    body.userId = parseInt(userId);
   }
+
+  console.log(body);
 
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/unmute`;
   const response = await fetch(url, {
@@ -471,6 +478,65 @@ export const banChatUser = async (payload: {
   });
 
   const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data };
+};
+
+export const unbanChatUser = async (userId: number, chatId: number) => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { error: "No session found" };
+  }
+  const accessToken = session?.accessToken;
+  if (!accessToken) {
+    return { error: "No registered" };
+  }
+
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/unBan`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ userId }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    return { error: data.message };
+  }
+
+  return { data };
+};
+
+export const getBanlist = async (chatId: number) => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { error: "No session found" };
+  }
+  const accessToken = session?.accessToken;
+  if (!accessToken) {
+    return { error: "No registered" };
+  }
+
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/bannedUsers`;
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.X_API_KEY as string,
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  const data = await response.json();
+
+  console.log(data);
   if (!response.ok) {
     return { error: data.message };
   }

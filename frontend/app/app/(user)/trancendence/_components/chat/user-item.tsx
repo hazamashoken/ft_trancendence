@@ -27,6 +27,7 @@ import {
   banChatUser,
   addChatAdmin,
   removeChatAdmin,
+  unbanChatUser,
 } from "../../_actions/chat";
 import {
   Tooltip,
@@ -37,14 +38,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createAbbreviation } from "@/lib/utils";
 import { toast } from "sonner";
 import { blockUser, unblockUser } from "../../_actions/user";
+import { inviteToMyGame } from "../../_actions/game";
+import { addFriend } from "../../_actions/friend";
+import {
+  addFriendId,
+  removeFriend,
+} from "@/components/top-navbar/_actions/friendship";
+import { useSession } from "next-auth/react";
+import React from "react";
 
 export function UserItem(props: any) {
-  const { user, chatId, role } = props;
+  const { data: session } = useSession();
+  const { user, chatId, role, authUser, userId } = props;
+  const [isSelf, setIsSelf] = React.useState(false);
   const handleMuteUser = async (min: number, userId: string) => {
     const payload = {
       chatId: chatId,
       userId: userId,
-      mutedById: "4",
+      mutedById: user?.id,
       mutedUntil: new Date(Date.now() + min * 60000).toISOString(),
     };
     const res = await muteChatUser(payload);
@@ -55,12 +66,16 @@ export function UserItem(props: any) {
     }
   };
 
+  React.useEffect(() => {
+    setIsSelf(session?.user?.id === user.id);
+  }, [session]);
+
   return (
     <>
       <Popover>
         <ContextMenu>
           <PopoverTrigger>
-            <ContextMenuTrigger>
+            <ContextMenuTrigger disabled={isSelf}>
               <Tooltip delayDuration={10}>
                 <TooltipTrigger>
                   <Avatar>
@@ -76,8 +91,9 @@ export function UserItem(props: any) {
           </PopoverTrigger>
           <ContextMenuContent hidden={props.userId === user.id.toString()}>
             <ContextMenuItem
+              disabled={isSelf}
               onClick={async () => {
-                const res = await createDMChannelAction(props.userId, user.id);
+                const res = await createDMChannelAction(authUser?.id, user.id);
                 if (res.data) {
                   toast.success("Create DM success");
                 } else {
@@ -87,10 +103,43 @@ export function UserItem(props: any) {
             >
               create DM
             </ContextMenuItem>
-            <ContextMenuItem disabled>invite to game</ContextMenuItem>
+            <ContextMenuItem
+              onClick={async () => {
+                const res = await inviteToMyGame(user.id);
+                if (res.data) {
+                  toast.success("Invite to game success");
+                } else {
+                  toast.error(res.error);
+                }
+              }}
+            >
+              invite to game
+            </ContextMenuItem>
             <ContextMenuSeparator />
-            <ContextMenuItem disabled>add friend</ContextMenuItem>
-            <ContextMenuItem disabled>remove friend</ContextMenuItem>
+            <ContextMenuItem
+              onClick={async () => {
+                const res = await addFriendId({ userId: user.id });
+                if (res.data) {
+                  toast.success("Add friend success");
+                } else {
+                  toast.error(res.error);
+                }
+              }}
+            >
+              add friend
+            </ContextMenuItem>
+            <ContextMenuItem
+              onClick={async () => {
+                const res = await removeFriend({ userId: user.id });
+                if (res.data) {
+                  toast.success("Remove friend success");
+                } else {
+                  toast.error(res.error);
+                }
+              }}
+            >
+              remove friend
+            </ContextMenuItem>
             <ContextMenuSeparator />
             <ContextMenuItem
               onClick={async () => {
@@ -199,6 +248,18 @@ export function UserItem(props: any) {
               }}
             >
               ban
+            </ContextMenuItem>
+            <ContextMenuItem
+              onClick={async () => {
+                const res = await unbanChatUser(user.id, chatId);
+                if (res.data) {
+                  toast.success("Unban user success");
+                } else {
+                  toast.error(res.error);
+                }
+              }}
+            >
+              unban
             </ContextMenuItem>
             <ContextMenuSeparator />
             <ContextMenuItem

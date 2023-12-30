@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export interface IChatStore {
-  chatId: string;
+  chatId: any;
   chatList: any[];
   chatUserList: any[];
   chatMeta: any;

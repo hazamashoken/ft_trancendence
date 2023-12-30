@@ -193,6 +193,11 @@ export class ChannelsController {
     @AuthUser() authUser: AuthUserInterface,
     @Body() dto: { chatName: string; password: string },
   ): Promise<ChatUserDto[]> {
+    this.chatGateway.sendEvents({
+      message: 'user added',
+      chatId: chatId,
+      event: 'getChatUsers',
+    });
     return this.channelsService.addUserToProtectedChat(
       dto.chatName,
       dto.password,
@@ -211,7 +216,15 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ChatUserDto[]> {
-    return await this.channelsService.addUserToPublicChat(chatId, authUser.user.id);
+    this.chatGateway.sendEvents({
+      message: 'user added',
+      chatId: chatId,
+      event: 'getChatUsers',
+    });
+    return await this.channelsService.addUserToPublicChat(
+      chatId,
+      authUser.user.id,
+    );
   }
 
   @Post('create')
@@ -604,17 +617,17 @@ export class ChannelsController {
   //     }
   //   }
 
-  //   @Get(':chatId/bannedUsers')
-  //   @ApiOperation({ summary: 'get all admins in chat' })
-  //   @ApiParam({
-  //     name: 'chatId',
-  //     type: Number,
-  //     description: 'The ID of the chat',
-  //     example: 22,
-  //   })
-  //   async getBanned(@Param('chatId') chatId: number): Promise<ReturnBannedDto[]> {
-  //     return await this.bannedService.findAllBannedUsersInChat(chatId);
-  //   }
+  @Get(':chatId/bannedUsers')
+  @ApiOperation({ summary: 'get all admins in chat' })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 22,
+  })
+  async getBanned(@Param('chatId') chatId: number): Promise<ReturnBannedDto[]> {
+    return await this.bannedService.findAllBannedUsersInChat(chatId);
+  }
 
   @Post(':chatId/banUser/:adminId')
   @ApiOperation({
@@ -704,44 +717,44 @@ export class ChannelsController {
   //     );
   //   }
 
-  //   @Post(':chatId/unBan')
-  //   @ApiOperation({
-  //     summary: 'unban user from chat',
-  //   })
-  //   @ApiParam({
-  //     name: 'chatId',
-  //     type: Number,
-  //     description: 'The ID of the chat',
-  //     example: 42,
-  //   })
-  //   @ApiBody({
-  //     description: 'id of user to unban',
-  //     type: BanUserDto,
-  //     examples: {
-  //       NormalRequest: {
-  //         summary: 'A normal example',
-  //         value: {
-  //           userId: 123,
-  //         },
-  //       },
-  //     },
-  //   })
-  //   async unbanUser(
-  //     @Param('chatId') chatId: number,
-  //     @Body() dto: { userId: number },
-  //     @AuthUser() authUser: AuthUserInterface,
-  //   ): Promise<ReturnBannedDto[]> {
-  //     this.chatGateway.sendEvents({
-  //       message: 'user unbanned',
-  //       chatId: chatId,
-  //       event: 'unbanUser',
-  //     });
-  //     return await this.bannedService.unbanUser(
-  //       chatId,
-  //       dto.userId,
-  //       authUser.user.id,
-  //     );
-  //   }
+  @Post(':chatId/unBan')
+  @ApiOperation({
+    summary: 'unban user from chat',
+  })
+  @ApiParam({
+    name: 'chatId',
+    type: Number,
+    description: 'The ID of the chat',
+    example: 42,
+  })
+  @ApiBody({
+    description: 'id of user to unban',
+    type: BanUserDto,
+    examples: {
+      NormalRequest: {
+        summary: 'A normal example',
+        value: {
+          userId: 123,
+        },
+      },
+    },
+  })
+  async unbanUser(
+    @Param('chatId') chatId: number,
+    @Body() dto: { userId: number },
+    @AuthUser() authUser: AuthUserInterface,
+  ): Promise<ReturnBannedDto[]> {
+    this.chatGateway.sendEvents({
+      message: 'user unbanned',
+      chatId: chatId,
+      event: 'getChatUsers',
+    });
+    return await this.bannedService.unbanUser(
+      chatId,
+      dto.userId,
+      authUser.user.id,
+    );
+  }
 
   //   // @Post(':messageId/updateMessage')
   //   // @ApiOperation({
@@ -899,98 +912,97 @@ export class ChannelsController {
   //     return await this.channelsService.getMute(chatId, authUser.user.id);
   //   }
 
-    @Post(':chatId/muteUser')
-    @ApiOperation({
-      summary: 'mute user in chat',
-    })
-    @ApiParam({
-      name: 'chatId',
-      type: Number,
-      description: 'The ID of the chat',
-      example: 42,
-    })
-    @ApiBody({
-      description: 'mute user in chat',
-      type: CreateMuteDto,
-      examples: {
-        NormalRequest: {
-          summary: 'Mute user dto example',
-          value: {
-            userId: 123,
-            mutedById: 123,
-            mutedUntil: new Date(),
-          },
-        },
-      },
-    })
-    async muteuUser(
-      @Param('chatId') chatId: number,
-      @AuthUser() authUser: AuthUserInterface,
-      @Body() dto: CreateMuteDto,
-    ): Promise<ReturnMutedDto[]> {
-      this.chatGateway.sendEvents({
-        message: 'user muted',
-        event: 'getChatMuted',
-      });
-      dto.mutedById = authUser.user.id;
-      return await this.channelsService.muteUser(
-        dto.userId,
-        chatId,
-        dto.mutedById,
-        dto.mutedUntil,
-      );
-    }
-
-  
-
-  @Post(':chatId/unmute/')
+  @Post(':chatId/muteUser')
   @ApiOperation({
-    summary: 'unmute user in chat',
+    summary: 'mute user in chat',
   })
   @ApiParam({
     name: 'chatId',
     type: Number,
     description: 'The ID of the chat',
-    example: 4  @Post(':chatId/muteUpdate')
-    @ApiOperation({
-      summary: 'update mute user in chat',
-    })
-    @ApiParam({
-      name: 'chatId',
-      type: Number,
-      description: 'The ID of the chat',
-      example: 42,
-    })
-    @ApiBody({
-      description: 'update mute user in chat',
-      type: UpdateMuteDto,
-      examples: {
-        NormalRequest: {
-          summary: 'Update mute user dto example',
-          value: {
-            muteId: 123,
-            mutedUntil: new Date(),
-          },
+    example: 42,
+  })
+  @ApiBody({
+    description: 'mute user in chat',
+    type: CreateMuteDto,
+    examples: {
+      NormalRequest: {
+        summary: 'Mute user dto example',
+        value: {
+          userId: 123,
+          mutedById: 123,
+          mutedUntil: new Date(),
         },
       },
-    })
-    async updateMute(
-      @Param('chatId') chatId: number,
-      @Body() dto: UpdateMuteDto,
-      @AuthUser() authUser: AuthUserInterface,
-    ): Promise<ReturnMutedDto[]> {
-      this.chatGateway.sendEvents({
-        message: 'user muted',
-        event: 'getChatMuted',
-      });
-      return await this.channelsService.muteUpdated(
-        dto.muteId,
-        chatId,
-        authUser.user.id,
-        dto.mutedUntil,
-      );
-    }2,
+    },
   })
+  async muteuUser(
+    @Param('chatId') chatId: number,
+    @AuthUser() authUser: AuthUserInterface,
+    @Body() dto: CreateMuteDto,
+  ): Promise<ReturnMutedDto[]> {
+    this.chatGateway.sendEvents({
+      message: 'user muted',
+      event: 'getChatMuted',
+    });
+    dto.mutedById = authUser.user.id;
+    return await this.channelsService.muteUser(
+      dto.userId,
+      chatId,
+      dto.mutedById,
+      dto.mutedUntil,
+    );
+  }
+
+  // @ApiOperation({
+  //   summary: 'unmute user in chat',
+  // })
+  // @ApiParam({
+  //   name: 'chatId',
+  //   type: Number,
+  //   description: 'The ID of the chat',
+  //   example: 4  @Post(':chatId/muteUpdate')
+  //   @ApiOperation({
+  //     summary: 'update mute user in chat',
+  //   })
+  //   @ApiParam({
+  //     name: 'chatId',
+  //     type: Number,
+  //     description: 'The ID of the chat',
+  //     example: 42,
+  //   })
+  //   @ApiBody({
+  //     description: 'update mute user in chat',
+  //     type: UpdateMuteDto,
+  //     examples: {
+  //       NormalRequest: {
+  //         summary: 'Update mute user dto example',
+  //         value: {
+  //           muteId: 123,
+  //           mutedUntil: new Date(),
+  //         },
+  //       },
+  //     },
+  //   })
+  @Post(':chatId/update-mute/')
+  async updateMute(
+    @Param('chatId') chatId: number,
+    @Body() dto: UpdateMuteDto,
+    @AuthUser() authUser: AuthUserInterface,
+  ): Promise<ReturnMutedDto[]> {
+    this.chatGateway.sendEvents({
+      message: 'user muted',
+      event: 'getChatMuted',
+    });
+    return await this.channelsService.muteUpdated(
+      dto.muteId,
+      chatId,
+      authUser.user.id,
+      dto.mutedUntil,
+    );
+  }
+
+  @Post(':chatId/unmute/')
   @ApiBody({
     description: 'unmute user in chat',
     type: muteD,

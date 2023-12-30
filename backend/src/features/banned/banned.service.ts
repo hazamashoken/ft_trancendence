@@ -42,6 +42,15 @@ export class BannedService {
   }
 
   async findAllBannedUsersInChat(chatId: number): Promise<ReturnBannedDto[]> {
+    const chat = await this.channelRepository.findOne({
+      where: { chatId: chatId },
+      relations: ['bannedUsers'],
+    });
+
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
+
     const banned = await this.bannedRepository.find({
       where: { bannedAt: { chatId: chatId } },
       relations: ['bannedUser', 'bannedBy', 'bannedAt'],
@@ -49,7 +58,6 @@ export class BannedService {
     const retBanned = banned.map(ban => {
       return this.entToDto(ban);
     });
-    if (retBanned.length == 0) return null;
     return retBanned;
   }
 
@@ -96,7 +104,7 @@ export class BannedService {
     });
     if (!banned_user) {
       throw new NotFoundException('User not found');
-    } else if (banned_user === chat1.chatOwner) {
+    } else if (banned_user.id === chat1.chatOwner.id) {
       throw new ForbiddenException('U cant ban channel owner');
     }
 

@@ -13,7 +13,7 @@ export const blockUser = async (payload: any) => {
     return { error: "No registered" };
   }
   const { userId, blockId } = payload;
-  const url = `${process.env.BACKEND_URL}/user/${userId}/block`;
+  const url = `${process.env.BACKEND_URL}/user/${blockId}/block`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -21,7 +21,7 @@ export const blockUser = async (payload: any) => {
       "x-api-key": process.env.X_API_KEY as string,
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ userId: blockId }),
+    body: null,
   });
 
   const data = await response.json();
@@ -41,7 +41,7 @@ export const unblockUser = async (payload: any) => {
     return { error: "No registered" };
   }
   const { userId, blockId } = payload;
-  const url = `${process.env.BACKEND_URL}/user/${userId}/unblock`;
+  const url = `${process.env.BACKEND_URL}/user/${blockId}/unblock`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -49,7 +49,7 @@ export const unblockUser = async (payload: any) => {
       "x-api-key": process.env.X_API_KEY as string,
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ userId: blockId }),
+    body: null,
   });
 
   const data = await response.json();
@@ -68,7 +68,7 @@ export const getBlockUsers = async (userId: string = "1") => {
   if (!accessToken) {
     return { error: "No registered" };
   }
-  const url = `${process.env.BACKEND_URL}/user/${userId}/block`;
+  const url = `${process.env.BACKEND_URL}/user/blocklist`;
   const response = await fetch(url, {
     method: "GET",
     headers: {

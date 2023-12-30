@@ -19,12 +19,27 @@ import { NotificationItem } from "./friendship-item";
 // Icons
 import { Contact, Loader2Icon } from "lucide-react";
 import { FriendshipAddUserDialog } from "./friendship-add-dialong";
+import { useStatusSocket } from "../providers/status-socket.provider";
+import React from "react";
 
 export function FriendshipBtn(props: any) {
   const { items, loading } = props;
+  const [onlineUsers, setOnlineUsers] = React.useState({});
+  const [ingameUsers, setIngameUsers] = React.useState({});
+
+  const { isConnected, socket } = useStatusSocket();
+
+  React.useEffect(() => {
+    if (!socket) return;
+    socket?.on("listOnlineUsers", (data: any) => {
+      setOnlineUsers(data);
+    });
+    socket?.on("listIngameUsers", (data: any) => {
+      setIngameUsers(data);
+    });
+  }, [socket]);
 
   const gotRequest = items?.filter((item: any) => item.status === "WAITING");
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -49,9 +64,26 @@ export function FriendshipBtn(props: any) {
           <CardContent className="relative flex flex-col p-0">
             <ul className="p-0 list-none max-h-[34rem] overflow-x-hidden overflow-y-auto">
               {!items || items?.length > 0 ? (
-                items?.map((item: any) => (
-                  <NotificationItem key={item.id} {...item} />
-                ))
+                items?.map((item: any) => {
+                  return (
+                    <NotificationItem
+                      key={item.id}
+                      isInGame={
+                        // @ts-ignore
+                        ingameUsers?.users?.filter(
+                          (user: any) => user.id === item.friend.id
+                        ).length > 0
+                      }
+                      isOnline={
+                        // @ts-ignore
+                        onlineUsers?.users!?.filter(
+                          (user: any) => user.id === item.friend.id
+                        ).length > 0
+                      }
+                      {...item}
+                    />
+                  );
+                })
               ) : (
                 <div className="flex flex-col items-center justify-center h-[34rem] gap-4">
                   <Contact size={120} strokeWidth={0.5} color="#71717a" />

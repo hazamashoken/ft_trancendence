@@ -29,10 +29,10 @@ import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.int
 export class BlockUserController {
   constructor(private readonly blockService: BlockService) {}
 
-  @Get(':userId/block')
+  @Get('blocklist')
   async getAllBlockedUsers(
     @AuthUser() authUser: AuthUserInterface,
-    @Param('userId') userId: number,
+    // @Param('userId') userId: number,
   ): Promise<User[]> {
     return await this.blockService.getAllBlockedUsers(authUser.user.id);
   }
@@ -42,23 +42,23 @@ export class BlockUserController {
   async blockUser(
     @Param('userId') userId: number,
     @AuthUser() authUser: AuthUserInterface,
-    @Body() dto: BlockUserDto,
+    // @Body() dto: BlockUserDto,
   ): Promise<User[]> {
-    if (authUser.user.id == dto.userId) {
+    if (authUser.user.id == userId) {
       throw new Error('You cannot block yourself');
     }
-    return await this.blockService.blockUser(authUser.user.id, dto.userId);
+    return await this.blockService.blockUser(authUser.user.id, userId);
   }
 
   @Post(':userId/unblock')
   async unblockUser(
     @Param('userId') userId: number,
     @AuthUser() authUser: AuthUserInterface,
-    @Body() dto: BlockUserDto,
+    // @Body() dto: BlockUserDto,
   ): Promise<User[]> {
-    if (authUser.user.id == dto.userId) {
+    if (authUser.user.id == userId) {
       throw new Error('You cannot unblock yourself');
     }
-    return await this.blockService.unBlockUser(userId, dto.userId);
+    return await this.blockService.unBlockUser(authUser.user.id, userId);
   }
 }

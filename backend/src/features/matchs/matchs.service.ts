@@ -46,12 +46,22 @@ export class MatchsService {
     const match = await this.matchRepository
       .createQueryBuilder('match')
       .where(
-        '(match.player1.id = :user AND (match.status = :waiting OR match.status = :starting))',
-        { user: user.id, waiting: 'WAITING', starting: 'STARTING' },
+        '(match.player1.id = :user AND (match.status = :waiting OR match.status = :starting OR match.status = :playing))',
+        {
+          user: user.id,
+          waiting: 'WAITING',
+          starting: 'STARTING',
+          playing: 'PLAYING',
+        },
       )
       .orWhere(
-        '(match.player2.id = :user AND (match.status = :waiting OR match.status = :starting))',
-        { user: user.id, waiting: 'WAITING', starting: 'STARTING' },
+        '(match.player2.id = :user AND (match.status = :waiting OR match.status = :starting OR match.status = :playing))',
+        {
+          user: user.id,
+          waiting: 'WAITING',
+          starting: 'STARTING',
+          playing: 'PLAYING',
+        },
       )
       .getOne();
 
@@ -80,10 +90,28 @@ export class MatchsService {
    * [function] invite a player to a match by input the playerId and matchId.
    * => [match] the match is success to invite a player.
    * => [-1] the match is fail to invite a player. */
-  async invitePlayer(playerId: number, matchId: number): Promise<Match> {
-    const match: Partial<Match> = await this.matchRepository.findOne({
-      where: { matchId: matchId },
-    });
+  async invitePlayer(playerId: number, meId: number): Promise<Match> {
+    const match = await this.matchRepository
+      .createQueryBuilder('match')
+      .where(
+        '(match.player1.id = :user AND (match.status = :waiting OR match.status = :starting OR match.status = :playing))',
+        {
+          user: meId,
+          waiting: 'WAITING',
+          starting: 'STARTING',
+          playing: 'PLAYING',
+        },
+      )
+      .orWhere(
+        '(match.player2.id = :user AND (match.status = :waiting OR match.status = :starting OR match.status = :playing))',
+        {
+          user: meId,
+          waiting: 'WAITING',
+          starting: 'STARTING',
+          playing: 'PLAYING',
+        },
+      )
+      .getOne();
     if (!match) {
       throw new NotFoundException(
         'You are not in a game, Cannot invite the player.',
