@@ -52,7 +52,8 @@ export class MatchsService {
         player1: user,
         status: 'STARTING',
       });
-    } else if (!match.player2) {
+    }
+    if (!match.player2) {
       // move player 2 to room
       _gameInstance.moveUserByName(user.intraLogin, match.matchId.toString(), Team.player2);
       return await this.matchRepository.save({
@@ -67,24 +68,27 @@ export class MatchsService {
     );
   }
 
-  async leaveMatch(matchId: number, user: User): Promise<Match> {
+  async leaveMatch(matchId: number, user: number): Promise<Match> {
     const match: Partial<Match> = await this.matchRepository.findOne({
       where: { matchId: matchId },
     });
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot leave the match.');
     }
-    if (match.player1Id === user.id) {
+    const userx = await this.userRepository.findOne({
+      where: { id: user },
+    })
+    if (match.player1Id === user) {
       // move player to public channel
-      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
+      _gameInstance.moveUserByName(userx.intraLogin, 'public channel');
       return await this.matchRepository.save({
         ...match,
         player1: null,
         status: 'WAITING',
       });
-    } else if (match.player2Id === user.id) {
+    } else if (match.player2Id === user) {
       // move player to public channel
-      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
+      _gameInstance.moveUserByName(userx.intraLogin, 'public channel');
       return await this.matchRepository.save({
         ...match,
         player2: null,
