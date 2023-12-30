@@ -47,7 +47,7 @@ export class MessagesService {
   ): Promise<ReturnMessageDto> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
-      relations: ['mutedUsers', 'mutedUsers.user', 'bannedUsers'],
+      relations: ['mutedUsers', 'mutedUsers.user', 'bannedUsers', 'bannedUsers.bannedUser'],
     });
     if (!channel) throw new NotFoundException('ChannelNotFound');
     const author = await this.userRepository.findOne({
@@ -61,9 +61,15 @@ export class MessagesService {
     if (user) {
       throw new ForbiddenException('User is muted');
     }
-    if (channel.bannedUsers.find((user) => user.id == authorId)) {
+    // if (channel.bannedUsers.find((userX) => userX.id === authorId)) {
+    //   Logger.log('kek')
+    //   throw new ForbiddenException('User is banned at this channel');
+    // }
+    if (channel.bannedUsers.find((bannedEntry) => bannedEntry.bannedUser.id == authorId)) {
       throw new ForbiddenException('User is banned at this channel');
     }
+    Logger.log("Banned Users:", channel.bannedUsers);
+    Logger.log("Author ID:", authorId);
     const newMessage = new MessagesEntity();
     newMessage.message = message;
     newMessage.author = author;

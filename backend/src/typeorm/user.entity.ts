@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
+  OneToOne,
+  JoinColumn,
   Unique,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Stats } from './stats.entity';
 
 @Entity({ name: 'user' })
 @Unique([ 'displayName' ])
@@ -54,4 +57,9 @@ export class User {
   @ApiProperty()
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  // @ApiProperty()
+  // @OneToOne(() => Stats, (stats) => stats.user)
+  // @JoinColumn()
+  // stats: Stats;
 }

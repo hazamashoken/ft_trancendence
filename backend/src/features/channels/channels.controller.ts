@@ -211,7 +211,7 @@ export class ChannelsController {
     @Param('chatId') chatId: number,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ChatUserDto[]> {
-    return this.channelsService.addUserToPublicChat(chatId, authUser.user.id);
+    return await this.channelsService.addUserToPublicChat(chatId, authUser.user.id);
   }
 
   @Post('create')
