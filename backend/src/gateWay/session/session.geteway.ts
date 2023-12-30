@@ -18,7 +18,7 @@ import { UserSession } from '@backend/typeorm';
 @UseGuards(SocketAuthGuard)
 @WebSocketGateway({
   namespace: 'sessions',
-  cors: { origin: '*' },
+  cors: true,
 })
 export class SessionGateway {
   constructor(private usService: UserSessionService) {}

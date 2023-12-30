@@ -5,17 +5,25 @@ import { FriendshipBtn } from "./friendship-btn";
 import { useQuery } from "@tanstack/react-query";
 import { useSocket } from "../providers/socket-provider";
 import React from "react";
+import { useSession } from "next-auth/react";
 
 export function FriendShipList() {
   const { isConnected } = useSocket();
   const [friends, setFriends] = React.useState([]);
-  const [status, setStatus] = React.useState([]);
+  const { data: session } = useSession();
 
-  const client = ApiClient("CLIENT");
   const friendQuery = useQuery({
     queryKey: ["friends"],
-    enabled: isConnected,
-    queryFn: () => client.get(`/me/friends`).then((res) => res.data),
+    enabled: isConnected && !!session?.accessToken,
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/me/friends`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+          "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
+        },
+      }).then((res) => res.json()),
     refetchInterval: 2000,
   });
   // const statusQuery = useQuery({
@@ -26,7 +34,7 @@ export function FriendShipList() {
   // });
 
   React.useEffect(() => {
-    if (!friendQuery.data) return;
+    if (friendQuery.isError) return;
     setFriends(friendQuery.data);
   }, [friendQuery.data]);
 

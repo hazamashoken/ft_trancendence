@@ -39,9 +39,7 @@ import { Team } from '@backend/pong/pong.enum';
 @UseGuards(SocketAuthGuard)
 @WebSocketGateway({
   namespace: 'game',
-  cors: {
-    origin: '*',
-  },
+  cors: true,
 })
 export class PongGateway {
   constructor(

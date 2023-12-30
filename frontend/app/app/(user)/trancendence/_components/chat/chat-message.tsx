@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
 import ApiClient from "@/app/api/api-client";
 import { getDmOther } from "./chat-header";
+import { useSession } from "next-auth/react";
 
 const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
@@ -55,13 +56,23 @@ export const ChatMessages = ({
   const bottomRef = useRef<ElementRef<"div">>(null);
   const [chatMessages, setChatMessages] = React.useState([]);
 
+  const { data: session } = useSession();
   const { isConnected } = useSocket();
-  const client = ApiClient("CLIENT");
+
   const { data, isError, isLoading } = useQuery({
     queryKey: [queryKey],
-    enabled: isConnected && !!chatId,
+    enabled: isConnected && !!chatId && !!session?.accessToken,
     queryFn: () =>
-      client.get(`/channels/${chatId}/messages`).then((res) => res.data),
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${chatId}/messages`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        }
+      ).then((res) => res.json()),
     // refetchInterval: 1000,
   });
 

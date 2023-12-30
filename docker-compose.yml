@@ -7,8 +7,8 @@ services:
       context: frontend
       dockerfile: Dockerfile
     command: npm run start
-    volumes:
-      - .env:/app/.env
+    # volumes:
+      # - .env:/app/.env
     restart: unless-stopped
     ports:
       - 8080:8080

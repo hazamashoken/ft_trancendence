@@ -385,7 +385,7 @@ export const muteChatUser = async (payload: {
     body.mutedById = parseInt(body.mutedById);
   }
 
-  console.log(body);
+  // console.log(body);
 
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/muteUser`;
   const response = await fetch(url, {
@@ -426,7 +426,7 @@ export const unMuteChatUser = async (payload: {
     body.userId = parseInt(userId);
   }
 
-  console.log(body);
+  // console.log(body);
 
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/unmute`;
   const response = await fetch(url, {
@@ -536,7 +536,7 @@ export const getBanlist = async (chatId: number) => {
 
   const data = await response.json();
 
-  console.log(data);
+  // console.log(data);
   if (!response.ok) {
     return { error: data.message };
   }
@@ -565,7 +565,7 @@ export const addChatAdmin = async (chatId: string, userId: string) => {
   });
 
   const data = await response.json();
-  console.log(data);
+  // console.log(data);
   if (!response.ok) {
     return { error: data.message };
   }

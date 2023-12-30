@@ -26,7 +26,7 @@ export const OTPInput = ({ length = 6, onChange }) => {
   };
 
   const handleKeyDown = (index, e) => {
-    console.log(e.key);
+    // console.log(e.key);
     if (e.key === "Backspace" && index > 0 && !otp[index]) {
       // If backspace is pressed and the current input is empty, move focus to the previous input
       inputRefs.current[index - 1].focus();

@@ -52,7 +52,7 @@ export async function uploadAvatar(payload: FormData) {
     body: payload,
   });
 
-  console.log(response);
+  // console.log(response);
 
   const data = await response.json();
 

@@ -20,7 +20,7 @@ export function OTPSetting({ isEnabled }: { isEnabled: boolean }) {
     setOpen(true);
   }, []);
 
-  console.log("isEnabled", isEnabled);
+  // console.log("isEnabled", isEnabled);
 
   const handleDisableOTP = async () => {
     const res = await removeOtp();

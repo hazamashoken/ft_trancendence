@@ -40,6 +40,11 @@ to restart entire service
 make re
 ```
 
+
+```sh
+put .env in the root of frontend folder
+```
+
 ## Tools
 
 Database GUI tool for `Postgres`

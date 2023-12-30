@@ -94,7 +94,7 @@ export function ChatBox(props: { userId: string }) {
           });
         }
       } else if (res.event === "getChatUsers") {
-        console.log(res);
+        // console.log(res);
         if (res.chatId === chatId.toString()) {
           getChatUser(chatId).then((res) => {
             setChatUserList(res.data);

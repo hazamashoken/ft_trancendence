@@ -22,7 +22,7 @@ export default function Home() {
       },
     });
     socket.on("connect", () => {
-      console.log("connect");
+      // console.log("connect");
     });
     socket.on("listOnlineUsers", (data) => {
       setOnlineUsers(data.users);

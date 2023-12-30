@@ -120,7 +120,7 @@ export function CreateChannelDialog(props: any) {
                             | ChatType.PUBLIC
                           ]
                         )
-                          .filter((value) => value !== ChatType.DIRECT)
+                          ?.filter((value) => value !== ChatType.DIRECT)
                           .map((value, index) => (
                             <FormItem
                               key={index}

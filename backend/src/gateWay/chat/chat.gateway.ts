@@ -12,9 +12,7 @@ import { CreateMuteDto } from '@backend/features/muted/dto/create-muted.dto';
 import * as bcrypt from 'bcrypt';
 
 @WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
+  cors: true,
 })
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()

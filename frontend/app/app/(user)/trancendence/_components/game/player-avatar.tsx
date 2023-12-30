@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 
 export function PlayerAvatar(props: any) {
-  const { imageUrl, displayName, id, stat } = props;
+  const { imageUrl, displayName, id, stat: stats } = props;
 
   return (
     <HoverCard openDelay={400} closeDelay={200}>
@@ -31,9 +31,9 @@ export function PlayerAvatar(props: any) {
           <p># {id}</p>
           <Separator />
           <div className="container flex gap-2">
-            <p>win: {stat?.win ?? "1"}</p>
-            <p>lose: {stat?.lose ?? "1"}</p>
-            <p>ratio: {stat?.win / stat?.lose ?? "100"}%</p>
+            <p>win: {stats?.win ?? "1"}</p>
+            <p>lose: {stats?.lose ?? "1"}</p>
+            <p>ratio: {stats.winRate}%</p>
           </div>
         </CardContent>
       </HoverCardContent>

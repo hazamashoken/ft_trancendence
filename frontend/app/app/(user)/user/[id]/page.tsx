@@ -29,13 +29,13 @@ export default async function UserPage({ params }: { params: { id: number } }) {
         </Avatar>
         <pre className="text-center">
           {Object.entries(res.data)
-            .filter(([key, value]) => thingsToNotShow.includes(key) === false)
+            ?.filter(([key, value]) => thingsToNotShow.includes(key) === false)
             .map(([key, value], index) => {
               if (key === "stats") {
                 return (
                   <pre key={index}>
                     {Object.entries(value ?? [])
-                      .filter(
+                      ?.filter(
                         ([key, value]) =>
                           thingsToNotShow.includes(key) === false
                       )
