@@ -7,9 +7,9 @@ import {
   User,
   MutedEntity,
 } from '@backend/typeorm';
-import { BlockUser } from '@backend/block/dto/BlockUser.dto';
-import { BlockService } from '@backend/block/blockUser.service';
-import { ChannelsModule } from '@backend/channels/channels.module';
+import { BlockUser } from '../block/dto/BlockUser.dto';
+import { ChannelsModule } from '../channels/channels.module';
+import { BlockService } from '../block/blockUser.service';
 
 @Module({
   imports: [

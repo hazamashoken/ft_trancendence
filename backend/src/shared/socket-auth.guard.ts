@@ -29,8 +29,11 @@ export class SocketAuthGuard implements CanActivate {
   }
 
   static validateClient(client: any) {
-    let auth : string;
-    if (client.handshake.headers['authorization'] || client.handshake.headers['Authorization']) {
+    let auth: string;
+    if (
+      client.handshake.headers['authorization'] ||
+      client.handshake.headers['Authorization']
+    ) {
       auth = client.handshake.headers['authorization'] || client.handshake.headers['Authorization']; // eslint-disable-line prettier/prettier
     }
     if (!auth || !auth.startsWith('Bearer ')) {

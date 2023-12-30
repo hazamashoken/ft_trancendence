@@ -30,7 +30,9 @@ export class AccountService {
     user.lastName = data.last_name;
     user.email = data.email;
     user.displayName = data.login;
-    user.imageUrl = data.image.link ?? 'http://localhost:3000/public/images/avatar-default.jpg';
+    user.imageUrl =
+      data.image.link ??
+      'http://localhost:3000/public/images/avatar-default.jpg';
     return this.userRepository.save(user);
   }
 
@@ -38,7 +40,7 @@ export class AccountService {
     return this.userRepository
       .update({ id }, data)
       .then(() => this.userRepository.findOneBy({ id }))
-      .catch((e) => {
+      .catch(e => {
         console.log(e);
         if (e.name === 'EntityPropertyNotFoundError') {
           throw new BadRequestException(e.message);
@@ -47,12 +49,12 @@ export class AccountService {
   }
 
   saveAvatar(id: number, file: Express.Multer.File) {
-    const path = `data/users/${id}/avatar`
+    const path = `data/users/${id}/avatar`;
     const filename = 'original.' + file.originalname.split('.').pop();
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path, { recursive: true });
     }
-    fs.writeFileSync(`${path}/${filename}`, Buffer.from(file.buffer))
+    fs.writeFileSync(`${path}/${filename}`, Buffer.from(file.buffer));
     const imageUrl = `${process.env.NESTJS_URL}:${process.env.NESTJS_PORT}/${path}/${filename}`;
     return this.userRepository
       .update({ id }, { imageUrl })
@@ -61,8 +63,6 @@ export class AccountService {
 
   validateAvatar(file: Express.Multer.File) {
     const { size, types } = this.avatarValid;
-    return (
-      file.size <= size || types.findIndex((t) => t === file.mimetype) > -1
-    );
+    return file.size <= size || types.findIndex(t => t === file.mimetype) > -1;
   }
 }
