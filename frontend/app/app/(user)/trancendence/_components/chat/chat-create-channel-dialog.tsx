@@ -56,6 +56,7 @@ export function CreateChannelDialog(props: any) {
   const { userId, setChatId, setOpen, open } = props;
   const form = useForm({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       chatName: "",
       chatOwner: userId,

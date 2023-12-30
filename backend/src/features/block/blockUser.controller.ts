@@ -44,6 +44,9 @@ export class BlockUserController {
     @AuthUser() authUser: AuthUserInterface,
     @Body() dto: BlockUserDto,
   ): Promise<User[]> {
+    if (authUser.user.id == dto.userId) {
+      throw new Error('You cannot block yourself');
+    }
     return await this.blockService.blockUser(authUser.user.id, dto.userId);
   }
 
@@ -53,6 +56,9 @@ export class BlockUserController {
     @AuthUser() authUser: AuthUserInterface,
     @Body() dto: BlockUserDto,
   ): Promise<User[]> {
+    if (authUser.user.id == dto.userId) {
+      throw new Error('You cannot unblock yourself');
+    }
     return await this.blockService.unBlockUser(userId, dto.userId);
   }
 }

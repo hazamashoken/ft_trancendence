@@ -63,7 +63,7 @@ export function ListUser(props: { data: any; userId: string }) {
     state.setChatMeta,
     state.setChatIsLoading,
   ]);
-  const { data } = props;
+  const { data: rawData, userId } = props;
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,6 +82,9 @@ export function ListUser(props: { data: any; userId: string }) {
       toast.error(res.error);
     }
   };
+
+  // filer out myself with userId
+  const data = rawData.filter((user: any) => user.id !== parseInt(userId));
 
   return (
     <div className="flex flex-col justify-center h-full p-2 pt-12 space-y-2">

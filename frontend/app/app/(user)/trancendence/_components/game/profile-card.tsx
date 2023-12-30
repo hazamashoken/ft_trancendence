@@ -8,9 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createMatch } from "../../_actions/game";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+
 import { useSession } from "next-auth/react";
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,27 +18,17 @@ import { createAbbreviation } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
 export function ProfileCard(props: { meStat: any; ranking: any }) {
-  const [isLoading, setIsLoading] = React.useState(false);
-  const router = useRouter();
   const { data } = useSession();
   const { meStat, ranking } = props;
   const { win, lose, winRate, matchs, user } = meStat;
-
-  const handleCreateRoom = async () => {
-    setIsLoading(true);
-    const res = await createMatch().finally(() => setIsLoading(false));
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      toast.success("Created match successfully");
-      router.push(`/trancendence/${res.data.matchId}`);
-    }
-  };
 
   return (
     <>
       <Card className="container">
         <CardContent className="w-80">
+          <CardHeader>
+            <CardTitle className="text-lg font-bold">My Profile</CardTitle>
+          </CardHeader>
           <strong>
             <pre>
               {Object.entries(data?.user ?? user).map(([key, value], index) => (
@@ -60,11 +48,7 @@ export function ProfileCard(props: { meStat: any; ranking: any }) {
           </div>
         </CardContent>
       </Card>
-      <Card className="container flex justify-center">
-        <Button onClick={handleCreateRoom} disabled={isLoading}>
-          Create Room
-        </Button>
-      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-around p-2 text-center">
