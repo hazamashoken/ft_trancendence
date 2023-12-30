@@ -29,7 +29,6 @@ export const VerifyOtp = () => {
       router.push("/trancendence");
     }
     setOpen(true);
-    useOtpStore.persist.rehydrate();
   }, []);
 
   const handleSubmit = async () => {

@@ -4,6 +4,7 @@ import { PongState } from './pong.state';
 import { GameState } from '../interfaces/pong.interface';
 import { Phase, Keypress, Team } from './pong.enum';
 import { newGameState } from './pong.gamestate';
+import { ClientRequest } from 'http';
 
 export class PongGame {
   _server: Server;
@@ -35,22 +36,19 @@ export class PongGame {
     // create the user
     this._users.set(id, new PongUser(id, name, room));
     // create the room if it doesn't exist
-    if (!this._states.has(room))
-      this._states.set(room, new PongState())
+    if (!this._states.has(room)) this._states.set(room, new PongState());
     this._states.get(room).room = room;
     // if a team is selected simulate the keypress to choose the team
-    if (team == Team.player1)
-    {
+    if (team == Team.player1) {
       this._states.get(room).player1 = name;
       this.keypress(id, Keypress.player1);
-    }
-    else if (team == Team.player2)
-    {
+    } else if (team == Team.player2) {
       this._states.get(room).player2 = name;
       this.keypress(id, Keypress.player2);
-    }
-    else if (team == Team.spectator)
+    } else if (team == Team.spectator)
       this._users.get(id).team = Team.spectator;
+
+    console.log(`User ${name} joined room ${room}`);
   }
 
   public deleteUserByID(id: string) {
@@ -75,9 +73,12 @@ export class PongGame {
   public moveUserByID(id: string, room: string, team: string = Team.viewer) {
     if (this._users.has(id)) {
       const name: string = this._users.get(id).name;
+      const oldRoom: string = this._users.get(id).room;
+      this._server.in(id).socketsLeave(oldRoom);
       this.deleteUserByID(id);
       this.addUser(this._server, id, name, room, team);
       this._states.get(room).single = true;
+      this._server.in(id).socketsJoin(room);
     }
   }
 

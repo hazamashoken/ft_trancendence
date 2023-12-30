@@ -57,7 +57,7 @@ export class AccountController {
     if (!user) {
       throw new BadRequestException('User has not been created');
     }
-    Logger.log(body);
+    // Logger.log(body);
     return this.accountService.update(user.id, body);
   }
 

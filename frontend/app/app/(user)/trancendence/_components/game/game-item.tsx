@@ -13,6 +13,8 @@ import {
 import { useRouter } from "next/navigation";
 import { PlayerAvatar } from "./player-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { joinMatch } from "../../_actions/game";
+import { toast } from "sonner";
 
 export function MatchItem(props: any) {
   const { matchId, player1, player2, status, id } = props;
@@ -22,12 +24,12 @@ export function MatchItem(props: any) {
   const handleJoin = async () => {
     setIsJoining(true);
     router.push(`/trancendence/${matchId}`);
-    // const res = await joinMatch(matchId);
-    // if (res.error) {
-    //   toast.error(res.error);
-    // } else {
-    //   toast.success("Joined match successfully");
-    // }
+    const res = await joinMatch(matchId);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success("Joined match successfully");
+    }
     setIsJoining(false);
   };
   const handleWatch = async () => {};

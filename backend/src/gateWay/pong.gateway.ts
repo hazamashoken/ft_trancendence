@@ -7,7 +7,13 @@ import {
   OnGatewayDisconnect,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { Controller, Inject, Logger, UseGuards, forwardRef } from '@nestjs/common';
+import {
+  Controller,
+  Inject,
+  Logger,
+  UseGuards,
+  forwardRef,
+} from '@nestjs/common';
 import {
   PongServerToClientEvents,
   PongClientToServerEvents,
@@ -23,24 +29,19 @@ import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 import { UserSessionService } from '@backend/features/user-session/user-session.service';
 import { SocketAuthMiddleware } from '@backend/shared/socket-auth.middleware';
+import { SocketAuthGuard } from '@backend/shared/socket-auth.guard';
 
 export const _gameInstance: PongGame = new PongGame();
 
+@UseGuards(SocketAuthGuard)
 @WebSocketGateway({
+  namespace: 'game',
   cors: {
     origin: '*',
   },
 })
-@Controller('channels')
-@UseGuards(XKeyGuard, AuthGuard)
-@ApiBearerAuth()
-@ApiSecurity('x-api-key')
-@ApiTags('Channels')
-export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(
-    @Inject(forwardRef(() => UserSessionService ))
-    private readonly usService: UserSessionService
-    ) {}
+export class PongGateway {
+  constructor(private readonly usService: UserSessionService) {}
   @WebSocketServer()
   public server: Server = new Server<
     PongServerToClientEvents,
@@ -48,25 +49,28 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   >();
   private logger = new Logger('PongGateway');
 
-  getClientID(@ConnectedSocket() client: any) {
+  afterInit(client: Socket) {
+    client.use(SocketAuthMiddleware() as any);
+  }
+
+  getClientID(@ConnectedSocket() client: Socket) {
     return `${client.id}`;
   }
 
-  afterInit(client: Socket) {
-    client.use(SocketAuthMiddleware() as any)
-  }
-
-  async handleConnection(
-    @ConnectedSocket() client: any,
-  ) {
+  async handleConnection(client: Socket) {
     if (!client.handshake.auth.accessToken) {
       client.disconnect();
     }
-    const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
-    console.log(session.user);
+    const session = await this.usService.getSessionByToken(
+      client.handshake.auth.accessToken,
+    );
+    if (!session) {
+      console.error('Session Expired');
+      client.disconnect();
+      return;
+    }
     const id: string = this.getClientID(client);
-    //let name = id;
-    let name: string = session.user.intraLogin;
+    const name: string = session.user.intraLogin;
 
     this.logger.log('connect: ' + id + ', ' + name);
     _gameInstance.addUser(this.server, id, name, 'public channel');
@@ -74,7 +78,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     startGameLoop(_gameInstance.update);
   }
 
-  handleDisconnect(@ConnectedSocket() client: any) {
+  async handleDisconnect(client: Socket) {
     const id: string = this.getClientID(client);
 
     this.logger.log('disconnect: ' + id);

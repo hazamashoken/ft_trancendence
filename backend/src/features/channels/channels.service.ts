@@ -427,19 +427,19 @@ export class ChannelsService {
 
   async findAllUsers(chatId: number, authUser: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository
-        .createQueryBuilder('chat')
-        .where('chat.chatId = :chatId', { chatId })
-        .leftJoinAndSelect('chat.chatOwner', 'owner')
-        .leftJoinAndSelect('chat.chatUsers', 'users')
-        .leftJoinAndSelect('chat.chatAdmins', 'admins')
-        .getOne();
+      .createQueryBuilder('chat')
+      .where('chat.chatId = :chatId', { chatId })
+      .leftJoinAndSelect('chat.chatOwner', 'owner')
+      .leftJoinAndSelect('chat.chatUsers', 'users')
+      .leftJoinAndSelect('chat.chatAdmins', 'admins')
+      .getOne();
     if (!chat) {
       throw new NotFoundException(`Chat with ID ${chatId} not found`);
     }
-    if (!chat.chatUsers.find((user) => user.id === authUser)) {
+    if (!chat.chatUsers.find(user => user.id === authUser)) {
       throw new ForbiddenException('User not in this channel');
     }
-    
+
     return chat.chatUsers.map(user => {
       const userDto = plainToClass(ChatUserDto, user);
       if (user.id === chat.chatOwner.id) {
@@ -449,7 +449,7 @@ export class ChannelsService {
       } else {
         userDto.role = 'user';
       }
-      Logger.log(userDto);
+      // Logger.log(userDto);
       return userDto;
     });
   }
@@ -552,7 +552,7 @@ export class ChannelsService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if(userId === chat.chatOwner.id)
+    if (userId === chat.chatOwner.id)
       throw new ForbiddenException(`You can't remove owner from chat`);
     if (
       chat.chatOwner.id != authUser ||
@@ -773,22 +773,22 @@ export class ChannelsService {
       where: { chatId: channelId },
       relations: ['activeUsers', 'chatOwner', 'chatAdmins', 'chatUsers'],
     });
-  
+
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-  
+
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  
+
     await this.channelsRepository
       .createQueryBuilder()
       .relation(ChannelsEntity, 'activeUsers')
       .of(chat)
       .remove(userId);
-  
+
     if (chat.chatOwner.id === userId) {
       let newOwner;
       if (chat.chatAdmins.length > 0) {
@@ -796,7 +796,7 @@ export class ChannelsService {
       } else if (chat.chatUsers.length > 0) {
         newOwner = chat.chatUsers.find(u => u.id !== userId);
       }
-  
+
       if (newOwner) {
         chat.chatOwner = newOwner;
       } else {
@@ -805,13 +805,15 @@ export class ChannelsService {
         return [];
       }
     }
-  
+
     await this.channelsRepository.save(chat);
-  
+
     if (chat.chatOwner.id === userId) {
-      throw new ForbiddenException('Please set new owner before quitting the chat');
+      throw new ForbiddenException(
+        'Please set new owner before quitting the chat',
+      );
     }
-  
+
     return await this.getActiveUsers(channelId);
   }
 
