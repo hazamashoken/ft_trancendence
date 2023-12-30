@@ -591,4 +591,15 @@ export class MatchsService {
   removeMatchById(id: number) {
     return this.matchRepository.delete({ matchId: id });
   }
+
+  async watchAMatch(matchId: number, authUser: string): Promise<Match> {
+    const match = await this.matchRepository.findOne({
+      where: { matchId: matchId },
+    })
+    if(!match)
+      throw new NotFoundException('Match not found, you cannot watch it.');
+    const game = this.pongGateway.getGameInstance();
+    game.moveUserByName(authUser, matchId.toString(), Team.spectator);
+    return match;
+  }
 }
