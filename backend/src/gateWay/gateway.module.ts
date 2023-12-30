@@ -21,6 +21,7 @@ import { MatchsModule } from '@backend/features/matchs/matchs.module';
     BannedModule,
     MutedModule,
     MessgesModule,
+    MatchsModule,
   ],
 })
 export class GatewayModule {}

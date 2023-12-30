@@ -132,22 +132,26 @@ export class MatchsService {
       );
     }
     if (!match.player1) {
-      _gameInstance.moveUserByName(
-        userX.intraLogin,
-        match.matchId.toString(),
-        Team.player1,
-      );
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          userX.intraLogin,
+          match.matchId.toString(),
+          Team.player1,
+        );
       match.player1 = userX;
       match.status = 'WAITING';
       return await this.matchRepository.save(match);
     }
 
     if (!match.player2) {
-      _gameInstance.moveUserByName(
-        userX.intraLogin,
-        match.matchId.toString(),
-        Team.player2,
-      );
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          userX.intraLogin,
+          match.matchId.toString(),
+          Team.player2,
+        );
       match.player2 = userX;
       match.status = 'STARTING';
       return await this.matchRepository.save(match);
@@ -235,7 +239,10 @@ export class MatchsService {
     const userX = await this.userRepository.findOne({ where: { id: userId } });
   
     if (match?.player1?.id === userId) {
-      _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      // _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(userX.intraLogin, 'public channel');
       match.player1 = null;
       match.status = 'WAITING';
       if (!match?.player2) {
@@ -243,7 +250,10 @@ export class MatchsService {
       }
       return await this.matchRepository.save(match);
     } else if (match?.player2?.id === userId) {
-      _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      // _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(userX.intraLogin, 'public channel');
       match.player2 = null;
       match.status = 'WAITING';
       if (!match?.player1) {
