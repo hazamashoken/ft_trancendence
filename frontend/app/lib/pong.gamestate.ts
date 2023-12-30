@@ -5,7 +5,9 @@ export function newGameState()
 : GameState
 {
   let state: GameState = {
+    room: '',
     player1: {
+      name: '',
       position: { x: -Pong.BAT_OFFSET, y: 0.5, },
       direction: { x: 0, y: 0, },
       score: 0,
@@ -14,6 +16,7 @@ export function newGameState()
       powerups: 3,
     },
     player2: {
+      name: '',
       position: { x: Pong.BAT_OFFSET, y: 0.5, },
       direction: { x: 0, y: 0, },
       score: 0,

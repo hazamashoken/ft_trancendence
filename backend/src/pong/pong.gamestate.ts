@@ -1,19 +1,24 @@
 import { GameState } from '../interfaces/pong.interface';
 import { Pong, Phase } from './pong.enum';
 
-export function newGameState(): GameState {
-  const state: GameState = {
+export function newGameState()
+: GameState
+{
+  let state: GameState = {
+    room: '',
     player1: {
-      position: { x: -Pong.BAT_OFFSET, y: 0.5 },
-      direction: { x: 0, y: 0 },
+      name: '',
+      position: { x: -Pong.BAT_OFFSET, y: 0.5, },
+      direction: { x: 0, y: 0, },
       score: 0,
       powerup: false,
       multiballs: 3,
       powerups: 3,
     },
     player2: {
-      position: { x: Pong.BAT_OFFSET, y: 0.5 },
-      direction: { x: 0, y: 0 },
+      name: '',
+      position: { x: Pong.BAT_OFFSET, y: 0.5, },
+      direction: { x: 0, y: 0, },
       score: 0,
       powerup: false,
       multiballs: 3,

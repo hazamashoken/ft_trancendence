@@ -7,13 +7,13 @@ import {
   OnGatewayDisconnect,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { Controller, Logger, UseGuards } from '@nestjs/common';
+import { Controller, Inject, Logger, UseGuards, forwardRef } from '@nestjs/common';
 import {
   PongServerToClientEvents,
   PongClientToServerEvents,
   GameInstruction,
 } from '../interfaces/pong.interface';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { PongGame } from '../pong/pong.game';
 import { startGameLoop, stopGameLoop } from '../pong/pong.gameloop';
 import { AuthGuard } from '@backend/shared/auth.guard';
@@ -21,6 +21,8 @@ import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
+import { UserSessionService } from '@backend/features/user-session/user-session.service';
+import { SocketAuthMiddleware } from '@backend/shared/socket-auth.middleware';
 
 export const _gameInstance: PongGame = new PongGame();
 
@@ -35,6 +37,10 @@ export const _gameInstance: PongGame = new PongGame();
 @ApiSecurity('x-api-key')
 @ApiTags('Channels')
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    @Inject(forwardRef(() => UserSessionService ))
+    private readonly usService: UserSessionService
+    ) {}
   @WebSocketServer()
   public server: Server = new Server<
     PongServerToClientEvents,
@@ -46,13 +52,21 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return `${client.id}`;
   }
 
-  handleConnection(
+  afterInit(client: Socket) {
+    client.use(SocketAuthMiddleware() as any)
+  }
+
+  async handleConnection(
     @ConnectedSocket() client: any,
-    @AuthUser() authUser: AuthUserInterface,
   ) {
+    if (!client.handshake.auth.accessToken) {
+      client.disconnect();
+    }
+    const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
+    console.log(session.user);
     const id: string = this.getClientID(client);
-    const name = id;
-    // let name: string = authUser.user.intraLogin;
+    //let name = id;
+    let name: string = session.user.intraLogin;
 
     this.logger.log('connect: ' + id + ', ' + name);
     _gameInstance.addUser(this.server, id, name, 'public channel');

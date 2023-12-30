@@ -12,6 +12,7 @@ export interface Vector {
 }
 
 export interface GamePlayer {
+  name: string;
   position: Vector;
   direction: Vector;
   score: number;
@@ -27,6 +28,7 @@ export interface GameBall {
 }
 
 export interface GameState {
+  room: string;
   player1: GamePlayer;
   player2: GamePlayer;
   ball: GameBall;
