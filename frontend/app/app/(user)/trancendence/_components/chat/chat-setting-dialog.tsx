@@ -51,6 +51,7 @@ const formSchema = z
 export function ChatSettingMenu() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(true);
   const [
     chatId,
     chatList,
@@ -86,6 +87,7 @@ export function ChatSettingMenu() {
       password: "",
       chatType: chatMeta.chatType as "public" | "private" | "protected",
     });
+    setHidden(chatMeta?.data?.chatOwner?.id !== session?.user?.id);
   }, [chatMeta, form]);
 
   const handleSubmit = async (values: any) => {
@@ -110,7 +112,7 @@ export function ChatSettingMenu() {
       toast.success("Update channel successfully");
     }
   };
-  const hidden = chatMeta?.data?.chatOwner?.id !== session?.user?.id;
+
   return (
     <Dialog
       open={open}

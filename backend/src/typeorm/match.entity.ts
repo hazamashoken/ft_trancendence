@@ -18,22 +18,14 @@ export class Match {
   matchId: number;
 
   @ApiProperty()
-  @ManyToOne(() => User, user => user.id)
+  @ManyToOne(() => User, user => user)
   @JoinColumn({ name: 'player1_id' })
   player1: User;
 
   @ApiProperty()
-  @RelationId((match: Match) => match.player1)
-  player1Id: number;
-
-  @ApiProperty()
-  @ManyToOne(() => User, user => user.id)
+  @ManyToOne(() => User, user => user)
   @JoinColumn({ name: 'player2_id' })
   player2: User;
-
-  @ApiProperty()
-  @RelationId((match: Match) => match.player2)
-  player2Id: number;
 
   @ApiProperty()
   @Column({ name: 'player1_point', default: 0 })
