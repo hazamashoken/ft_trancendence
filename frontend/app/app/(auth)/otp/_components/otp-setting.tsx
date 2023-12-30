@@ -12,8 +12,10 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { removeOtp } from "../../_action/otp";
 import { toast } from "sonner";
+import useLocalStorage from "@/lib/hooks/use-local-storage";
 
 export function OTPSetting({ isEnabled }: { isEnabled: boolean }) {
+  const [is_verified, setOtpVerified] = useLocalStorage("otp", false);
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
   React.useEffect(() => {
@@ -28,6 +30,7 @@ export function OTPSetting({ isEnabled }: { isEnabled: boolean }) {
       toast.error(res.error);
     } else {
       toast.success("OTP disabled successfully");
+      setOtpVerified(false);
       router.refresh();
     }
   };

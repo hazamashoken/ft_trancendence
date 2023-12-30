@@ -104,24 +104,7 @@ export function ImageUpload(props: any) {
           })}
         >
           {isPending && <ImageLoading />}
-          {logo ? (
-            <div className="relative flex flex-col items-center justify-center w-full h-32">
-              <Image
-                src={""}
-                alt="logo"
-                width={width}
-                height={height}
-                className="object-contain rounded-lg"
-                priority
-              />
-
-              <div className="absolute top-0 left-0 w-full h-full duration-300 opacity-0 bg-white/30 backdrop-blur-lg group-hover:opacity-100">
-                <ImageIsEmtpy width={width} height={height} />
-              </div>
-            </div>
-          ) : (
-            <ImageIsEmtpy width={width} height={height} />
-          )}
+          {<ImageIsEmtpy width={width} height={height} />}
           <input
             id={`dropzone-file-${type}-${width}-${height}`}
             type="file"
