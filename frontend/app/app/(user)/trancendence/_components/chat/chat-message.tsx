@@ -74,7 +74,7 @@ export const ChatMessages = ({
           },
         }
       ).then((res) => res.json()),
-    // refetchInterval: 1000,
+    refetchInterval: 1000,
   });
 
   useEffect(() => {
