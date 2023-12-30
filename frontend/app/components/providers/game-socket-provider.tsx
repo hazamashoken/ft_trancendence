@@ -39,7 +39,6 @@ export const GameSocketProvider = ({
     );
 
     socketInstance.on("connect", () => {
-      console.log("connect");
       setIsConnected(true);
     });
 

@@ -1,8 +1,10 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateMatchsDto } from './dto/create-matchs.dto';
 import { UpdateMatchsDto } from './dto/update-matchs.dto';
@@ -17,7 +19,8 @@ import { MatchStatus } from '@backend/typeorm/match.entity';
 import { StatsService } from '../stats/stats.service';
 import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 import { PongGateway } from '@backend/gateWay/pong.gateway';
-import { _gameInstance } from '@backend/gateWay/pong.gateway';
+// import { this.pongGateway
+// .getGameInstance() } from '@backend/gateWay/pong.gateway';
 import { Team } from '@backend/pong/pong.enum';
 
 const PONE_WIN = 1;
@@ -28,6 +31,7 @@ export class MatchsService {
     @InjectRepository(Match) private matchRepository: Repository<Match>,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Stats) private statsRepository: Repository<Stats>,
+    private readonly pongGateway: PongGateway,
   ) {}
   /*
    * [function] create a new match with defualt value |play2Id=NULL, player1Point=0, player2Point=0, status='WAITING'|.
@@ -64,11 +68,13 @@ export class MatchsService {
     });
     // move player to new room
 
-    _gameInstance.moveUserByName(
-      user.intraLogin,
-      newMatch.matchId.toString(),
-      Team.player1,
-    );
+    this.pongGateway
+      .getGameInstance()
+      .moveUserByName(
+        user.intraLogin,
+        newMatch.matchId.toString(),
+        Team.player1,
+      );
     return newMatch;
   }
 
@@ -82,11 +88,13 @@ export class MatchsService {
 
     if (!match.player1) {
       // move player 1 to room
-      _gameInstance.moveUserByName(
-        user.intraLogin,
-        match.matchId.toString(),
-        Team.player1,
-      );
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          user.intraLogin,
+          match.matchId.toString(),
+          Team.player1,
+        );
       return await this.matchRepository.save({
         ...match,
         player1: user,
@@ -94,11 +102,13 @@ export class MatchsService {
       });
     } else if (!match.player2) {
       // move player 2 to room
-      _gameInstance.moveUserByName(
-        user.intraLogin,
-        match.matchId.toString(),
-        Team.player2,
-      );
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          user.intraLogin,
+          match.matchId.toString(),
+          Team.player2,
+        );
       return await this.matchRepository.save({
         ...match,
         player2: user,
@@ -120,7 +130,9 @@ export class MatchsService {
     }
     if (match?.player1?.id === user.id) {
       // move player to public channel
-      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(user.intraLogin, 'public channel');
       return await this.matchRepository.save({
         ...match,
         player1: null,
@@ -128,7 +140,9 @@ export class MatchsService {
       });
     } else if (match?.player2?.id === user.id) {
       // move player to public channel
-      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(user.intraLogin, 'public channel');
       return await this.matchRepository.save({
         ...match,
         player2: null,

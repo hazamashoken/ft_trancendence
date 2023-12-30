@@ -12,6 +12,7 @@ import { ChannelsModule } from './channels/channels.module';
 import { MessgesModule } from './messages/messages.module';
 import { BannedModule } from './banned/banned.module';
 import { BlockUserModule } from './block/blockUser.module';
+// import { PongModule } from '@backend/pong/pong.module';
 
 @Module({
   imports: [

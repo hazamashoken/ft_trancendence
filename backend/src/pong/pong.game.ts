@@ -5,15 +5,18 @@ import { GameState } from '../interfaces/pong.interface';
 import { Phase, Keypress, Team } from './pong.enum';
 import { newGameState } from './pong.gamestate';
 import { ClientRequest } from 'http';
+import { send } from 'process';
+import { MatchsService } from '@backend/features/matchs/matchs.service';
 
 export class PongGame {
   _server: Server;
   _users: Map<string, PongUser>;
   _states: Map<string, PongState>;
 
-  public constructor() {
+  public constructor(private readonly matchService: MatchsService) {
     this._users = new Map<string, PongUser>();
     this._states = new Map<string, PongState>();
+    this.matchService = matchService;
   }
 
   public addUser(
@@ -34,6 +37,7 @@ export class PongGame {
       }
     }
     // create the user
+    console.log(name + ' ' + id + ' added');
     this._users.set(id, new PongUser(id, name, room));
     // create the room if it doesn't exist
     if (!this._states.has(room)) this._states.set(room, new PongState());
@@ -57,6 +61,7 @@ export class PongGame {
       const room: string = this._users.get(id).room;
       // delete the user
       this._users.delete(id);
+      console.log(id + ' deleted');
       // delete the room if it is empty
       for (const user of this._users.values()) {
         if (user.room == room) return;
@@ -73,12 +78,11 @@ export class PongGame {
   public moveUserByID(id: string, room: string, team: string = Team.viewer) {
     if (this._users.has(id)) {
       const name: string = this._users.get(id).name;
-      const oldRoom: string = this._users.get(id).room;
-      this._server.in(id).socketsLeave(oldRoom);
       this.deleteUserByID(id);
       this.addUser(this._server, id, name, room, team);
       this._states.get(room).single = true;
-      this._server.in(id).socketsJoin(room);
+      console.log(id + ' ' + name + ' joined ' + room);
+      this.keypress(id, Keypress.release);
     }
   }
 
@@ -87,13 +91,17 @@ export class PongGame {
     room: string,
     team: string = Team.viewer,
   ) {
+    console.log(name + ' joined ' + room);
     const id = this.findUserIDByName(name);
+    console.log('id ' + id);
     if (id != null) this.moveUserByID(id, room, team);
   }
 
   public findUserIDByName(name: string): string {
+    console.log(this._users.size);
     for (const user of this._users.values()) {
-      if (user.name == name) return user.id;
+      console.log(user.name + user.id);
+      if (user.name === name) return user.id;
     }
     return null;
   }
@@ -119,7 +127,13 @@ export class PongGame {
   public sendState(room: string) {
     const state: GameState = this._states.get(room).state();
 
-    this._server.to(room).emit('pong_state', state);
+    //this._server.to(room).emit('pong_state', state);
+    for (const user of this._users.values()) {
+      if (user.room == room) {
+        this._server.to(user.id).emit('pong_state', state);
+        console.log(user.id + ' ' + room);
+      }
+    }
     //console.log(state);
   }
 
@@ -164,6 +178,8 @@ export class PongGame {
     if (user.team == Team.spectator || state.phase == Phase.disconnect) {
       return;
     }
+
+    if (keypress == Keypress.refresh) state.changed = true;
 
     // lock the game state
     state.locked = true;

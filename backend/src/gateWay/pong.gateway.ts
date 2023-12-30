@@ -30,8 +30,10 @@ import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.int
 import { UserSessionService } from '@backend/features/user-session/user-session.service';
 import { SocketAuthMiddleware } from '@backend/shared/socket-auth.middleware';
 import { SocketAuthGuard } from '@backend/shared/socket-auth.guard';
+import { MatchsService } from '@backend/features/matchs/matchs.service';
+import { Team } from '@backend/pong/pong.enum';
 
-export const _gameInstance: PongGame = new PongGame();
+// export const _gameInstance: PongGame = new PongGame();
 
 @UseGuards(SocketAuthGuard)
 @WebSocketGateway({
@@ -41,12 +43,18 @@ export const _gameInstance: PongGame = new PongGame();
   },
 })
 export class PongGateway {
-  constructor(private readonly usService: UserSessionService) {}
+  constructor(
+    @Inject(forwardRef(() => UserSessionService))
+    private readonly usService: UserSessionService,
+    @Inject(forwardRef(() => MatchsService))
+    private readonly matchService: MatchsService,
+  ) {}
   @WebSocketServer()
   public server: Server = new Server<
     PongServerToClientEvents,
     PongClientToServerEvents
   >();
+  private readonly _gameInstance = new PongGame(this.matchService);
   private logger = new Logger('PongGateway');
 
   afterInit(client: Socket) {
@@ -73,9 +81,19 @@ export class PongGateway {
     const name: string = session.user.intraLogin;
 
     this.logger.log('connect: ' + id + ', ' + name);
-    _gameInstance.addUser(this.server, id, name, 'public channel');
-    client.join('public channel');
-    startGameLoop(_gameInstance.update);
+
+    const match = await this.matchService.findMatchsByUser(session.user.id);
+    let channel = 'public_channel';
+
+    if (match.length > 0) {
+      let team: string = Team.viewer;
+      if (match[0].player1.id == session.user.id) team = Team.player1;
+      else team = Team.player2;
+      channel = match[0].matchId.toString();
+      this._gameInstance.addUser(this.server, id, name, channel, team);
+    } else this._gameInstance.addUser(this.server, id, name, channel);
+    client.join(channel);
+    startGameLoop(this._gameInstance.update);
   }
 
   async handleDisconnect(client: Socket) {
@@ -83,8 +101,12 @@ export class PongGateway {
 
     this.logger.log('disconnect: ' + id);
     //client.leave('public channel');
-    _gameInstance.deleteUserByID(id);
-    if (_gameInstance.empty()) stopGameLoop();
+    this._gameInstance.deleteUserByID(id);
+    if (this._gameInstance.empty()) stopGameLoop();
+  }
+
+  getGameInstance() {
+    return this._gameInstance;
   }
 
   @SubscribeMessage('pong_keypress')
@@ -95,6 +117,6 @@ export class PongGateway {
     const id: string = this.getClientID(client);
 
     this.logger.log('keypress: ' + payload.keypress);
-    _gameInstance.keypress(id, payload.keypress);
+    this._gameInstance.keypress(id, payload.keypress);
   }
 }
