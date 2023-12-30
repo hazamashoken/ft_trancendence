@@ -1,27 +1,37 @@
-import { CreateMuteDto } from '@backend/features/muted/dto/create-muted.dto';
-import { ReturnMutedDto } from '@backend/features/muted/dto/return-muted.dto';
-import { UpdateMuteDto } from '@backend/features/muted/dto/update-mute.dto';
+import { BannedService } from '@backend/banned/banned.service';
+import { BanUserDto } from '@backend/banned/dto/ban-user.dto';
+import { ReturnBannedDto } from '@backend/banned/dto/return-ban.dto';
+import { ChannelsService } from '@backend/channels/channels.service';
+import { ChatUserDto } from '@backend/channels/dto/chat-user.dto';
+import { ChannelCreatedTO } from '@backend/channels/dto/create-channel.dto';
+import { UpdateChannelDto } from '@backend/channels/dto/update-channel.dto';
+import { CreateMessageDto } from '@backend/messages/dto/create-message.dto';
+import { ReturnMessageDto } from '@backend/messages/dto/return-message.dto';
+import { UpdateMessageDto } from '@backend/messages/dto/update-message.dto';
+import { MessagesService } from '@backend/messages/messages.service';
+import { CreateMuteDto } from '@backend/muted/dto/create-muted.dto';
+import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
+import { UpdateMuteDto } from '@backend/muted/dto/update-mute.dto';
 import { AuthGuard } from '@backend/shared/auth.guard';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { ChannelsEntity } from '@backend/typeorm';
 import { Inject, Injectable, UseGuards, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { ChatGateway } from './chat.gateway';
-import { ChannelsService } from '@backend/features/channels/channels.service';
-import { MessagesService } from '@backend/features/messages/messages.service';
-import { BannedService } from '@backend/features/banned/banned.service';
+import { SocketGateway } from './chat.gateway';
+import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 
 @Injectable()
 @UseGuards(XKeyGuard, AuthGuard)
-export class ChatSocketService {
+export class SocketService {
+
   private readonly connectedClients: Map<string, Socket> = new Map();
   constructor(
     private channelsService: ChannelsService,
     private bannedService: BannedService,
     private messageService: MessagesService,
-    @Inject(forwardRef(() => ChatGateway))
-    private chatGateway: ChatGateway,
-  ) {}
+    @Inject(forwardRef(() => SocketGateway))
+    private chatGateway: SocketGateway,
+  ) { }
 
   handleConnection(socket: Socket): void {
     const clientId = socket.id;

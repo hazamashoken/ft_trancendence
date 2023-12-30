@@ -10,11 +10,7 @@ import { SocketAuthGuard } from './socket-auth.guard';
 import { User } from '@backend/typeorm/user.entity';
 
 @Module({
-  imports: [
-    HttpModule,
-    ConfigModule,
-    TypeOrmModule.forFeature([UserSession, User]),
-  ],
+  imports: [HttpModule, ConfigModule, TypeOrmModule.forFeature([UserSession, User])],
   providers: [FtService, XKeyGuard, AuthGuard, SocketAuthGuard],
   exports: [FtService, XKeyGuard, AuthGuard, SocketAuthGuard],
 })

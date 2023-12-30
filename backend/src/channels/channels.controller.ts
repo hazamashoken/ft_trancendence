@@ -36,14 +36,26 @@ import { ReturnChanelDto } from './dto/return-cnannel.dto';
 import { ChannelCreatedTO } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 import { ChatUserDto } from './dto/chat-user.dto';
-import { ReturnMutedDto } from '@backend/features/muted/dto/return-muted.dto';
-import { MutedService } from '@backend/features/muted/muted.service';
-import { CreateMuteDto } from '@backend/features/muted/dto/create-muted.dto';
-import { UpdateMuteDto } from '@backend/features/muted/dto/update-mute.dto';
+import { BanUserDto } from '@backend/banned/dto/ban-user.dto';
+import {
+  ReturnCursorMessageDto,
+  ReturnMessageDto,
+} from '@backend/messages/dto/return-message.dto';
+import { UpdateMessageDto } from '@backend/messages/dto/update-message.dto';
+import { CreateMessageDto } from '@backend/messages/dto/create-message.dto';
+import { ReturnMutedDto } from '@backend/muted/dto/return-muted.dto';
+import { MutedService } from '@backend/muted/muted.service';
+import { BannedService } from '@backend/banned/banned.service';
+import { MessagesService } from '@backend/messages/messages.service';
+import { ReturnBannedDto } from '@backend/banned/dto/return-ban.dto';
+import { CreateMuteDto } from '@backend/muted/dto/create-muted.dto';
+import { UpdateMuteDto } from '@backend/muted/dto/update-mute.dto';
 import { XKeyGuard } from '@backend/shared/x-key.guard';
 import { AuthGuard } from '@backend/shared/auth.guard';
+import { SocketGateway } from '@backend/gateWay/chat.gateway';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
+import { PaginationDto } from '@backend/messages/dto/pagination.dto';
 import { dmCreate } from './dto/dm.dto';
 import {
   addUserByName,
@@ -56,13 +68,6 @@ import {
   userId,
 } from './dto/userId.dto';
 import { chatType } from '@backend/typeorm/channel.entity';
-import { BanUserDto } from '../banned/dto/ban-user.dto';
-import { BannedService } from '../banned/banned.service';
-import { MessagesService } from '../messages/messages.service';
-import { ReturnBannedDto } from '../banned/dto/return-ban.dto';
-import { ReturnMessageDto } from '../messages/dto/return-message.dto';
-import { CreateMessageDto } from '../messages/dto/create-message.dto';
-import { ChatGateway } from '@backend/gateWay/chat/chat.gateway';
 
 @Controller('channels')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -78,7 +83,7 @@ export class ChannelsController {
     private readonly mutedService: MutedService,
     private readonly bannedService: BannedService,
     private readonly messageService: MessagesService,
-    private readonly chatGateway: ChatGateway,
+    private readonly chatGateway: SocketGateway,
   ) {}
 
   @Get('all')

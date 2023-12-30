@@ -17,7 +17,7 @@ export const users = [
     lastName: 'Viruskizz',
     displayName: 'Araiva',
     email: 'viruskizz@student.42bangkok.com',
-    imageUrl: 'https://google.com',
+    imageUrl: 'https://google.com'
   },
   {
     intraId: 3,
@@ -27,6 +27,6 @@ export const users = [
     lastName: 'Leonhart',
     displayName: 'Viruskizz',
     email: 'araiva@student.42bangkok.com',
-    imageUrl: 'https://google.com',
+    imageUrl: 'https://google.com'
   },
 ];

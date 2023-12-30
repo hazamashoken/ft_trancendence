@@ -21,12 +21,13 @@ import { UserSession } from '@backend/typeorm';
   cors: { origin: '*' },
 })
 export class SessionGateway {
-  constructor(private usService: UserSessionService) {}
+  constructor(private usSubscriber: UserSessionSubscriber, private usService: UserSessionService) {}
   @WebSocketServer() server: Server;
   private subscriptions = new Subscription();
+  private userSession: UserSession;
 
   afterInit(client: Socket) {
-    client.use(SocketAuthMiddleware() as any);
+    client.use(SocketAuthMiddleware() as any)
     const timer$ = timer(0, 1000)
       .pipe(
         tap(() => this.listOnlineUsers()),
@@ -40,45 +41,31 @@ export class SessionGateway {
     if (!client.handshake.auth.accessToken) {
       client.disconnect();
     }
-    const session = await this.usService.getSessionByToken(
-      client.handshake.auth.accessToken,
-    );
+    const session = await this.usService.getSessionByToken(client.handshake.auth.accessToken);
+    // console.log(client.handshake.auth.accessToken, session);
     if (!session) {
       console.error('Session Expired');
       client.disconnect();
-    } else {
-      console.log(`Connect ${client.id}:`, session.id);
-      await this.usService.repository.update(
-        { id: session.id },
-        { status: 'ONLINE' },
-      );
     }
+    this.userSession = session;
   }
 
-  async handleDisconnect(client: Socket) {
-    const session = await this.usService.getSessionByToken(
-      client.handshake.auth.accessToken,
-    );
-    if (session && session.id) {
-      console.log(`Disconnect ${client.id}:`, session.id);
-      await this.usService.repository.update(
-        { id: session.id },
-        { status: 'OFFLINE' },
-      );
-    }
+  handleDisconnect(client: Socket) {
+    console.log('Disconnected:', client.id);
   }
 
   listOnlineUsers() {
     const event = 'listOnlineUsers';
-    this.usService.onlineUsers.subscribe(users => {
-      this.server.emit(event, { users, total: users.length });
+    // console.log('session:', this.userSession?.id);
+    this.usSubscriber.getOnlineUsers().subscribe(users => {
+      this.server.emit(event, { users });
     });
   }
 
   listIngameUsers() {
     const event = 'listIngameUsers';
-    this.usService.ingameUsers.subscribe(users => {
-      this.server.emit(event, { users, total: users.length });
+    this.usSubscriber.getIngameUsers().subscribe(users => {
+      this.server.emit(event, { users });
     });
   }
 

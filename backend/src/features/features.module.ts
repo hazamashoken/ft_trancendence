@@ -8,10 +8,6 @@ import { UserSessionModule } from './user-session/user-session.module';
 import { MatchsModule } from './matchs/matchs.module';
 import { GatewayModule } from '@backend/gateWay/gateway.module';
 import { StatsModule } from './stats/stats.module';
-import { ChannelsModule } from './channels/channels.module';
-import { MessgesModule } from './messages/messages.module';
-import { BannedModule } from './banned/banned.module';
-import { BlockUserModule } from './block/blockUser.module';
 
 @Module({
   imports: [
@@ -24,10 +20,6 @@ import { BlockUserModule } from './block/blockUser.module';
     GatewayModule,
     MatchsModule,
     StatsModule,
-    ChannelsModule,
-    BannedModule,
-    MessgesModule,
-    BlockUserModule,
   ],
   exports: [
     MeModule,
@@ -39,10 +31,6 @@ import { BlockUserModule } from './block/blockUser.module';
     GatewayModule,
     MatchsModule,
     StatsModule,
-    ChannelsModule,
-    BannedModule,
-    MessgesModule,
-    BlockUserModule,
   ],
 })
 export class FeaturesModule {}

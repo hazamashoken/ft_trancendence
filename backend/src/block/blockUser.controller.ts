@@ -1,24 +1,11 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { BlockService } from './blockUser.service';
-import { User } from '@backend/typeorm';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger';
-import { BlockUserDto } from './dto/BlockUser.dto';
-import { AuthGuard } from '@backend/shared/auth.guard';
-import { XKeyGuard } from '@backend/shared/x-key.guard';
-import { AuthUser } from '@backend/pipe/auth-user.decorator';
+import { Body, Controller, Get, Param, Post, Delete, UseGuards } from "@nestjs/common";
+import { BlockService } from "./blockUser.service";
+import { User } from "@backend/typeorm";
+import { ApiBearerAuth, ApiOperation, ApiSecurity, ApiTags } from "@nestjs/swagger";
+import { BlockUserDto } from "./dto/BlockUser.dto";
+import { AuthGuard } from "@backend/shared/auth.guard";
+import { XKeyGuard } from "@backend/shared/x-key.guard";
+import { AuthUser } from "@backend/pipe/auth-user.decorator";
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 
 @Controller('user')
@@ -27,7 +14,9 @@ import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.int
 @ApiSecurity('x-api-key')
 @ApiTags('BlockUser')
 export class BlockUserController {
-  constructor(private readonly blockService: BlockService) {}
+  constructor(
+    private readonly blockService: BlockService
+  ) { };
 
   @Get(':userId/block')
   async getAllBlockedUsers(
@@ -42,7 +31,7 @@ export class BlockUserController {
   async blockUser(
     @Param('userId') userId: number,
     @AuthUser() authUser: AuthUserInterface,
-    @Body() dto: BlockUserDto,
+    @Body() dto: BlockUserDto
   ): Promise<User[]> {
     return await this.blockService.blockUser(authUser.user.id, dto.userId);
   }
@@ -51,7 +40,7 @@ export class BlockUserController {
   async unblockUser(
     @Param('userId') userId: number,
     @AuthUser() authUser: AuthUserInterface,
-    @Body() dto: BlockUserDto,
+    @Body() dto: BlockUserDto
   ): Promise<User[]> {
     return await this.blockService.unBlockUser(userId, dto.userId);
   }

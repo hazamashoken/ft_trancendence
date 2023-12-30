@@ -1,3 +1,4 @@
+import { BlockUser } from '@backend/block/dto/BlockUser.dto';
 import { BannedEntity } from './banned.entity';
 import { ChannelsEntity } from './channel.entity';
 import { Friendship } from './friendship.entity';
@@ -8,7 +9,6 @@ import { User } from './user.entity';
 import { User2fa } from './user_2fa.entity';
 import { Match } from './match.entity';
 import { Stats } from './stats.entity';
-import { BlockUser } from '@backend/features/block/dto/BlockUser.dto';
 
 const entities = [
   User,
@@ -35,6 +35,5 @@ export {
   UserSession,
   Match,
   Stats,
-  BlockUser,
 };
 export default entities;

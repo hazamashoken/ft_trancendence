@@ -22,7 +22,7 @@ import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { AuthUser as AuthUserInterface } from '@backend/interfaces/auth-user.interface';
 
-export const _gameInstance: PongGame = new PongGame();
+export let _gameInstance: PongGame = new PongGame();
 
 @WebSocketGateway({
   cors: {
@@ -50,8 +50,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: any,
     @AuthUser() authUser: AuthUserInterface,
   ) {
-    const id: string = this.getClientID(client);
-    const name = id;
+    let id: string = this.getClientID(client);
+    let name = id;
     // let name: string = authUser.user.intraLogin;
 
     this.logger.log('connect: ' + id + ', ' + name);
@@ -61,7 +61,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(@ConnectedSocket() client: any) {
-    const id: string = this.getClientID(client);
+    let id: string = this.getClientID(client);
 
     this.logger.log('disconnect: ' + id);
     //client.leave('public channel');
@@ -74,7 +74,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: any,
     @MessageBody() payload: GameInstruction,
   ): Promise<void> {
-    const id: string = this.getClientID(client);
+    let id: string = this.getClientID(client);
 
     this.logger.log('keypress: ' + payload.keypress);
     _gameInstance.keypress(id, payload.keypress);

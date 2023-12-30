@@ -1,34 +1,34 @@
 "use client"
 
+import { UserCard } from "@/components/user-card";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
-import { UserSessionInterface } from "../api/user-sessions/interface";
 
 let socket: Socket;
 
 export default function Home() {
   const session = useSession();
-    const [onlineUsers, setOnlineUsers] = useState<UserSessionInterface[]>([]);
-    const [ingameUsers, setIngameUsers] = useState<UserSessionInterface[]>([]);
+    const [users, setUsers] = useState([
+        {id: 1, intraLogin: 'abcde'}
+    ]);
 
     useEffect(() => {
         if (!session.data?.user?.id) {
             return;
         }
-        socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`, {
+        const token = session.data.accessToken;
+        console.log('token:', token);
+        socket = io('http://localhost:3000/sessions', {
             extraHeaders: {
-                Authorization: `Bearer ${session.data.accessToken}`
+                Authorization: `Bearer ${token}`
             }
         });
         socket.on('connect', () => {
             console.log('connect');
         });
-        socket.on('listOnlineUsers', data => {
-            setOnlineUsers(data.users);
-        })
-        socket.on('listIngameUsers', data => {
-            setIngameUsers(data.users);
+        socket.on('listOnlineUsers', (...args) => {
+            // console.log('listOnlineUsers', args);
         })
         return () => {
             socket.disconnect()
@@ -36,28 +36,14 @@ export default function Home() {
     }, [session])
 
     return (
-        <main className="flex min-h-screen flex-col m-4">
-            <h1>Online User</h1>
-            <div>
+        <main className="flex min-h-screen flex-col items-center justify-between p-24">
             {
-                onlineUsers.map(user => (
+                users.map(user => (
                     <div key={user.id} className="border-2 border-sky-500">
-                        {user.id} - {user.user.intraLogin}
+                        {user.id} - {user.intraLogin}
                     </div>
                 ))
             }
-            </div>
-            <div className="m-2"></div>
-            <h1>Ingame User</h1>
-            <div>
-            {
-                ingameUsers.map(user => (
-                    <div key={user.id} className="border-2 border-sky-500">
-                        {user.id} - {user.user.intraLogin}
-                    </div>
-                ))
-            }
-            </div>
         </main>
     )
 }

@@ -67,14 +67,14 @@ export class ChannelsEntity extends BaseEntity {
   @JoinColumn({ name: 'max_users' })
   maxUsers: number;
 
-  @OneToMany(() => MessagesEntity, message => message.channel, {
+  @OneToMany(() => MessagesEntity, (message) => message.channel, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   @Exclude()
   chatMessages: MessagesEntity[];
 
-  @OneToMany(() => BannedEntity, banned => banned.bannedAt, {
+  @OneToMany(() => BannedEntity, (banned) => banned.bannedAt, {
     cascade: true,
     onDelete: 'CASCADE',
   })
@@ -83,7 +83,7 @@ export class ChannelsEntity extends BaseEntity {
   @Exclude()
   bannedUsers: BannedEntity[];
 
-  @OneToMany(() => MutedEntity, muted => muted.mutedAt, {
+  @OneToMany(() => MutedEntity, (muted) => muted.mutedAt, {
     cascade: true,
     onDelete: 'CASCADE',
   })

@@ -10,12 +10,4 @@ export class ResponseUtil {
   static errorDatabase({ code, message, detail }: any) {
     return { code, message, detail };
   }
-
-  static sleep(s: number) {
-    return new Promise(res => setTimeout(() => {}, s * 1000));
-  }
-
-  static msleep(ms: number) {
-    return new Promise(res => setTimeout(() => {}, ms));
-  }
 }

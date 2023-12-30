@@ -305,7 +305,7 @@ export class MatchsService {
   }
 
   findAll(playerId?: number, matchId?: number, option?: TypeormQueryOption) {
-    const where = [];
+    let where = [];
     if (playerId) {
       where.push({ player1: { id: playerId } });
       where.push({ player2: { id: playerId } });

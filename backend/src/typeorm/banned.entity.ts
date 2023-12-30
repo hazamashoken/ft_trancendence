@@ -27,7 +27,7 @@ export class BannedEntity extends BaseEntity {
   @Column({ default: 'U desrve this ban', name: 'ban_reason' })
   banReason: string;
 
-  @ManyToOne(() => ChannelsEntity, channel => channel.bannedUsers, {
+  @ManyToOne(() => ChannelsEntity, (channel) => channel.bannedUsers, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'banned_at' })
