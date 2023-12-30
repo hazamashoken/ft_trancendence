@@ -9,8 +9,6 @@ import {
   Patch,
   Delete,
   Body,
-  Query,
-  Logger,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -21,8 +19,6 @@ import {
 import { SecurityService } from './security.service';
 import { AuthUser } from '@backend/pipe/auth-user.decorator';
 import { User } from '@backend/typeorm';
-import { CodeDto } from './dto/security.dto';
-import { authenticator } from 'otplib';
 
 @Controller('me/security')
 @UseGuards(XKeyGuard, AuthGuard)
@@ -66,13 +62,8 @@ export class SecurityController {
 
   @Get('2fa')
   @ApiOperation({ summary: 'Get 2fa device for auth user' })
-  async get2faDevice(@AuthUser('user') user: User) {
-    const tfaUser = await this.securityService.get2faDevice(user.id);
-    if (!tfaUser) {
-      throw new BadRequestException('User has not been registered device');
-    }
-    Logger.log(tfaUser, 'SecurityController::get2faDevice');
-    return tfaUser;
+  get2faDevice(@AuthUser('user') user: User) {
+    return this.securityService.get2faDevice(user.id);
   }
 
   @Post('2fa')
@@ -84,11 +75,6 @@ export class SecurityController {
     const tfa = await this.securityService.get2faDevice(user.id);
     if (tfa && tfa.status === 'ACTIVE') {
       throw new BadRequestException('User has been registered device');
-    } else if (tfa && tfa.status === 'INACTIVE') {
-      const projName = process.env.PROJECT_NAME;
-      return {
-        qrcode: authenticator.keyuri(user.email, projName, tfa.secret),
-      };
     }
     return this.securityService.register2faDevice(user.id, user.email);
   }
