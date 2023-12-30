@@ -11,7 +11,7 @@ describe('UserController (e2e)', () => {
       return request(server)
         .get('/users')
         .expect(200)
-        .then((res) => {
+        .then(res => {
           expect(res.body).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
@@ -29,7 +29,7 @@ describe('UserController (e2e)', () => {
       return request(app.getHttpServer())
         .get('/users/1')
         .expect(200)
-        .then((res) => {
+        .then(res => {
           expect(res.body).toEqual(
             expect.objectContaining({
               id: 1,

@@ -14,7 +14,7 @@ export class UpdateStatsDto {
     required: false,
   })
   win: number;
-  
+
   @IsNumber()
   @Min(0)
   @IsOptional()
@@ -25,12 +25,13 @@ export class UpdateStatsDto {
     required: false,
   })
   lose: number;
-  
+
   @IsNumber()
   @Min(0)
   @IsOptional()
   @ApiProperty({
-    description: 'the point that acquire win/lose match, this will use to calulate the rank of user.',
+    description:
+      'the point that acquire win/lose match, this will use to calulate the rank of user.',
     minimum: 0,
     default: POINT_DEFAULT,
     required: false,
