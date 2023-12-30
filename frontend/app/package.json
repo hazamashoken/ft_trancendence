@@ -6,8 +6,7 @@
     "dev": "next dev -p 8080",
     "build": "next build",
     "start": "next start -p 8080",
-    "lint": "next lint",
-    "prepare": "cd ../.. && husky install frontend/app/.husky"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.3",
