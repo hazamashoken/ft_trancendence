@@ -22,7 +22,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 
 const formSchema = z.object({
-  username: z.string({ required_error: "required" }).min(1, "required"),
+  username: z
+    .string()
+    .regex(/^[A-Za-z]+$/, "Only letters are allowed")
+    .min(6, "Minimum 6 characters")
+    .max(36, "Maximum 36 characters"),
 });
 
 export function FriendshipAddUserDialog({}) {
@@ -30,6 +34,7 @@ export function FriendshipAddUserDialog({}) {
   const queryClient = useQueryClient();
   const form = useForm({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       username: "",
     },

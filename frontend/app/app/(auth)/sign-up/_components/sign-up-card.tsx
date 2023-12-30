@@ -22,6 +22,7 @@ import { Form } from "@/components/ui/form";
 import { ImageUpload } from "@/components/top-navbar/upload-avatar";
 import { updateAccount } from "@/components/top-navbar/_actions/account";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
   displayName: z
@@ -47,6 +48,8 @@ export function SignUpCard() {
   }, [data]);
 
   const form = useForm({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       displayName: "",
     },

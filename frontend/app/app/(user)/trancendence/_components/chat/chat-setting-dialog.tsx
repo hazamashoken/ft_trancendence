@@ -72,8 +72,8 @@ export function ChatSettingMenu() {
     state.setChatMeta,
   ]);
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      resolver: zodResolver(formSchema),
       chatName: chatMeta.name,
       password: "",
       chatType: chatMeta.chatType as "public" | "private" | "protected",
@@ -128,7 +128,7 @@ export function ChatSettingMenu() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader>
-              <DialogTitle>Create Channel</DialogTitle>
+              <DialogTitle>Channel Settings</DialogTitle>
             </DialogHeader>
             <div className="p-4 space-y-2">
               <FormField

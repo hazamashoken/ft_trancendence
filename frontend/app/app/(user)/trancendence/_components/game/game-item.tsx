@@ -15,11 +15,14 @@ import { PlayerAvatar } from "./player-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { joinMatch } from "../../_actions/game";
 import { toast } from "sonner";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export function MatchItem(props: any) {
   const { matchId, player1, player2, status, id } = props;
   const router = useRouter();
   const [isJoining, setIsJoining] = React.useState(false);
+  const { data: session } = useSession();
 
   const handleJoin = async () => {
     setIsJoining(true);
@@ -35,6 +38,8 @@ export function MatchItem(props: any) {
   const handleWatch = async () => {};
 
   const isFull = player1 && player2;
+  const isPlayer =
+    session?.user?.id === player1?.id || session?.user?.id === player2?.id;
 
   return (
     <Card className="container">
@@ -63,9 +68,15 @@ export function MatchItem(props: any) {
             <strong className="text-lg"> {status}</strong>
           </Button>
           <div className="space-x-2">
-            <Button className="w-[80px]" onClick={handleWatch}>
-              Watch
-            </Button>
+            {isPlayer ? (
+              <Link href={`/trancendence/${matchId}`}>
+                <Button className="w-[80px]">Rejoin</Button>
+              </Link>
+            ) : (
+              <Button className="w-[80px]" onClick={handleWatch}>
+                Watch
+              </Button>
+            )}
           </div>
         </div>
         {player2 ? (

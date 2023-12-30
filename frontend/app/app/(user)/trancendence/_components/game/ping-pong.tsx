@@ -17,7 +17,6 @@ export function PingPong(props: any) {
 
   React.useEffect(() => {
     socket?.on("pong_state", (data: GameState) => {
-      console.log("pong_state", data);
       setGameState(data);
     });
     const userName = user?.intraLogin;
@@ -27,7 +26,6 @@ export function PingPong(props: any) {
 
   return (
     <>
-      {isConnected ? <div>Connected</div> : <div>Not Connected</div>}
       <GameLoop gameState={gameState} />
       <Game
         width={"1200"}

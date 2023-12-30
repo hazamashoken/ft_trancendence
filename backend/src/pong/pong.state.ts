@@ -95,12 +95,15 @@ export class PongState {
   {
     this._state.player1.multiballs = 0;
     this._state.player2.multiballs = 0;
+    this._state.multiball = [];
   }
 
   public disablePowerup()
   {
     this._state.player1.powerups = 0;
     this._state.player2.powerups = 0;
+    this._state.player1.powerup = false;
+    this._state.player2.powerup = false;
   }
 
   public hideBall() {
