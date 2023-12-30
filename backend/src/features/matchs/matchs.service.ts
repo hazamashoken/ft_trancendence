@@ -1,8 +1,10 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateMatchsDto } from './dto/create-matchs.dto';
 import { UpdateMatchsDto } from './dto/update-matchs.dto';
@@ -17,7 +19,6 @@ import { MatchStatus } from '@backend/typeorm/match.entity';
 import { StatsService } from '../stats/stats.service';
 import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 import { PongGateway } from '@backend/gateWay/pong.gateway';
-import { _gameInstance } from '@backend/gateWay/pong.gateway';
 import { Team } from '@backend/pong/pong.enum';
 
 const PONE_WIN = 1;
@@ -28,6 +29,7 @@ export class MatchsService {
     @InjectRepository(Match) private matchRepository: Repository<Match>,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Stats) private statsRepository: Repository<Stats>,
+    private readonly pongGateway: PongGateway,
   ) {}
   /*
    * [function] create a new match with defualt value |play2Id=NULL, player1Point=0, player2Point=0, status='WAITING'|.
@@ -64,11 +66,13 @@ export class MatchsService {
     });
     // move player to new room
 
-    _gameInstance.moveUserByName(
-      user.intraLogin,
-      newMatch.matchId.toString(),
-      Team.player1,
-    );
+    this.pongGateway
+      .getGameInstance()
+      .moveUserByName(
+        user.intraLogin,
+        newMatch.matchId.toString(),
+        Team.player1,
+      );
     return newMatch;
   }
 
@@ -80,6 +84,36 @@ export class MatchsService {
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot join the match.');
     }
+
+//     if (!match.player1) {
+//       // move player 1 to room
+//       this.pongGateway
+//         .getGameInstance()
+//         .moveUserByName(
+//           user.intraLogin,
+//           match.matchId.toString(),
+//           Team.player1,
+//         );
+//       return await this.matchRepository.save({
+//         ...match,
+//         player1: user,
+//         status: 'STARTING',
+//       });
+//     } else if (!match.player2) {
+//       // move player 2 to room
+//       this.pongGateway
+//         .getGameInstance()
+//         .moveUserByName(
+//           user.intraLogin,
+//           match.matchId.toString(),
+//           Team.player2,
+//         );
+//       return await this.matchRepository.save({
+//         ...match,
+//         player2: user,
+//         status: 'STARTING',
+//       });
+// =======
     const userX = await this.userRepository.findOne({ where: { id: userId } });
     if (!userX)
       throw new HttpException(
@@ -98,25 +132,30 @@ export class MatchsService {
       );
     }
     if (!match.player1) {
-      _gameInstance.moveUserByName(
-        userX.intraLogin,
-        match.matchId.toString(),
-        Team.player1,
-      );
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          userX.intraLogin,
+          match.matchId.toString(),
+          Team.player1,
+        );
       match.player1 = userX;
       match.status = 'WAITING';
       return await this.matchRepository.save(match);
     }
 
     if (!match.player2) {
-      _gameInstance.moveUserByName(
-        userX.intraLogin,
-        match.matchId.toString(),
-        Team.player2,
-      );
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          userX.intraLogin,
+          match.matchId.toString(),
+          Team.player2,
+        );
       match.player2 = userX;
       match.status = 'STARTING';
       return await this.matchRepository.save(match);
+// >>>>>>> dev
     }
   
     throw new HttpException(
@@ -174,11 +213,36 @@ export class MatchsService {
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot leave the match.');
     }
+// <<<<<<< feat/fix-pong
+//     if (match?.player1?.id === user.id) {
+//       // move player to public channel
+//       this.pongGateway
+//         .getGameInstance()
+//         .moveUserByName(user.intraLogin, 'public channel');
+//       return await this.matchRepository.save({
+//         ...match,
+//         player1: null,
+//         status: 'WAITING',
+//       });
+//     } else if (match?.player2?.id === user.id) {
+//       // move player to public channel
+//       this.pongGateway
+//         .getGameInstance()
+//         .moveUserByName(user.intraLogin, 'public channel');
+//       return await this.matchRepository.save({
+//         ...match,
+//         player2: null,
+//         status: 'WAITING',
+//       });
+// =======
   
     const userX = await this.userRepository.findOne({ where: { id: userId } });
   
     if (match?.player1?.id === userId) {
-      _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      // _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(userX.intraLogin, 'public channel');
       match.player1 = null;
       match.status = 'WAITING';
       if (!match?.player2) {
@@ -186,13 +250,17 @@ export class MatchsService {
       }
       return await this.matchRepository.save(match);
     } else if (match?.player2?.id === userId) {
-      _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      // _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(userX.intraLogin, 'public channel');
       match.player2 = null;
       match.status = 'WAITING';
       if (!match?.player1) {
         this.matchRepository.delete({ matchId: matchId });
       }
       return await this.matchRepository.save(match);
+// >>>>>>> dev
     }
   
     throw new HttpException(
