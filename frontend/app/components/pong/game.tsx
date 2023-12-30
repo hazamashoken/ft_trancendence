@@ -40,6 +40,12 @@ export default function Game(props: any) {
     socket?.emit("pong_keypress", payload);
   };
 
+  const clickStartClassic = (e: React.MouseEvent<HTMLElement>) => {
+    let payload: GameInstruction = { keypress: Keypress.start };
+
+    socket?.emit("pong_keypress", payload);
+  };
+
   const clickSuper = (e: React.MouseEvent<HTMLElement>) => {
     let payload: GameInstruction = { keypress: Keypress.super };
 
@@ -64,7 +70,7 @@ export default function Game(props: any) {
     socket?.emit("pong_keypress", payload);
   };
 
-  const sendKeyRefresh = (e: React.MouseEvent<HTMLElement>) => {
+  const sendKeyStartClassic = (e: React.MouseEvent<HTMLElement>) => {
     let payload: GameInstruction = { keypress: Keypress.refresh };
 
     socket?.emit("pong_keypress", payload);
@@ -139,7 +145,18 @@ export default function Game(props: any) {
           }
           onClick={clickStart}
         >
-          Start
+          Start Standard
+        </Button>
+        <Button
+          className="mt-1 mb-1 mr-4"
+          disabled={
+            phase == Phase.waiting ||
+            phase == Phase.disconnect ||
+            team == Team.spectator
+          }
+          onClick={clickStartClassic}
+        >
+          Start Classic
         </Button>
         <Button
           className="mt-1 mb-1 mr-4"

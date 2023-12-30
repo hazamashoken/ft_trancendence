@@ -211,7 +211,7 @@ export class PongGame {
 
     // if user serves a multiball
     if (
-      keypress == Keypress.start &&
+      (keypress == Keypress.start || keypress == Keypress.classic) &&
       state.phase == Phase.play &&
       user.team != Team.viewer
     ) {
@@ -225,10 +225,15 @@ export class PongGame {
 
     // if user clicks start game
     if (
-      keypress == Keypress.start &&
+      (keypress == Keypress.start || keypress == Keypress.classic) &&
       user.team != Team.viewer &&
       state.phase == Phase.ready
     ) {
+      // remove powerups for classic
+      if (keypress == Keypress.classic) {
+        state.disableMultiball();
+        state.disablePowerup();
+      }
       // if both teams have joined play can start
       if (
         (user.team == Team.player1 &&
