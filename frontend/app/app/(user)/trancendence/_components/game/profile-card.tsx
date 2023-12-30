@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createAbbreviation } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 export function ProfileCard(props: { meStat: any; ranking: any }) {
   const { data } = useSession();
@@ -60,21 +61,24 @@ export function ProfileCard(props: { meStat: any; ranking: any }) {
         <ScrollArea className="h-[350px]">
           <div className="flex flex-col justify-around w-full gap-1">
             {ranking.map((rank: any, index: number) => (
-              <div className="container" key={index}>
+              <div className="container " key={index}>
                 {index === 0 || <Separator />}
-                <div className="flex items-center justify-around p-2 text-center">
-                  <Badge variant={"outline"} className="text-lg font-bold ">
-                    {index + 1}
-                  </Badge>
-                  <Avatar>
-                    <AvatarImage src={rank?.user?.imageUrl} />
-                    <AvatarFallback>
-                      {createAbbreviation(rank?.user?.displayName) ?? "unknown"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="font-bold">{rank.user.displayName}</span>
-                  <span>{rank.winRate}%</span>
-                </div>
+                <Link href={`/user/${rank?.user?.id}`}>
+                  <div className="flex items-center justify-around p-2 text-center hover:bg-slate-400">
+                    <Badge variant={"outline"} className="text-lg font-bold ">
+                      {index + 1}
+                    </Badge>
+                    <Avatar>
+                      <AvatarImage src={rank?.user?.imageUrl} />
+                      <AvatarFallback>
+                        {createAbbreviation(rank?.user?.displayName) ??
+                          "unknown"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="font-bold">{rank.user.displayName}</span>
+                    <span>{rank.winRate}%</span>
+                  </div>
+                </Link>
               </div>
             ))}
           </div>

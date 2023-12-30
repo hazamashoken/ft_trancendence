@@ -13,7 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import { PlayerAvatar } from "./player-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { joinMatch } from "../../_actions/game";
+import { joinMatch, watchGame } from "../../_actions/game";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -26,20 +26,30 @@ export function MatchItem(props: any) {
 
   const handleJoin = async () => {
     setIsJoining(true);
-    router.push(`/trancendence/${matchId}`);
     const res = await joinMatch(matchId);
     if (res.error) {
       toast.error(res.error);
     } else {
       toast.success("Joined match successfully");
+      router.push(`/trancendence/${matchId}`);
     }
     setIsJoining(false);
   };
-  const handleWatch = async () => {};
+  const handleWatch = async () => {
+    const res = await watchGame(matchId);
+    if (res.error) {
+      toast.error(res.error);
+    } else {
+      toast.success("Watching match successfully");
+      router.push(`/trancendence/${matchId}`);
+    }
+  };
 
   const isFull = player1 && player2;
   const isPlayer =
     session?.user?.id === player1?.id || session?.user?.id === player2?.id;
+
+  const isFinished = status === "FINISHED";
 
   return (
     <Card className="container">
@@ -67,17 +77,19 @@ export function MatchItem(props: any) {
           <Button variant={"outline"} className="w-[150px]">
             <strong className="text-lg"> {status}</strong>
           </Button>
-          <div className="space-x-2">
-            {isPlayer ? (
-              <Link href={`/trancendence/${matchId}`}>
-                <Button className="w-[80px]">Rejoin</Button>
-              </Link>
-            ) : (
-              <Button className="w-[80px]" onClick={handleWatch}>
-                Watch
-              </Button>
-            )}
-          </div>
+          {isFinished || (
+            <div className="space-x-2">
+              {isPlayer ? (
+                <Link href={`/trancendence/${matchId}`}>
+                  <Button className="w-[80px]">Rejoin</Button>
+                </Link>
+              ) : (
+                <Button className="w-[80px]" onClick={handleWatch}>
+                  Watch
+                </Button>
+              )}
+            </div>
+          )}
         </div>
         {player2 ? (
           <PlayerAvatar {...player2} />
