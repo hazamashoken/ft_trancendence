@@ -11,6 +11,8 @@ import { TypeormUtil } from '@backend/utils/typeorm.util';
 import { MatchStatus } from '@backend/typeorm/match.entity';
 import { StatsService } from '../stats/stats.service';
 import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
+import { _gameInstance } from '@backend/gateWay/pong.gateway';
+import { Team } from '@backend/pong/pong.enum';
 
 const PONE_WIN = 1;
 const PTWO_WIN = 2;
@@ -30,6 +32,8 @@ export class MatchsService {
     const newMatch = this.matchRepository.create({
       player1: player1,
     });
+    // move player to new room
+    _gameInstance.moveUserByName(player1.intraLogin, newMatch.matchId.toString(), Team.player1);
     return await this.matchRepository.save(newMatch);
   }
 
@@ -41,12 +45,16 @@ export class MatchsService {
       throw new NotFoundException('MatchId not found, Cannot join the match.');
     }
     if (!match.player1) {
+      // move player 1 to room
+      _gameInstance.moveUserByName(user.intraLogin, match.matchId.toString(), Team.player1);
       return await this.matchRepository.save({
         ...match,
         player1: user,
         status: 'STARTING',
       });
     } else if (!match.player2) {
+      // move player 2 to room
+      _gameInstance.moveUserByName(user.intraLogin, match.matchId.toString(), Team.player2);
       return await this.matchRepository.save({
         ...match,
         player2: user,
@@ -67,12 +75,16 @@ export class MatchsService {
       throw new NotFoundException('MatchId not found, Cannot leave the match.');
     }
     if (match.player1Id === user.id) {
+      // move player to public channel
+      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
       return await this.matchRepository.save({
         ...match,
         player1: null,
         status: 'WAITING',
       });
     } else if (match.player2Id === user.id) {
+      // move player to public channel
+      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
       return await this.matchRepository.save({
         ...match,
         player2: null,

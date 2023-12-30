@@ -36,11 +36,18 @@ export class PongGame
     // create the room if it doesn't exist
     if (!this._states.has(room))
       this._states.set(room, new PongState())
+    this._states.get(room).room = room;
     // if a team is selected simulate the keypress to choose the team
     if (team == Team.player1)
+    {
+      this._states.get(room).player1 = name;
       this.keypress(id, Keypress.player1);
+    }
     else if (team == Team.player2)
+    {
+      this._states.get(room).player2 = name;
       this.keypress(id, Keypress.player2);
+    }
     else if (team == Team.spectator)
       this._users.get(id).team = Team.spectator;
   }
@@ -77,6 +84,7 @@ export class PongGame
       let name: string = this._users.get(id).name;
       this.deleteUserByID(id);
       this.addUser(this._server, id, name, room, team);
+      this._states.get(room).single = true;
     }
   }
 

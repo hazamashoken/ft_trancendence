@@ -39,6 +39,42 @@ export class PongState
     this._state.changed = true;
   }
 
+  public get room()
+  : string
+  {
+    return this._state.room;
+  }
+
+  public set room(name: string)
+  {
+    this._state.room = name;
+    this._state.changed = true;
+  }
+
+  public get player1()
+  : string
+  {
+    return this._state.player1.name;
+  }
+
+  public set player1(name: string)
+  {
+    this._state.player1.name = name;
+    this._state.changed = true;
+  }
+
+  public get player2()
+  : string
+  {
+    return this._state.player2.name;
+  }
+
+  public set player2(name: string)
+  {
+    this._state.player2.name = name;
+    this._state.changed = true;
+  }
+
   public get changed()
   : boolean
   {
@@ -70,6 +106,18 @@ export class PongState
   public set single(single: boolean)
   {
     this._single = single;
+  }
+
+  public disableMultiball()
+  {
+    this._state.player1.multiballs = 0;
+    this._state.player2.multiballs = 0;
+  }
+
+  public disablePowerup()
+  {
+    this._state.player1.powerups = 0;
+    this._state.player2.powerups = 0;
   }
 
   public hideBall()
