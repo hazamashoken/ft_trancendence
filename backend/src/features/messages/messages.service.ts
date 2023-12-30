@@ -61,9 +61,9 @@ export class MessagesService {
     if (user) {
       throw new ForbiddenException('User is muted');
     }
+
     if(channel.mutedUsers.find((MutedEntity) => MutedEntity.user.id == authorId))
       throw new ForbiddenException('Muted users cant write any messages in the chat')
-
     // if (channel.bannedUsers.find((userX) => userX.id === authorId)) {
     //   Logger.log('kek')
     //   throw new ForbiddenException('User is banned at this channel');

@@ -159,4 +159,15 @@ export class MatchsController {
   async removeMatchById(@Param('id') id: string) {
     await this.matchService.removeMatchById(+id);
   }
+
+  //Features
+
+  @Post('watch/:matchId')
+  @ApiOperation({summary: 'Watch a game match by match Id.',})
+  async watchAMatch(
+    @Param('matchId') matchId: number,
+    @AuthUser() authUser: AuthUserInterface,
+  ): Promise<Match> {
+    return await this.matchService.watchAMatch(matchId, authUser.user.intraLogin);
+  }
 }
