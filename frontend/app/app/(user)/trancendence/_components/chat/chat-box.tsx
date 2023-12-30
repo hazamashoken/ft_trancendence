@@ -78,7 +78,7 @@ export function ChatBox(props: { userId: string }) {
           setChatList(res.data);
         });
       } else if (res.event === "dmCreated") {
-        if (res.chatId === chatId.toString()) {
+        if (res.chatId === chatId) {
           getUserChats(userId).then((res) => {
             setChatList(res.data);
           });
@@ -95,6 +95,7 @@ export function ChatBox(props: { userId: string }) {
         }
       } else if (res.event === "getChatUsers") {
         // console.log(res);
+        if (!chatId) return;
         if (res.chatId === chatId.toString()) {
           getChatUser(chatId).then((res) => {
             setChatUserList(res.data);

@@ -3,8 +3,7 @@ import { Pong, Phase, Team, Keypress } from './pong.enum';
 import { collision, winner } from './pong.collision';
 import { newGameState } from './pong.gamestate';
 
-// TODO: change it bacck
-const WIN_SCORE = 1;
+const WIN_SCORE = 5;
 const RESTART_DELAY = 10000;
 
 export class PongState {

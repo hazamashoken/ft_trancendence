@@ -80,7 +80,7 @@ export class PongGateway {
     const id: string = this.getClientID(client);
     const name: string = session.user.intraLogin;
 
-    this.logger.log('connect: ' + id + ', ' + name);
+    // this.logger.log('connect: ' + id + ', ' + name);
 
     const match = await this.matchService.findMatchsByUser(session.user.id);
     let channel = 'public_channel';
@@ -99,7 +99,7 @@ export class PongGateway {
   async handleDisconnect(client: Socket) {
     const id: string = this.getClientID(client);
 
-    this.logger.log('disconnect: ' + id);
+    // this.logger.log('disconnect: ' + id);
     //client.leave('public channel');
     this._gameInstance.deleteUserByID(id);
     if (this._gameInstance.empty()) stopGameLoop();
@@ -116,7 +116,7 @@ export class PongGateway {
   ): Promise<void> {
     const id: string = this.getClientID(client);
 
-    this.logger.log('keypress: ' + payload.keypress);
+    // this.logger.log('keypress: ' + payload.keypress);
     this._gameInstance.keypress(id, payload.keypress);
   }
 }

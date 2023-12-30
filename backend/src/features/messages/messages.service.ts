@@ -47,7 +47,12 @@ export class MessagesService {
   ): Promise<ReturnMessageDto> {
     const channel = await this.channelRepository.findOne({
       where: { chatId: channelId },
-      relations: ['mutedUsers', 'mutedUsers.user', 'bannedUsers', 'bannedUsers.bannedUser'],
+      relations: [
+        'mutedUsers',
+        'mutedUsers.user',
+        'bannedUsers',
+        'bannedUsers.bannedUser',
+      ],
     });
     if (!channel) throw new NotFoundException('ChannelNotFound');
     const author = await this.userRepository.findOne({
@@ -62,17 +67,23 @@ export class MessagesService {
       throw new ForbiddenException('User is muted');
     }
 
-    if(channel.mutedUsers.find((MutedEntity) => MutedEntity.user.id == authorId))
-      throw new ForbiddenException('Muted users cant write any messages in the chat')
+    if (channel.mutedUsers.find(MutedEntity => MutedEntity.user.id == authorId))
+      throw new ForbiddenException(
+        'Muted users cant write any messages in the chat',
+      );
     // if (channel.bannedUsers.find((userX) => userX.id === authorId)) {
     //   Logger.log('kek')
     //   throw new ForbiddenException('User is banned at this channel');
     // }
-    if (channel.bannedUsers.find((bannedEntry) => bannedEntry.bannedUser.id == authorId)) {
+    if (
+      channel.bannedUsers.find(
+        bannedEntry => bannedEntry.bannedUser.id == authorId,
+      )
+    ) {
       throw new ForbiddenException('User is banned at this channel');
     }
-    Logger.log("Banned Users:", channel.bannedUsers);
-    Logger.log("Author ID:", authorId);
+    // Logger.log("Banned Users:", channel.bannedUsers);
+    // Logger.log("Author ID:", authorId);
     const newMessage = new MessagesEntity();
     newMessage.message = message;
     newMessage.author = author;

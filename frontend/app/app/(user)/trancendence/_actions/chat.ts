@@ -335,7 +335,7 @@ export const kickChatUser = async (chatId: any, userId: any) => {
   return { data };
 };
 
-export const createDMChannelAction = async (user1: string, user2: string) => {
+export const createDMChannelAction = async (user2: string) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return { error: "No session found" };
@@ -344,7 +344,7 @@ export const createDMChannelAction = async (user1: string, user2: string) => {
   if (!accessToken) {
     return { error: "No registered" };
   }
-  const url = `${process.env.BACKEND_URL}/channels/createDM`;
+  const url = `${process.env.BACKEND_URL}/channels/createDM/${user2}`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -352,7 +352,7 @@ export const createDMChannelAction = async (user1: string, user2: string) => {
       "x-api-key": process.env.X_API_KEY as string,
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ user1: parseInt(user1), user2 }),
+    body: null,
   });
 
   const data = await response.json();

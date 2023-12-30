@@ -96,7 +96,7 @@ export function UserItem(props: any) {
             <ContextMenuItem
               disabled={isSelf}
               onClick={async () => {
-                const res = await createDMChannelAction(authUser?.id, user.id);
+                const res = await createDMChannelAction(user.id);
                 if (res.data) {
                   toast.success("Create DM success");
                 } else {

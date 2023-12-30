@@ -620,7 +620,7 @@ export class ChannelsService {
     const newChat = await this.channelsRepository.save(chat);
 
     if (newChat.chatUsers.length < 1) return [];
-    Logger.log(`User removed from chat`);
+    // Logger.log(`User removed from chat`);
     return newChat.chatUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
@@ -874,7 +874,7 @@ export class ChannelsService {
         chat.chatOwner = newOwner;
       } else {
         await this.delete(chat.chatId, userId);
-        Logger.log(chat.chatName + ' is deleted');
+        // Logger.log(chat.chatName + ' is deleted');
         return [];
       }
     }

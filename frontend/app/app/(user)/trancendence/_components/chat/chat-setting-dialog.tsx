@@ -33,8 +33,13 @@ import { useSession } from "next-auth/react";
 
 const formSchema = z
   .object({
-    chatName: z.string({ required_error: "required" }).min(1, "required"),
-    chatOwner: z.coerce.number(),
+    chatName: z
+      .string({ required_error: "required" })
+      .min(1, "required")
+      .regex(
+        /^[a-zA-Z0-9\-\_]*$/,
+        "Only alphanumeric, dash and underscore characters are allowed"
+      ),
     password: z.string().optional(),
     chatType: z.string(),
   })
@@ -73,12 +78,15 @@ export function ChatSettingMenu() {
   ]);
   const form = useForm({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       chatName: chatMeta.name,
       password: "",
       chatType: chatMeta.chatType as "public" | "private" | "protected",
     },
   });
+
+  console.log(form.formState.errors);
 
   useEffect(() => {
     if (!chatMeta) return;
