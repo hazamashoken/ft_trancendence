@@ -70,6 +70,7 @@ export const ChatMessages = ({
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session?.accessToken}`,
+            "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
           },
         }
       ).then((res) => res.json()),

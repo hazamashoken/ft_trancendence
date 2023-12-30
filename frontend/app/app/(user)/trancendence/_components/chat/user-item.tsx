@@ -79,7 +79,7 @@ export function UserItem(props: any) {
             <ContextMenuTrigger disabled={isSelf}>
               <Tooltip delayDuration={10}>
                 <TooltipTrigger>
-                  <Link href={`/user/${userId}`}>
+                  <Link href={`/user/${user.id}`}>
                     <Avatar>
                       <AvatarImage src={user.imageUrl} />
                       <AvatarFallback>
