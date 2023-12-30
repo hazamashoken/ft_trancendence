@@ -18,7 +18,14 @@ export class AccountService {
   };
 
   get(id: number) {
-    return this.userRepository.findOneBy({ id });
+    return this.userRepository.findOne({
+      // relations: {
+      //   stats: true,
+      // },
+      where: {
+        id,
+      }
+    });
   }
 
   create(data: FtUser) {
