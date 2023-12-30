@@ -527,7 +527,7 @@ export class ChannelsService {
   ): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: chatId },
-      relations: ['chatUsers', 'bannedUsers', 'bannedUsers.bannedUser'],
+      relations: ['chatUsers', 'bannedUsers'],
     });
     if (!chat) {
       throw new NotFoundException('Chat not found');
@@ -539,9 +539,9 @@ export class ChannelsService {
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
-    if (chat.bannedUsers.find(user => user.bannedUser.id == authUser))
+    if (chat.bannedUsers.find((user) => user.bannedUser.id == authUser))
       throw new ForbiddenException(`User is banned from this chat`);
-    if (chat.chatUsers.find(userA => userA.displayName == userName))
+    if (chat.chatUsers.find((userA) => userA.displayName == userName))
       throw new ForbiddenException(`User already exist in this chat`);
     
     if (chat.chatUsers.length >= chat.maxUsers && chat.maxUsers != null)
