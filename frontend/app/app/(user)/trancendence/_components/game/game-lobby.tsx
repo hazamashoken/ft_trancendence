@@ -5,100 +5,100 @@ import { MatchItem } from "./game-item";
 import { Card } from "@/components/ui/card";
 
 export function GameLobby(props: { data: TMatch[] }) {
-  // const { data } = props;
+  const { data } = props;
 
-  const data = [
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: null,
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-    {
-      matchId: 1,
-      player1: "player1",
-      player2: "player2",
-      status: "pending",
-    },
-  ];
+  // const data = [
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: null,
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  //   {
+  //     matchId: 1,
+  //     player1: "player1",
+  //     player2: "player2",
+  //     status: "pending",
+  //   },
+  // ];
   return (
     <Card className="container py-4">
       <ScrollArea className="border rounded-md">
