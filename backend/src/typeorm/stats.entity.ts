@@ -3,23 +3,19 @@ import {
   Column,
   PrimaryGeneratedColumn,
   OneToOne,
-  RelationId,
   JoinColumn,
-  Unique,
 } from 'typeorm';
 import { User } from './user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export const POINT_DEFAULT = 1000;
 @Entity({ name: 'user_stats' })
-@Unique(['user'])
 export class Stats {
   @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
-  @OneToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
+  @OneToOne(() => User, (user) => user.stats, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
 

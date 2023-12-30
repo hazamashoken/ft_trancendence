@@ -3,10 +3,13 @@ import {
   Column,
   Entity,
   Unique,
+  OneToOne,
+  JoinColumn,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Stats } from './stats.entity';
 
 @Entity({ name: 'user' })
 @Unique([ 'displayName' ])
@@ -46,6 +49,10 @@ export class User {
   @ApiProperty()
   @Column({ name: 'image_url' })
   imageUrl: string;
+
+  @ApiProperty()
+  @OneToOne(() => Stats, (stats) => stats.user)
+  stats: Stats;
 
   @ApiProperty()
   @CreateDateColumn({ name: 'created_at' })
