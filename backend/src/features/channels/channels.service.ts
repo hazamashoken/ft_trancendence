@@ -543,10 +543,12 @@ export class ChannelsService {
       throw new ForbiddenException(`User is banned from this chat`);
     if (chat.chatUsers.find(userA => userA.displayName == userName))
       throw new ForbiddenException(`User already exist in this chat`);
+    
     if (chat.chatUsers.length >= chat.maxUsers && chat.maxUsers != null)
       throw new ForbiddenException(
         'Chat is full plese extend ur channel or remove user from it',
       );
+    
     if (!chat.chatUsers) {
       chat.chatUsers = [];
       chat.chatUsers.push(chat.chatOwner);
