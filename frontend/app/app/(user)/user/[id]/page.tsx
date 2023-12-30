@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { getUserProfile } from "../_actions/user";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { AddFriendBtn } from "./_components/add-friend-btn";
 
 export default async function UserPage({ params }: { params: { id: number } }) {
   const { id } = params;
@@ -56,6 +58,9 @@ export default async function UserPage({ params }: { params: { id: number } }) {
               );
             })}
         </pre>
+        <CardFooter>
+          <AddFriendBtn id={id} />
+        </CardFooter>
       </CardContent>
     </Card>
   );
