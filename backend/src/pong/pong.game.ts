@@ -150,11 +150,13 @@ export class PongGame {
       if (!state.locked) {
         state.update(delta);
 
-        const matchId = parseInt(room);
-        const match = await this.matchService.findAMatchById(matchId);
-        if (match) {
-          if (match.status != 'FINISHED') {
-            this.matchService.finishMatch(matchId, state.player1score(), state.player2score());
+        if (state.phase == Phase.finish) {
+          const matchId = parseInt(room);
+          const match = await this.matchService.findAMatchById(matchId);
+          if (match) {
+            if (match.status != 'FINISHED') {
+              this.matchService.finishMatch(matchId, state.player1score(), state.player2score());
+            }
           }
         }
 
