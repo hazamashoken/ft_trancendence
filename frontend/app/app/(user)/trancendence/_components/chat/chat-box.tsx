@@ -5,8 +5,13 @@ import { MessageArea } from "./message-area";
 import { ListUser } from "./list-user";
 
 import { useChatStore, IChatStore } from "@/store/chat";
-import { useEffect } from "react";
-import { getChatUser, getPublicChat, getUserChats } from "../../_actions/chat";
+import { useEffect, useState } from "react";
+import {
+  getBanlist,
+  getChatUser,
+  getPublicChat,
+  getUserChats,
+} from "../../_actions/chat";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSocket } from "@/components/providers/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +39,7 @@ export function ChatBox(props: { userId: string }) {
     state.setChatUserList,
     state.setChatMeta,
   ]);
+  const [bannedUsers, setBannedUsers] = useState<any>([]);
 
   const queryClient = useQueryClient();
   const { socket } = useSocket();
@@ -46,10 +52,12 @@ export function ChatBox(props: { userId: string }) {
       getChatUser(chatId).then((res) => {
         setChatUserList(res.data);
       });
+      getBanlist(chatId).then((res) => {
+        setBannedUsers(res.data);
+      });
     };
 
     socket?.on("event", (res: any) => {
-      console.log("event", res);
       if (res.event === "quitChat") {
         getChat();
         if (res.chatId === chatId.toString()) {
@@ -86,9 +94,13 @@ export function ChatBox(props: { userId: string }) {
           });
         }
       } else if (res.event === "getChatUsers") {
+        console.log(res);
         if (res.chatId === chatId.toString()) {
           getChatUser(chatId).then((res) => {
             setChatUserList(res.data);
+          });
+          getBanlist(chatId).then((res) => {
+            setBannedUsers(res.data);
           });
         } else if (res.userId === userId && res.message === "user removed") {
           getUserChats(userId).then((res) => {
@@ -126,7 +138,11 @@ export function ChatBox(props: { userId: string }) {
         <ListChannel data={chatList} userId={userId} />
         <MessageArea userId={userId} />
         {chatId && chatMeta.chatType && chatMeta.chatType !== "direct" && (
-          <ListUser data={chatUserList} userId={userId} />
+          <ListUser
+            data={chatUserList}
+            userId={userId}
+            bannedUsers={bannedUsers}
+          />
         )}
       </CardContent>
     </Card>

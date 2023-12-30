@@ -140,7 +140,7 @@ export class ChannelsService {
     if (!channel) throw new NotFoundException('channelNotFound');
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('userNotFound');
-    if(channel.bannedUsers.find(user => user.bannedUser.id == userId))
+    if (channel.bannedUsers.find(user => user.bannedUser.id == userId))
       throw new ForbiddenException(`User is banned from this chat`);
     if (channel.chatUsers.find(userA => userA.id == userId))
       throw new ForbiddenException(`User already exist in this chat`);
@@ -167,19 +167,21 @@ export class ChannelsService {
       where: { chatId: chatId, chatType: chatType.PUBLIC },
       relations: ['chatUsers', 'bannedUsers', 'bannedUsers.bannedUser'],
     });
-    if (!channel)
-      throw new NotFoundException('channelNotFound');
+    if (!channel) throw new NotFoundException('channelNotFound');
 
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
-    if (!user)
-      throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('User not found');
 
     if (channel.bannedUsers.find(userA => userA.id == userId))
       throw new ForbiddenException(`User is banned in this chat`);
-    if (channel.bannedUsers.find((bannedEntry) => bannedEntry.bannedUser.id == userId)) {
-        throw new ForbiddenException('User is banned at this channel');
-      }
+    if (
+      channel.bannedUsers.find(
+        bannedEntry => bannedEntry.bannedUser.id == userId,
+      )
+    ) {
+      throw new ForbiddenException('User is banned at this channel');
+    }
     if (channel.chatUsers.find(userA => userA.id == userId))
       throw new ForbiddenException(`User already exist in this chat`);
     channel.chatUsers.push(user);
@@ -195,17 +197,19 @@ export class ChannelsService {
       where: { chatName: chatName },
       relations: ['chatUsers', 'bannedUsers', 'bannedUsers.bannedUser'],
     });
-    if (!channel)
-      throw new NotFoundException('channelNotFound');
+    if (!channel) throw new NotFoundException('channelNotFound');
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user)
-      throw new NotFoundException('userNotFound');
-    if(channel.bannedUsers.find(userA => userA.id == userId))
+    if (!user) throw new NotFoundException('userNotFound');
+    if (channel.bannedUsers.find(userA => userA.id == userId))
       throw new ForbiddenException(`User is banned from this chat`);
-    if (channel.bannedUsers.find((bannedEntry) => bannedEntry.bannedUser.id == userId)) {
-        throw new ForbiddenException('User is banned at this channel');
-      }
-    if(channel.chatUsers.find(userA => userA.id == userId))
+    if (
+      channel.bannedUsers.find(
+        bannedEntry => bannedEntry.bannedUser.id == userId,
+      )
+    ) {
+      throw new ForbiddenException('User is banned at this channel');
+    }
+    if (channel.chatUsers.find(userA => userA.id == userId))
       throw new ForbiddenException(`User already exist in this chat`);
     channel.chatUsers.push(user);
     await this.channelsRepository.save(channel);
@@ -495,7 +499,7 @@ export class ChannelsService {
   async addUserToChat(chatId: number, userId: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: chatId },
-      relations: ['chatUsers', 'bannedUsers', 'bannedUsers.bannedUser']
+      relations: ['chatUsers', 'bannedUsers', 'bannedUsers.bannedUser'],
     });
 
     const existingUser = await this.userRepository.findOne({
@@ -508,7 +512,7 @@ export class ChannelsService {
     if (!chat) {
       throw new NotFoundException('Chat not found');
     }
-    if(chat.bannedUsers.find(user => user.bannedUser.id == userId))
+    if (chat.bannedUsers.find(user => user.bannedUser.id == userId))
       throw new ForbiddenException(`User is banned from this chat`);
     if (chat.chatUsers.find(userA => userA.id == userId))
       throw new ForbiddenException(`User already exist in this chat`);
@@ -539,8 +543,8 @@ export class ChannelsService {
       throw new NotFoundException('Chat not found');
     }
     const user = await this.userRepository.findOne({
-      where: {id: authUser}
-    })
+      where: { id: authUser },
+    });
     const existingUser = await this.userRepository.findOne({
       where: { displayName: userName },
     });
@@ -549,17 +553,21 @@ export class ChannelsService {
     }
     // if (chat.bannedUsers.find((user) => user.bannedUser.id === user.id))
     //   throw new ForbiddenException(`User is banned from this chat`);
-    if (chat.bannedUsers.find((bannedEntry) => bannedEntry.bannedUser.id == existingUser.id)) {
+    if (
+      chat.bannedUsers.find(
+        bannedEntry => bannedEntry.bannedUser.id == existingUser.id,
+      )
+    ) {
       throw new ForbiddenException('User is banned at this channel');
     }
-    if (chat.chatUsers.find((userA) => userA.id == existingUser.id))
+    if (chat.chatUsers.find(userA => userA.id == existingUser.id))
       throw new ForbiddenException(`User already exist in this chat`);
-    
+
     if (chat.chatUsers.length >= chat.maxUsers && chat.maxUsers != null)
       throw new ForbiddenException(
         'Chat is full plese extend ur channel or remove user from it',
       );
-    
+
     if (!chat.chatUsers) {
       chat.chatUsers = [];
       chat.chatUsers.push(chat.chatOwner);
@@ -587,7 +595,8 @@ export class ChannelsService {
       throw new ForbiddenException(`You can't remove owner from chat`);
     if (
       chat.chatOwner.id != authUser ||
-      chat.chatAdmins.find(admin => (admin.id == authUser) == false)
+      (chat.chatAdmins.find(admin => (admin.id == authUser) == false) &&
+        chat.chatOwner.id != authUser)
     )
       throw new ForbiddenException(
         `Only owner or admin can remove user from chat`,
@@ -596,6 +605,14 @@ export class ChannelsService {
 
     if (!userRemove) {
       throw new NotFoundException('User not found in this chat');
+    }
+
+    if (
+      chat.chatAdmins.find(admin => admin.id == userId) &&
+      chat.chatOwner.id == authUser
+    ) {
+      //remove from admin
+      this.removeAdminFromChat(chatId, userId, authUser);
     }
 
     chat.chatUsers = chat.chatUsers.filter(user => user.id != userId);
@@ -711,6 +728,26 @@ export class ChannelsService {
     mutedById: number,
     mutedUntil?: Date | null,
   ): Promise<ReturnMutedDto[]> {
+    // check if user is in chat
+    const chat = await this.channelsRepository.findOne({
+      where: { chatId: channelId },
+      relations: ['chatUsers'],
+    });
+
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!chat.chatUsers.some(user => user.id === userId)) {
+      throw new ForbiddenException('User not in this channel');
+    }
+
     const muteSession = await this.mutedService.findMutedByUserId(
       userId,
       channelId,
@@ -779,14 +816,14 @@ export class ChannelsService {
     }
     const user = await this.userRepository.findOne({
       where: { id: userId },
-    })
+    });
     const isUserBanned = chat.bannedUsers.some(
       bannedUser => bannedUser.id == userId,
     );
     if (isUserBanned) {
       throw new ForbiddenException('User is banned in this channel');
     }
-    if(chat.bannedUsers.find(user => user.id == userId)) {
+    if (chat.bannedUsers.find(user => user.id == userId)) {
       throw new ForbiddenException('User is banned in this channel');
     }
     if (chat.password != null) {

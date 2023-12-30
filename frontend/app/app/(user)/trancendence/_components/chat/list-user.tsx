@@ -33,13 +33,19 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserItem } from "./user-item";
+import { getBannedUsers } from "@/app/api/channels/channelsApi";
 
 const formSchema = z.object({
   username: z.string().min(1, "username is required"),
 });
 
-export function ListUser(props: { data: any; userId: string }) {
+export function ListUser(props: {
+  data: any;
+  userId: string;
+  bannedUsers: any;
+}) {
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
   const [
     chatId,
     chatList,
@@ -63,7 +69,7 @@ export function ListUser(props: { data: any; userId: string }) {
     state.setChatMeta,
     state.setChatIsLoading,
   ]);
-  const { data: rawData, userId } = props;
+  const { data: rawData, userId, bannedUsers } = props;
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,9 +88,9 @@ export function ListUser(props: { data: any; userId: string }) {
       toast.error(res.error);
     }
   };
-
   // filer out myself with userId
-  const data = rawData.filter((user: any) => user.id !== parseInt(userId));
+  const data = rawData;
+  // rawData?.filter((user: any) => user.id !== parseInt(userId)) ?? [];
 
   return (
     <div className="flex flex-col justify-center h-full p-2 pt-12 space-y-2">
@@ -93,9 +99,16 @@ export function ListUser(props: { data: any; userId: string }) {
         <div className="container flex flex-col justify-center px-0 space-y-2">
           {!chatIsLoading ? (
             data
-              .filter((user: any) => user.role === "owner")
+              ?.filter((user: any) => user.role === "owner")
               .map((user: any, index: number) => {
-                return <UserItem key={index} user={user} chatId={chatId} />;
+                return (
+                  <UserItem
+                    key={index}
+                    user={user}
+                    chatId={chatId}
+                    authUser={session?.user}
+                  />
+                );
               })
           ) : (
             <div className="container flex flex-col px-0 space-y-2">
@@ -107,7 +120,7 @@ export function ListUser(props: { data: any; userId: string }) {
         <div className="container flex flex-col justify-center px-0 space-y-2">
           {!chatIsLoading ? (
             data
-              .filter((user: any) => user.role === "admin")
+              ?.filter((user: any) => user.role === "admin")
               .map((user: any, index: number) => {
                 return <UserItem key={index} user={user} chatId={chatId} />;
               })
@@ -121,10 +134,24 @@ export function ListUser(props: { data: any; userId: string }) {
         <div className="container flex flex-col justify-center px-0 space-y-2">
           {!chatIsLoading ? (
             data
-              .filter((user: any) => user.role === "user")
+              ?.filter((user: any) => user.role === "user")
               .map((user: any, index: number) => {
                 return <UserItem key={index} user={user} chatId={chatId} />;
               })
+          ) : (
+            <div className="container flex flex-col px-0 space-y-2">
+              <Skeleton className="relative flex w-10 h-10 overflow-hidden rounded-full shrink-0" />
+            </div>
+          )}
+        </div>
+        <Badge className="w-14">Ban</Badge>
+        <div className="container flex flex-col justify-center px-0 space-y-2">
+          {!chatIsLoading ? (
+            bannedUsers.map((user: any, index: number) => {
+              return (
+                <UserItem key={index} user={user.bannedUser} chatId={chatId} />
+              );
+            })
           ) : (
             <div className="container flex flex-col px-0 space-y-2">
               <Skeleton className="relative flex w-10 h-10 overflow-hidden rounded-full shrink-0" />

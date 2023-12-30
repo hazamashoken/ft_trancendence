@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BlockUser } from './dto/BlockUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -25,6 +29,24 @@ export class BlockService {
     blockRelation.blockedUser = await this.userRepository.findOneBy({
       id: userId,
     }); // Assuming this is a User entity or ID
+
+    if (!blockRelation.blockedBy || !blockRelation.blockedUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // if user is already blocked
+
+    const blockedRelation = await this.blockRepository.findOne({
+      where: {
+        blockedBy: { id: myId },
+        blockedUser: { id: userId },
+      },
+    });
+
+    if (blockedRelation) {
+      throw new ConflictException('User already blocked');
+    }
+
     await this.blockRepository.save(blockRelation);
 
     return await this.getAllBlockedUsers(myId);
@@ -37,9 +59,10 @@ export class BlockService {
         blockedUser: { id: userId },
       },
     });
-    if (blockRelation) {
-      await this.blockRepository.remove(blockRelation);
+    if (!blockRelation) {
+      throw new NotFoundException('User not blocked');
     }
+    await this.blockRepository.remove(blockRelation);
     return await this.getAllBlockedUsers(myId);
   }
 }

@@ -9,14 +9,20 @@ import { Check, X } from "lucide-react";
 import { acceptFriend, removeFriend } from "./_actions/friendship";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { cx } from "class-variance-authority";
 
 export function NotificationItem(props: any) {
-  const { status, friend } = props;
+  const { status, friend, isInGame, isOnline } = props;
 
   return (
     <li
-      className={`flex flex-row justify-between p-6 border-b gap-x-4 border-zinc-200/90 last:border-0 hover:bg-zinc-50
-      `}
+      className={cx({
+        "flex flex-row justify-between p-6 border-b gap-x-4 border-zinc-200/90 last:border-0 hover:bg-zinc-50":
+          true,
+        "bg-zinc-50": status === "WAITING",
+        "bg-green-400": isOnline,
+        "bg-blue-400": isInGame,
+      })}
     >
       <div className="flex flex-col text-sm leading-5 gap-y-1">
         <Avatar>

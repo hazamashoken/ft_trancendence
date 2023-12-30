@@ -123,7 +123,7 @@ export class MutedService {
   ): Promise<ReturnMutedDto[]> {
     const chat = await this.channelRepository.findOne({
       where: { chatId: chatId },
-      relations: ['mutedUsers', 'chatOwner', 'chatAdmins'],
+      relations: ['mutedUsers', 'chatOwner', 'chatAdmins', 'mutedUsers.user'],
     });
     if (!chat) throw new NotFoundException('Chat not found');
     if (
@@ -131,7 +131,7 @@ export class MutedService {
       !chat.chatAdmins.find(admin => admin.id == authUser)
     )
       throw new ForbiddenException('Only owner or admin can unmute user');
-    if (!chat.mutedUsers.find(user => (user.id = userId)))
+    if (!chat.mutedUsers.find(user => (user.user.id = userId)))
       throw new NotFoundException('User not muted at this chat');
     const muted = await this.findMutedByUserId(userId, chatId);
     if (!muted) {

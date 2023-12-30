@@ -107,7 +107,7 @@ export function ImageUpload(props: any) {
           {logo ? (
             <div className="relative flex flex-col items-center justify-center w-full h-32">
               <Image
-                src={logo}
+                src={""}
                 alt="logo"
                 width={width}
                 height={height}

@@ -27,7 +27,7 @@ export class SessionGateway {
 
   afterInit(client: Socket) {
     client.use(SocketAuthMiddleware() as any);
-    const timer$ = timer(0, 1000)
+    const timer$ = timer(0, 4000)
       .pipe(
         tap(() => this.listOnlineUsers()),
         tap(() => this.listIngameUsers()),

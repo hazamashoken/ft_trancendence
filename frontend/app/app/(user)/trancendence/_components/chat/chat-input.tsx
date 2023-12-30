@@ -73,7 +73,7 @@ export const ChatInput = ({
     const d = await res.json();
 
     if (!res.ok) {
-      toast.error(d);
+      toast.error(d?.message ?? d);
       return;
     }
     form.reset();
