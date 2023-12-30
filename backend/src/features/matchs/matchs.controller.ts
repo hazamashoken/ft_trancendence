@@ -59,6 +59,19 @@ export class MatchsController {
     return this.matchService.createNewMatch(authUser.user);
   }
 
+  @Post('invite/:playerId')
+  @ApiOperation({ summary: 'Invite a player to a game match.' })
+  @ApiCreatedResponse({
+    type: Match,
+    description: 'Success to create a new match.',
+  })
+  async invitePlayer(
+    @Param('playerId') playerId: string,
+    @AuthUser() authUser: AuthUserInterface,
+  ): Promise<Match> {
+    return await this.matchService.invitePlayer(+playerId, authUser.user.id);
+  }
+
   @Post(':matchId/join')
   @ApiOperation({ summary: 'Join a game match by match Id.' })
   @ApiCreatedResponse({
@@ -82,7 +95,10 @@ export class MatchsController {
     @Param('matchId') matchId: string,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<boolean> {
-    const match = await this.matchService.leaveMatch(+matchId, authUser.user.id);
+    const match = await this.matchService.leaveMatch(
+      +matchId,
+      authUser.user.id,
+    );
     // this.matchService.deleteIfEmptyMatch(match.matchId);
     return true;
   }

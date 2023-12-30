@@ -10,9 +10,11 @@ import { getChatUser, getPublicChat, getUserChats } from "../../_actions/chat";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSocket } from "@/components/providers/socket-provider";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 export function ChatBox(props: { userId: string }) {
   const { userId } = props;
+  const { data: session } = useSession();
   const [
     chatId,
     chatList,
@@ -68,9 +70,38 @@ export function ChatBox(props: { userId: string }) {
           setChatList(res.data);
         });
       } else if (res.event === "dmCreated") {
-        getUserChats(userId).then((res) => {
-          setChatList(res.data);
-        });
+        if (res.chatId === chatId.toString()) {
+          getUserChats(userId).then((res) => {
+            setChatList(res.data);
+          });
+        }
+      } else if (res.event === "addUsersToChat") {
+        if (res.chatId === chatId.toString()) {
+          getChatUser(chatId).then((res) => {
+            setChatUserList(res.data);
+          });
+        } else if (res.userName === session?.user?.displayName) {
+          getUserChats(userId).then((res) => {
+            setChatList(res.data);
+          });
+        }
+      } else if (res.event === "getChatUsers") {
+        if (res.chatId === chatId.toString()) {
+          getChatUser(chatId).then((res) => {
+            setChatUserList(res.data);
+          });
+        } else if (res.userId === userId && res.message === "user removed") {
+          getUserChats(userId).then((res) => {
+            setChatList(res.data);
+          });
+          setChatId("");
+          setChatMeta({
+            id: "",
+            name: "",
+            type: "text",
+          });
+          setChatUserList([]);
+        }
       }
     });
 

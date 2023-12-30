@@ -6,10 +6,14 @@ import { Button } from "@/components/ui/button";
 import { leaveMatch } from "../../_actions/game";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { GameSocketIndicator } from "@/components/socket-indicator";
+import { useGameSocket } from "@/components/providers/game-socket-provider";
+import { cx } from "class-variance-authority";
 
 export function GameHeader(props: any) {
   const { user, match } = props;
   const router = useRouter();
+  const { isConnected } = useGameSocket();
 
   const handleLeave = async () => {
     const res = await leaveMatch(match?.matchId);
@@ -34,7 +38,14 @@ export function GameHeader(props: any) {
           <Badge>{match?.player1?.displayName ?? "-"}</Badge>
         </div>
         <div className="flex flex-col gap-2 w-[200px] justify-center items-center">
-          <Button variant={"outline"}>{match?.status}</Button>
+          <Button
+            className={cx({
+              "bg-green-500": isConnected,
+              "bg-red-500": !isConnected,
+            })}
+          >
+            {match?.status}
+          </Button>
           <Button size={"sm"} variant={"destructive"} onClick={handleLeave}>
             Leave
           </Button>
