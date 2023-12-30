@@ -36,7 +36,13 @@ export class AccountService {
     return this.userRepository.save(user);
   }
 
-  update(id: number, data: Partial<User>) {
+  async update(id: number, data: Partial<User>) {
+    if (data.displayName) {
+      const name = await this.userRepository.findOneBy({ displayName: data.displayName });
+      if (name) {
+        throw new BadRequestException('Name must be unique');
+      }
+    }
     return this.userRepository
       .update({ id }, data)
       .then(() => this.userRepository.findOneBy({ id }))
