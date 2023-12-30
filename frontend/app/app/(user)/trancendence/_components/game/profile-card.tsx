@@ -5,10 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { createMatch } from "../../_actions/game";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 export function ProfileCard(props: { meStat: any }) {
-  const { data } = useSession();
   const { meStat } = props;
   const { win, lose, winRate, matchs, user } = meStat;
   const router = useRouter();
@@ -29,7 +27,7 @@ export function ProfileCard(props: { meStat: any }) {
         <CardContent className="w-80">
           <strong>
             <pre>
-              {Object.entries(data?.user ?? user).map(([key, value], index) => (
+              {Object.entries(user).map(([key, value], index) => (
                 <p key={index}>{`${key}: ${value}`}</p>
               ))}
             </pre>

@@ -19,14 +19,11 @@ import ftLogo from "@/public/42_logo.svg";
 import React from "react";
 import { ChangeNameDialog } from "./change-name-dialog";
 import { UploadAvatar } from "./upload-avatar";
-import { useRouter } from "next/navigation";
 
 export function UserNav(props: any) {
   const { session } = props;
   const [openChangeName, setOpenChangeName] = React.useState(false);
   const [openUploadAvatar, setOpenUploadAvatar] = React.useState(false);
-
-  const router = useRouter();
 
   const profile = session?.user ?? session?.ftUser;
   const url = profile?.imageUrl ?? profile?.image?.link;
@@ -69,14 +66,6 @@ export function UserNav(props: any) {
             >
               <Settings className="w-4 h-4 mr-2" />
               <span>upload avatar</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={async () => {
-                router.push("/otp");
-              }}
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              <span>enable OTP</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
