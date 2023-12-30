@@ -5,6 +5,8 @@ import {
   OneToOne,
   JoinColumn,
   Unique,
+  OneToOne,
+  JoinColumn,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -49,6 +51,10 @@ export class User {
   @ApiProperty()
   @Column({ name: 'image_url' })
   imageUrl: string;
+
+  @ApiProperty()
+  @OneToOne(() => Stats, (stats) => stats.user)
+  stats: Stats;
 
   @ApiProperty()
   @CreateDateColumn({ name: 'created_at' })

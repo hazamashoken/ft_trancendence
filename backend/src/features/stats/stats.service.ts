@@ -17,6 +17,10 @@ export class StatsService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
+  get repository() {
+    return this.statsRepository;
+  }
+
   private winRateCalculate(win: number, matchs: number): string {
     console.log(`[Debug]::win|${win}|matchs|${matchs}|`);
     if (!Number(win)) {
@@ -43,7 +47,7 @@ export class StatsService {
 
   async createNewStats(userId: number): Promise<Partial<Stats>> {
     // console.log(createStateDto);
-    console.log(userId);
+    // console.log(userId);
     if (Number(userId) && userId < 0) {
       throw new HttpException(
         'Nagative user-id, fail to create new stats.',
