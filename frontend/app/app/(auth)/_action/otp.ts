@@ -108,7 +108,6 @@ export async function verifyOtp(payload: { code: string }) {
       body: JSON.stringify(payload),
     }
   );
-
   const data = await response.json();
 
   if (!response.ok) {

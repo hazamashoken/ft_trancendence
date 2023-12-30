@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { MatchsService } from './matchs.service';
 import { CreateMatchsDto } from './dto/create-matchs.dto';
@@ -106,7 +107,11 @@ export class MatchsController {
   @ApiOperation({ summary: 'get a game match by match Id.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
   getAMatchById(@Param('id', ParseIntPipe) id: string) {
-    return this.matchService.findAMatchById(+id);
+    const match = this.matchService.findAMatchById(+id);
+    if (!match) {
+      throw new NotFoundException("This match doesn't exist");
+    }
+    return match;
   }
 
   @Get('user/:id')

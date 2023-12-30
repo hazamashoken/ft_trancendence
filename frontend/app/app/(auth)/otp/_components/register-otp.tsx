@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { activateOtp, registerOtp } from "../../_action/otp";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { is } from "date-fns/locale";
+import useLocalStorage from "@/lib/hooks/use-local-storage";
 
 export function RegisterOTP() {
   const { data, status, update } = useSession();
@@ -24,6 +24,7 @@ export function RegisterOTP() {
   const [QRCode, setQRCode] = React.useState<string>("");
   const [isError, setIsError] = React.useState(false);
   const router = useRouter();
+  const [is_verified, setOtpVerified] = useLocalStorage("otp", false);
   React.useEffect(() => {
     setOpen(true);
     const handleRegister = async () => {
@@ -51,6 +52,7 @@ export function RegisterOTP() {
           update({ ...data, otp: true });
           router.push("/trancendence");
           toast.success("OTP registered successfully");
+          setOtpVerified(true);
           return;
         }
         setIsLoading(false);
@@ -65,7 +67,7 @@ export function RegisterOTP() {
     if (!isError) return;
     const timer = setTimeout(() => {
       setIsError(false);
-    }, 5000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [isError]);
 
