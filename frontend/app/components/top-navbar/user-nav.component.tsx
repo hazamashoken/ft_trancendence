@@ -20,11 +20,13 @@ import React from "react";
 import { ChangeNameDialog } from "./change-name-dialog";
 import { UploadAvatar } from "./upload-avatar";
 import { useRouter } from "next/navigation";
+import useLocalStorage from "@/lib/hooks/use-local-storage";
 
 export function UserNav(props: any) {
   const { session } = props;
   const [openChangeName, setOpenChangeName] = React.useState(false);
   const [openUploadAvatar, setOpenUploadAvatar] = React.useState(false);
+  const [is_verified, setOtpVerified] = useLocalStorage("otp", false);
 
   const router = useRouter();
 
@@ -83,7 +85,9 @@ export function UserNav(props: any) {
           {session ? (
             <DropdownMenuItem
               onClick={() => {
-                signOut();
+                signOut().then(() => {
+                  setOtpVerified(false);
+                });
               }}
             >
               <LogOut className="w-4 h-4 mr-2" />
