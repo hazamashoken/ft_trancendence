@@ -21,6 +21,7 @@ export enum Keypress {
   player1 = 'P1',
   player2 = 'P2',
   start = 'ST',
+  classic = 'SC',
   super = 'SU',
   up = 'UP',
   down = 'DN',
