@@ -3,7 +3,7 @@ import { Pong, Phase, Team, Keypress } from './pong.enum';
 import { collision, winner } from './pong.collision';
 import { newGameState } from './pong.gamestate';
 
-const WIN_SCORE = 3;
+const WIN_SCORE = 5;
 const RESTART_DELAY = 10000;
 
 export class PongState {
@@ -91,6 +91,17 @@ export class PongState {
   public set single(single: boolean) {
     this._single = single;
   }
+
+  public player1score()
+  {
+    return this._state.player1.score;
+  }
+
+  public player2score()
+  {
+    return this._state.player1.score;
+  }
+
   public disableMultiball()
   {
     this._state.player1.multiballs = 0;

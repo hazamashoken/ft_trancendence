@@ -145,10 +145,19 @@ export class PongGame {
     this.update2(delta);
   };
 
-  update2(delta: number) {
+  async update2(delta: number) {
     for (const [room, state] of this._states.entries()) {
       if (!state.locked) {
         state.update(delta);
+
+        const matchId = parseInt(room);
+        const match = await this.matchService.findAMatchById(matchId);
+        if (match) {
+          if (match.status != 'FINISHED') {
+            this.matchService.finishMatch(matchId, state.player1score(), state.player2score());
+          }
+        }
+
         if (state.changed) {
           state.changed = false;
           this.sendState(room);
@@ -179,7 +188,7 @@ export class PongGame {
     const state: PongState = this._states.get(user.room);
 
     // if a spectator ignore key press
-    if (user.team == Team.spectator || state.phase == Phase.disconnect) {
+    if (user.team == Team.spectator || state.phase == Phase.disconnect || state.phase == Phase.finish) {
       return;
     }
 
