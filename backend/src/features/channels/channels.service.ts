@@ -135,7 +135,7 @@ export class ChannelsService {
   ): Promise<ChatUserDto[]> {
     const channel = await this.channelsRepository.findOne({
       where: { chatName: chatName, chatType: chatType.PROTECTED },
-      relations: ['chatUsers'],
+      relations: ['chatUsers', 'bannedUsers'],
     });
     if (!channel) throw new NotFoundException('channelNotFound');
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -145,6 +145,8 @@ export class ChannelsService {
       throw new ForbiddenException(`User already exist in this chat`);
     channel.chatUsers.push(user);
 
+    if (channel.bannedUsers.find(userA => userA.id == userId))
+      throw new ForbiddenException(`User is banned from this chat`);
     // check if password is correct
     const isPasswordCorrect = await bcrypt.compare(password, channel.password);
 
@@ -188,11 +190,17 @@ export class ChannelsService {
   ): Promise<ChatUserDto[]> {
     const channel = await this.channelsRepository.findOne({
       where: { chatName: chatName },
-      relations: ['chatUsers'],
+      relations: ['chatUsers', 'bannedUsers'],
     });
-    if (!channel) throw new NotFoundException('channelNotFound');
+    if (!channel)
+      throw new NotFoundException('channelNotFound');
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('userNotFound');
+    if (!user)
+      throw new NotFoundException('userNotFound');
+    if(channel.chatUsers.find(userA => userA.id == userId))
+      throw new ForbiddenException(`User already exist in this chat`);
+    if(channel.bannedUsers.find(userA => userA.id == userId))
+      throw new ForbiddenException(`User is banned from this chat`);
     channel.chatUsers.push(user);
     await this.channelsRepository.save(channel);
     return channel.chatUsers.map(user => plainToClass(ChatUserDto, user));
@@ -481,7 +489,7 @@ export class ChannelsService {
   async addUserToChat(chatId: number, userId: number): Promise<ChatUserDto[]> {
     const chat = await this.channelsRepository.findOne({
       where: { chatId: chatId },
-      relations: ['chatUsers'],
+      relations: ['chatUsers', 'bannedUsers']
     });
 
     const existingUser = await this.userRepository.findOne({
@@ -504,6 +512,8 @@ export class ChannelsService {
       chat.chatUsers = [];
       chat.chatUsers.push(chat.chatOwner);
     }
+    if(chat.bannedUsers.find(user => user.bannedUser.id == userId))
+      throw new ForbiddenException(`User is banned from this chat`);
     chat.chatUsers.push(existingUser);
 
     await this.channelsRepository.save(chat);
