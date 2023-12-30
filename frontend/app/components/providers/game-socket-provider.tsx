@@ -1,32 +1,36 @@
 "use client";
-
+import { GameState } from "@/lib/pong.interface";
 import { useSession } from "next-auth/react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { io as ClientIO } from "socket.io-client";
+import { io as ClientIO, Socket } from "socket.io-client";
+import { newGameState } from "@/lib/pong.gamestate";
 
 type SocketContextType = {
-  socket: any | null;
+  socket: Socket | null;
   isConnected: boolean;
 };
-
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
 });
 
-export const useSocket = () => {
+export const useGameSocket = () => {
   return useContext(SocketContext);
 };
 
-export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-  const [socket, setSocket] = useState(null);
+export const GameSocketProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { data: session } = useSession();
 
   useEffect(() => {
     if (!session?.accessToken) return;
     const socketInstance = new (ClientIO as any)(
-      process.env.NEXT_PUBLIC_BACKEND_URL,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/game`,
       {
         extraHeaders: {
           Authorization: `Bearer ${session?.accessToken}`,
@@ -35,6 +39,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     socketInstance.on("connect", () => {
+      console.log("connect");
       setIsConnected(true);
     });
 

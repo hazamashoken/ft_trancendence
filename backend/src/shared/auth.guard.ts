@@ -64,10 +64,10 @@ export class AuthGuard implements CanActivate {
     return from(this.usRepo.findOneBy({ accessToken })).pipe(
       switchMap(session => {
         if (!session) {
-          console.log('AuthGaurd Check Token Info');
+          // console.log('AuthGaurd Check Token Info');
           return this.refreshFtUserCache(accessToken);
         } else {
-          console.log('AuthGaurd Retrieve user session');
+          // console.log('AuthGaurd Retrieve user session');
           return of({
             ftUser: session.ftUser,
             accessToken: session.accessToken,

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateMatchsDto } from './dto/create-matchs.dto';
 import { UpdateMatchsDto } from './dto/update-matchs.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +16,7 @@ import { TypeormUtil } from '@backend/utils/typeorm.util';
 import { MatchStatus } from '@backend/typeorm/match.entity';
 import { StatsService } from '../stats/stats.service';
 import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
+import { PongGateway } from '@backend/gateWay/pong.gateway';
 import { _gameInstance } from '@backend/gateWay/pong.gateway';
 import { Team } from '@backend/pong/pong.enum';
 
@@ -28,13 +34,42 @@ export class MatchsService {
    * by input the userID of player who own the match.
    * => [match] the match is success to created.
    * => [-1] the match is fail to created. */
-  async createNewMatch(player1: User): Promise<Match> {
-    const newMatch = this.matchRepository.create({
-      player1: player1,
+  async createNewMatch(user: User): Promise<Match> {
+    // if user is already in a match, return the match
+    // TODO: May break when comparing two objects
+    // const match = await this.matchRepository.findOne({
+    //   where: { player1: { id: player1.id }, status: 'WAITING' || 'STARTING' },
+    // });
+
+    const match = await this.matchRepository
+      .createQueryBuilder('match')
+      .where(
+        '(match.player1.id = :user AND (match.status = :waiting OR match.status = :starting))',
+        { user: user.id, waiting: 'WAITING', starting: 'STARTING' },
+      )
+      .orWhere(
+        '(match.player2.id = :user AND (match.status = :waiting OR match.status = :starting))',
+        { user: user.id, waiting: 'WAITING', starting: 'STARTING' },
+      )
+      .getOne();
+
+    // Logger.log(match);
+
+    if (match) {
+      throw new ConflictException("You're already in a match.");
+    }
+
+    const newMatch = await this.matchRepository.save({
+      player1: user,
     });
     // move player to new room
-    _gameInstance.moveUserByName(player1.intraLogin, newMatch.matchId.toString(), Team.player1);
-    return await this.matchRepository.save(newMatch);
+
+    _gameInstance.moveUserByName(
+      user.intraLogin,
+      newMatch.matchId.toString(),
+      Team.player1,
+    );
+    return newMatch;
   }
 
   async joinMatch(matchId: number, user: User): Promise<Match> {
@@ -44,9 +79,14 @@ export class MatchsService {
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot join the match.');
     }
+
     if (!match.player1) {
       // move player 1 to room
-      _gameInstance.moveUserByName(user.intraLogin, match.matchId.toString(), Team.player1);
+      _gameInstance.moveUserByName(
+        user.intraLogin,
+        match.matchId.toString(),
+        Team.player1,
+      );
       return await this.matchRepository.save({
         ...match,
         player1: user,
@@ -54,7 +94,11 @@ export class MatchsService {
       });
     } else if (!match.player2) {
       // move player 2 to room
-      _gameInstance.moveUserByName(user.intraLogin, match.matchId.toString(), Team.player2);
+      _gameInstance.moveUserByName(
+        user.intraLogin,
+        match.matchId.toString(),
+        Team.player2,
+      );
       return await this.matchRepository.save({
         ...match,
         player2: user,
@@ -67,29 +111,38 @@ export class MatchsService {
     );
   }
 
-  async leaveMatch(matchId: number, user: User): Promise<Match> {
+  async leaveMatch(matchId: number, user: number): Promise<Match> {
     const match: Partial<Match> = await this.matchRepository.findOne({
       where: { matchId: matchId },
     });
     if (!match) {
       throw new NotFoundException('MatchId not found, Cannot leave the match.');
     }
-    if (match.player1Id === user.id) {
+    const userX = await this.userRepository.findOne({ where: { id: user } });
+    if (match?.player1?.id === user) {
       // move player to public channel
-      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
-      return await this.matchRepository.save({
-        ...match,
-        player1: null,
-        status: 'WAITING',
-      });
-    } else if (match.player2Id === user.id) {
+      _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      // return await this.matchRepository.save({
+      //   ...match,
+      //   player1: null,
+      //   status: 'WAITING',
+      // });
+      let newMatch = {...match};
+      newMatch.player1 = null;
+      newMatch.status = 'WAITING';
+      return await this.matchRepository.save(newMatch);
+    } else if (match?.player2?.id === user) {
       // move player to public channel
-      _gameInstance.moveUserByName(user.intraLogin, 'public channel');
-      return await this.matchRepository.save({
-        ...match,
-        player2: null,
-        status: 'WAITING',
-      });
+      _gameInstance.moveUserByName(userX.intraLogin, 'public channel');
+      // return await this.matchRepository.save({
+      //   ...match,
+      //   player2: null,
+      //   status: 'WAITING',
+      // });
+      let newMatch = {...match};
+      newMatch.player1 = null;
+      newMatch.status = 'WAITING';
+      return await this.matchRepository.save(newMatch);
     }
 
     throw new HttpException(
@@ -146,7 +199,7 @@ export class MatchsService {
       );
     }
     const result: number = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
-    this.updatePlayersStats(match.player1Id, match.player2Id, result);
+    this.updatePlayersStats(match.player1.id, match.player2.id, result);
     return await this.matchRepository.save({
       ...match,
       player1Point: player1Point,
@@ -216,7 +269,7 @@ export class MatchsService {
       },
     );
     const result: number = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
-    this.updatePlayersStats(match.player1Id, player2Id, result);
+    this.updatePlayersStats(match.player1.id, player2Id, result);
     return true;
   }
 

@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { MatchsService } from './matchs.service';
 import { CreateMatchsDto } from './dto/create-matchs.dto';
@@ -81,7 +82,7 @@ export class MatchsController {
     @Param('matchId') matchId: string,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<boolean> {
-    const match = await this.matchService.leaveMatch(+matchId, authUser.user);
+    const match = await this.matchService.leaveMatch(+matchId, authUser.user.id);
     this.matchService.deleteIfEmptyMatch(match.matchId);
     return true;
   }
@@ -106,11 +107,12 @@ export class MatchsController {
   @Get(':id')
   @ApiOperation({ summary: 'get a game match by match Id.' })
   @ApiParam({ name: 'id', type: Number, example: 4242 })
-  getAMatchById(@Param('id', ParseIntPipe) id: string) {
-    const match = this.matchService.findAMatchById(+id);
+  async getAMatchById(@Param('id', ParseIntPipe) id: string) {
+    const match = await this.matchService.findAMatchById(+id);
     if (!match) {
       throw new NotFoundException("This match doesn't exist");
     }
+
     return match;
   }
 

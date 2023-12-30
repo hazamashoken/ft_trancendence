@@ -4,6 +4,7 @@ import { UserNav } from "./user-nav.component";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { FriendShipList } from "./friendship.component";
 import { ModeToggle } from "./mode-toggle.component";
+import { HomeBtn } from "./home-btn";
 
 export async function TopNavBar() {
   const session = await getServerSession(authOptions);
@@ -13,7 +14,8 @@ export async function TopNavBar() {
   return (
     <div className="sticky top-0 z-40 border-b bg-inherit">
       <div className="flex items-center h-16 px-4">
-        <MainNav className="mx-6" />
+        {/* <MainNav className="mx-6" /> */}
+        <HomeBtn />
         <div className="flex items-center ml-auto space-x-4">
           {isRegistered && <FriendShipList />}
           <ModeToggle className="right-4 top-4 md:right-8 md:top-8" />

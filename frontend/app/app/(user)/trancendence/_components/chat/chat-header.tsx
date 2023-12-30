@@ -29,6 +29,7 @@ export function getDmOther(chatUserList: any, userId: string) {
   const other = chatUserList?.filter(
     (user: any) => user.id.toString() !== userId
   );
+  if (!other) return null;
   return other[0];
 }
 
