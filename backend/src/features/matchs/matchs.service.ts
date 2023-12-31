@@ -126,7 +126,7 @@ export class MatchsService {
         'PlayerId not found, Cannot invite the player.',
       );
     }
-    if (match.player2) {
+    if (match.player2 && match.player1) {
       throw new HttpException(
         'Match is full, Cannot invite the player.',
         HttpStatus.BAD_REQUEST,
@@ -147,9 +147,32 @@ export class MatchsService {
     if (otherMatch) {
       throw new ConflictException('Player is already in a match.');
     }
+
+    if (!match.player2) {
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          player.intraLogin,
+          match.matchId.toString(),
+          Team.player2,
+        );
+      return await this.matchRepository.save({
+        ...match,
+        player2: player,
+        status: 'STARTING',
+      });
+    }
+
+    this.pongGateway
+      .getGameInstance()
+      .moveUserByName(
+        player.intraLogin,
+        match.matchId.toString(),
+        Team.player1,
+      );
     return await this.matchRepository.save({
       ...match,
-      player2: player,
+      player1: player,
       status: 'STARTING',
     });
   }
@@ -369,9 +392,9 @@ export class MatchsService {
       where: { matchId: matchId },
       relations: ['player1', 'player2'],
     });
-    if (!match) {
-      throw new NotFoundException('MatchId not found, Cannot start the match.');
-    }
+
+    if (!match) return;
+
     if (match.status === 'PLAYING') return;
     return await this.matchRepository.save({
       ...match,
@@ -388,11 +411,7 @@ export class MatchsService {
       where: { matchId: matchId },
       relations: ['player1', 'player2'],
     });
-    if (!match) {
-      throw new NotFoundException(
-        'MatchId not found, Cannot finish the match.',
-      );
-    }
+    if (!match) return;
     Logger.log(match, 'Match');
     const result: number = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
     this.updatePlayersStats(match.player1.id, match.player2.id, result);

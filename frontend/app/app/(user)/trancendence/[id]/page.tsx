@@ -18,13 +18,11 @@ export default async function GameRoomPage({
   }
 
   const session = await getServerSession(authOptions);
-  const userName = session?.user?.intraLogin;
+
   return (
-    <div className="flex justify-between">
-      <div className="flex flex-col justify-center flex-grow">
-        <GameHeader user={session?.user} match={res.data} />
-        <PingPong user={session?.user} match={res.data} />
-      </div>
+    <div className="flex flex-col justify-center flex-grow">
+      <GameHeader user={session?.user} match={res.data} />
+      <PingPong user={session?.user} match={res.data} />
     </div>
   );
 }

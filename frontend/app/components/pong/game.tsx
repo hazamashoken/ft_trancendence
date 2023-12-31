@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { GameInstruction } from "@/lib/pong.interface";
 import { Phase, Team, Keypress } from "@/lib/pong.enum";
 import { useGameSocket } from "@/components/providers/game-socket-provider";
+import { cx } from "class-variance-authority";
 
 export default function Game(props: any) {
+  const { isPlayer } = props;
   const { socket, isConnected } = useGameSocket();
   const [phase, setPhase] = useState(
     props.team == Team.player1 ||
@@ -17,22 +19,6 @@ export default function Game(props: any) {
       : Phase.waiting
   );
   const [team, setTeam] = useState(props.team);
-
-  const clickteam1 = (e: React.MouseEvent<HTMLElement>) => {
-    let payload: GameInstruction = { keypress: Keypress.player1 };
-
-    setPhase(Phase.ready);
-    setTeam(Keypress.player1);
-    socket?.emit("pong_keypress", payload);
-  };
-
-  const clickteam2 = (e: React.MouseEvent<HTMLElement>) => {
-    let payload: GameInstruction = { keypress: Keypress.player2 };
-
-    setPhase(Phase.ready);
-    setTeam(Keypress.player2);
-    socket?.emit("pong_keypress", payload);
-  };
 
   const clickStart = (e: React.MouseEvent<HTMLElement>) => {
     let payload: GameInstruction = { keypress: Keypress.start };
@@ -78,38 +64,17 @@ export default function Game(props: any) {
 
   return (
     <div className="flex flex-col items-center">
-      {/* <div className="flex flex-row items-center m-1">
-        <Button
-          className="mt-1 mb-1 ml-4 mr-4"
-          variant={
-            team != Team.player2 && team != Team.spectator
-              ? "default"
-              : "outline"
-          }
-          disabled={phase != Phase.waiting || team == Team.spectator}
-          onClick={clickteam1}
-        >
-          Player 1
-        </Button>
-        <Button
-          className="mt-1 mb-1 mr-4"
-          variant={
-            team != Team.player1 && team != Team.spectator
-              ? "default"
-              : "outline"
-          }
-          disabled={phase != Phase.waiting || team == Team.spectator}
-          onClick={clickteam2}
-        >
-          Player 2
-        </Button>
-      </div> */}
       <canvas
         id="game_canvas"
         width={props.width ?? "640"}
         height={props.height ?? "480"}
       ></canvas>
-      <div className="flex flex-row items-center m-1">
+      <div
+        className={cx({
+          "flex flex-row items-center m-1": true,
+          hidden: !isPlayer,
+        })}
+      >
         <Button
           className="mt-1 mb-1 ml-4 mr-4"
           disabled={
@@ -135,7 +100,12 @@ export default function Game(props: any) {
           ↓
         </Button>
       </div>
-      <div className="flex flex-row items-center m-1">
+      <div
+        className={cx({
+          "flex flex-row items-center m-1": true,
+          hidden: !isPlayer,
+        })}
+      >
         <Button
           className="mt-1 mb-1 ml-4 mr-4"
           disabled={
