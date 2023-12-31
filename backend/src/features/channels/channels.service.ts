@@ -624,6 +624,61 @@ export class ChannelsService {
     return newChat.chatUsers.map(user => plainToClass(ChatUserDto, user));
   }
 
+  async removeSelfFromChat(
+    chatId: number,
+    authUser: number,
+  ): Promise<ChatUserDto[] | null> {
+    const chat = await this.channelsRepository.findOne({
+      where: { chatId: chatId },
+      relations: ['chatUsers', 'chatOwner', 'chatAdmins'],
+    });
+
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
+    const userRemove = chat.chatUsers.find(user => user.id == authUser);
+
+    if (!userRemove) {
+      throw new NotFoundException('User not found in this chat');
+    }
+
+    await this.channelsRepository
+      .createQueryBuilder()
+      .relation(ChannelsEntity, 'activeUsers')
+      .of(chat)
+      .remove(authUser);
+
+    if (chat.chatAdmins.find(admin => admin.id == authUser)) {
+      //remove from admin
+      this.removeAdminFromChat(chatId, authUser, authUser);
+    }
+
+    chat.chatUsers = chat.chatUsers.filter(user => user.id != authUser);
+
+    if (chat.chatOwner.id === authUser) {
+      let newOwner;
+      if (chat.chatAdmins.length > 0) {
+        newOwner = chat.chatAdmins[0];
+      } else if (chat.chatUsers.length > 0) {
+        newOwner = chat.chatUsers.find(u => u.id !== authUser);
+      }
+
+      if (newOwner) {
+        chat.chatOwner = newOwner;
+      } else {
+        await this.delete(chat.chatId, authUser);
+        // Logger.log(chat.chatName + ' is deleted');
+        return [];
+      }
+    }
+
+    const newChat = await this.channelsRepository.save(chat);
+
+    if (newChat.chatUsers.length < 1) return [];
+    // Logger.log(`User removed from chat`);
+    return newChat.chatUsers.map(user => plainToClass(ChatUserDto, user));
+  }
+
   async addAdminToChat(
     chatId: number,
     userId: number,

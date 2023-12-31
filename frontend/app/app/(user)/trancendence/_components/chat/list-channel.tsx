@@ -74,7 +74,7 @@ export function ListChannel(props: { data: any; userId: string }) {
 
   const handleLeaveChannel = async (id: string) => {
     if (chatIsLoading) return;
-    const res = await leaveChannelAction(id, userId);
+    const res = await leaveChannelAction(id);
     if (res.data) {
       toast.success("Channel left successfully");
       getUserChats(userId).then((data) => {

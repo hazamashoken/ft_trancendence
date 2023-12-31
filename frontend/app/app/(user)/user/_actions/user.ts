@@ -3,7 +3,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { getServerSession } from "next-auth";
 
-export const getUserProfile = async (userId: number) => {
+export const getUserProfile = async (userId: string) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return { error: "No session found" };

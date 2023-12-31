@@ -1051,7 +1051,7 @@ export class ChannelsController {
   //     return await this.channelsService.joinChannel(chatId, authUser.user.id);
   //   }
 
-  @Post(':chatId/quitChat/:userId')
+  @Post(':chatId/quitChat')
   @ApiOperation({
     summary: 'remove user from active chatUsers list',
   })
@@ -1070,7 +1070,7 @@ export class ChannelsController {
   @ApiCreatedResponse({ type: ChatUserDto, description: 'quit chat' })
   async quit(
     @Param('chatId') chatId: number,
-    @Param('userId') userId: number,
+    // @Param('userId') userId: number,
     @AuthUser() authUser: AuthUserInterface,
     // @Body() dto: chatD,
   ): Promise<ChatUserDto[]> {
@@ -1079,7 +1079,10 @@ export class ChannelsController {
       event: 'quitChat',
       chatId: chatId,
     });
-    return await this.channelsService.quitChannel(chatId, authUser.user.id);
+    return await this.channelsService.removeSelfFromChat(
+      chatId,
+      authUser.user.id,
+    );
   }
 }
 //   @Get(':chatId/activeUsers')

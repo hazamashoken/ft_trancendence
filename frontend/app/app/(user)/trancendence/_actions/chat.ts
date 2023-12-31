@@ -248,10 +248,7 @@ export const getChannelData = async (chatId: string = "1") => {
   return { data };
 };
 
-export const leaveChannelAction = async (
-  chatId: string = "1",
-  user: string
-) => {
+export const leaveChannelAction = async (chatId: string) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return { error: "No session found" };
@@ -260,7 +257,7 @@ export const leaveChannelAction = async (
   if (!accessToken) {
     return { error: "No registered" };
   }
-  const url = `${process.env.BACKEND_URL}/channels/${chatId}/quitChat/${user}`;
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/quitChat`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -271,15 +268,13 @@ export const leaveChannelAction = async (
     body: null,
   });
 
-  const data = await response.json();
-
   if (!response.ok) {
+    const data = await response.json();
     return { error: data.message };
   }
-
   revalidateTag(`user:chat`);
 
-  return { data };
+  return { data: "success" };
 };
 
 export const updateChannelAction = async (chatId: string, payload: any) => {

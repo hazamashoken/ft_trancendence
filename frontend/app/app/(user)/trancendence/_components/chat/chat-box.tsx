@@ -60,7 +60,7 @@ export function ChatBox(props: { userId: string }) {
     socket?.on("event", (res: any) => {
       if (res.event === "quitChat") {
         getChat();
-        if (res.chatId === chatId.toString()) {
+        if (res.chatId === chatId?.toString()) {
           setChatId("");
           setChatMeta({
             id: "",
@@ -70,7 +70,7 @@ export function ChatBox(props: { userId: string }) {
           setChatUserList([]);
         }
       } else if (res.event === "getChatMessages") {
-        if (res.chatId === chatId.toString()) {
+        if (res.chatId === chatId?.toString()) {
           queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
         }
       } else if (res.event === "chat updated") {
@@ -84,7 +84,7 @@ export function ChatBox(props: { userId: string }) {
           });
         }
       } else if (res.event === "addUsersToChat") {
-        if (res.chatId === chatId.toString()) {
+        if (res.chatId === chatId?.toString()) {
           getChatUser(chatId).then((res) => {
             setChatUserList(res.data);
           });
@@ -96,7 +96,7 @@ export function ChatBox(props: { userId: string }) {
       } else if (res.event === "getChatUsers") {
         // console.log(res);
         if (!chatId) return;
-        if (res.chatId === chatId.toString()) {
+        if (res.chatId === chatId?.toString()) {
           getChatUser(chatId).then((res) => {
             setChatUserList(res.data);
           });

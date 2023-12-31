@@ -147,7 +147,7 @@ export function ListUser(props: {
         <Badge className="w-14">Ban</Badge>
         <div className="container flex flex-col justify-center px-0 space-y-2">
           {!chatIsLoading ? (
-            bannedUsers.map((user: any, index: number) => {
+            bannedUsers?.map((user: any, index: number) => {
               return (
                 <UserItem key={index} user={user.bannedUser} chatId={chatId} />
               );

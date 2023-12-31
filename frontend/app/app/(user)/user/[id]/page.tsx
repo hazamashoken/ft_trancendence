@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { AddFriendBtn } from "./_components/add-friend-btn";
 
-export default async function UserPage({ params }: { params: { id: number } }) {
+export default async function UserPage({ params }: { params: { id: string } }) {
   const { id } = params;
 
   const res = await getUserProfile(id);
