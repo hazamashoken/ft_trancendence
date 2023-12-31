@@ -9,6 +9,7 @@ import { GameLobby } from "./game-lobby";
 import { useQuery } from "@tanstack/react-query";
 import ApiClient from "@/app/api/api-client";
 import React from "react";
+import { useSession } from "next-auth/react";
 
 export function LobbyResizeable(props: {
   meRes: any;
@@ -16,29 +17,49 @@ export function LobbyResizeable(props: {
   rankRes: any;
 }) {
   const { meRes, matchRes, rankRes } = props;
-  const client = ApiClient("CLIENT");
-
   const [matches, setMatches] = React.useState(matchRes.data);
   const [ranks, setRanks] = React.useState(rankRes.data);
+  const { data: session } = useSession();
 
   const matchQuery = useQuery({
     queryKey: ["matches"],
-    queryFn: () => client.get(`/matchs`).then((res) => res.data),
+    enabled: !!session?.accessToken,
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/matchs`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+          "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
+        },
+        cache: "no-cache",
+      }).then((res) => res.json()),
     refetchInterval: 4000,
   });
+
   const rankQuery = useQuery({
     queryKey: ["ranks"],
-    queryFn: () => client.get(`/stats/rank`).then((res) => res.data),
+    enabled: !!session?.accessToken,
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/stats/rank`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+          "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
+        },
+        cache: "no-cache",
+      }).then((res) => res.json()),
     refetchInterval: 10000,
   });
 
   React.useEffect(() => {
-    if (!matchQuery.data) return;
+    if (matchQuery.isError) return;
     setMatches(matchQuery.data);
   }, [matchQuery]);
 
   React.useEffect(() => {
-    if (!rankQuery.data) return;
+    if (rankQuery.isError) return;
     setRanks(rankQuery.data);
   }, [rankQuery]);
 

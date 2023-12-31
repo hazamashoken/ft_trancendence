@@ -9,6 +9,7 @@ import { AuthUser } from '@backend/interfaces/auth-user.interface';
 import { TypeormQueryOption } from '@backend/interfaces/query-option.interface';
 import { TypeormUtil } from '@backend/utils/typeorm.util';
 import { BehaviorSubject, Observable, Subject, from } from 'rxjs';
+import { User } from '@backend/typeorm';
 
 @Injectable()
 export class UserSessionService {
@@ -66,10 +67,28 @@ export class UserSessionService {
     return this.usRepository.save(session);
   }
 
+  createViaUser(user: User, data: any) {
+    const session = new UserSession();
+    session.id = data.id ?? user.id;
+    session.status = data.status ?? 'OFFLINE';
+    return this.usRepository.save(session);
+  }
+
   updateStatus(authUser: AuthUser, status: UserSessionStatusType) {
     return this.get(authUser.user.id).then(session => {
       if (!session) {
         return this.create(authUser, { status });
+      }
+      return this.usRepository
+        .update({ id: session.id }, { status })
+        .then(res => this.get(session.id));
+    });
+  }
+
+  updateUserStatus(user: User, status: UserSessionStatusType) {
+    return this.get(user.id).then(session => {
+      if (!session) {
+        return this.createViaUser(user, { status });
       }
       return this.usRepository
         .update({ id: session.id }, { status })

@@ -39,9 +39,7 @@ import { Team } from '@backend/pong/pong.enum';
 @UseGuards(SocketAuthGuard)
 @WebSocketGateway({
   namespace: 'game',
-  cors: {
-    origin: '*',
-  },
+  cors: true,
 })
 export class PongGateway {
   constructor(
@@ -82,29 +80,38 @@ export class PongGateway {
     const id: string = this.getClientID(client);
     const name: string = session.user.intraLogin;
 
-    this.logger.log('connect: ' + id + ', ' + name);
+    // this.logger.log('connect: ' + id + ', ' + name);
 
     const match = await this.matchService.findMatchsByUser(session.user.id);
-    let channel = 'public_channel';
 
     if (match.length > 0) {
       let team: string = Team.viewer;
-      if (match[0].player1.id == session.user.id) team = Team.player1;
+      if (match[0].player1.id === session.user.id) team = Team.player1;
       else team = Team.player2;
-      channel = match[0].matchId.toString();
+      const channel = match[0].matchId.toString();
       this._gameInstance.addUser(this.server, id, name, channel, team);
-    } else this._gameInstance.addUser(this.server, id, name, channel);
-    client.join(channel);
+      this.usService.updateUserStatus(session.user, "IN_GAME");
+      client.join(channel);
+    } else {
+      this._gameInstance.addUser(this.server, id, name, 'public_channel');
+      client.join('public_channel');
+    }
     startGameLoop(this._gameInstance.update);
   }
 
   async handleDisconnect(client: Socket) {
     const id: string = this.getClientID(client);
 
-    this.logger.log('disconnect: ' + id);
+    // this.logger.log('disconnect: ' + id);
     //client.leave('public channel');
+    const session = await this.usService.getSessionByToken(
+      client.handshake.auth.accessToken,
+    );
     this._gameInstance.deleteUserByID(id);
-    if (this._gameInstance.empty()) stopGameLoop();
+    if (this._gameInstance.empty()) {
+      stopGameLoop();
+      this.usService.updateUserStatus(session.user, "OFFLINE");
+    }
   }
 
   getGameInstance() {
@@ -118,7 +125,7 @@ export class PongGateway {
   ): Promise<void> {
     const id: string = this.getClientID(client);
 
-    this.logger.log('keypress: ' + payload.keypress);
+    // this.logger.log('keypress: ' + payload.keypress);
     this._gameInstance.keypress(id, payload.keypress);
   }
 }

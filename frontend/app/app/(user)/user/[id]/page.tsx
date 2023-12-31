@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import { getUserProfile } from "../_actions/user";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { AddFriendBtn } from "./_components/add-friend-btn";
 
-export default async function UserPage({ params }: { params: { id: number } }) {
+export default async function UserPage({ params }: { params: { id: string } }) {
   const { id } = params;
 
   const res = await getUserProfile(id);
@@ -28,14 +30,14 @@ export default async function UserPage({ params }: { params: { id: number } }) {
           <AvatarFallback>{res?.data?.displayName}</AvatarFallback>
         </Avatar>
         <pre className="text-center">
-          {Object.entries(res.data)
-            .filter(([key, value]) => thingsToNotShow.includes(key) === false)
+          {Object.entries(res?.data)
+            ?.filter(([key, value]) => thingsToNotShow.includes(key) === false)
             .map(([key, value], index) => {
               if (key === "stats") {
                 return (
                   <pre key={index}>
                     {Object.entries(value ?? [])
-                      .filter(
+                      ?.filter(
                         ([key, value]) =>
                           thingsToNotShow.includes(key) === false
                       )
@@ -56,6 +58,9 @@ export default async function UserPage({ params }: { params: { id: number } }) {
               );
             })}
         </pre>
+        <CardFooter>
+          <AddFriendBtn id={id} />
+        </CardFooter>
       </CardContent>
     </Card>
   );

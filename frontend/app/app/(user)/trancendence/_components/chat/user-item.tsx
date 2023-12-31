@@ -46,6 +46,7 @@ import {
 } from "@/components/top-navbar/_actions/friendship";
 import { useSession } from "next-auth/react";
 import React from "react";
+import Link from "next/link";
 
 export function UserItem(props: any) {
   const { data: session } = useSession();
@@ -78,12 +79,14 @@ export function UserItem(props: any) {
             <ContextMenuTrigger disabled={isSelf}>
               <Tooltip delayDuration={10}>
                 <TooltipTrigger>
-                  <Avatar>
-                    <AvatarImage src={user.imageUrl} />
-                    <AvatarFallback>
-                      {createAbbreviation(user.displayName)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Link href={`/user/${user.id}`}>
+                    <Avatar>
+                      <AvatarImage src={user.imageUrl} />
+                      <AvatarFallback>
+                        {createAbbreviation(user.displayName)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
                 </TooltipTrigger>
                 <TooltipContent side="left">{user.displayName}</TooltipContent>
               </Tooltip>
@@ -93,7 +96,7 @@ export function UserItem(props: any) {
             <ContextMenuItem
               disabled={isSelf}
               onClick={async () => {
-                const res = await createDMChannelAction(authUser?.id, user.id);
+                const res = await createDMChannelAction(user.id);
                 if (res.data) {
                   toast.success("Create DM success");
                 } else {
@@ -306,9 +309,9 @@ export function UserItem(props: any) {
                 <p># {user.id}</p>
                 <Separator />
                 <div className="flex gap-2">
-                  <p>win: {user?.stat?.win ?? "1"}</p>
-                  <p>lose: {user?.stat?.lose ?? "1"}</p>
-                  <p>ratio: {user?.stat?.win / user?.stat?.lose ?? "100"}%</p>
+                  <p>win: {user?.stats?.win ?? "1"}</p>
+                  <p>lose: {user?.stats?.lose ?? "1"}</p>
+                  <p>ratio: {user?.stats?.winRate}%</p>
                 </div>
               </CardContent>
             </Card>

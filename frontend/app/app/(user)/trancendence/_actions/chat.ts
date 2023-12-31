@@ -248,10 +248,7 @@ export const getChannelData = async (chatId: string = "1") => {
   return { data };
 };
 
-export const leaveChannelAction = async (
-  chatId: string = "1",
-  user: string
-) => {
+export const leaveChannelAction = async (chatId: string) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return { error: "No session found" };
@@ -260,7 +257,7 @@ export const leaveChannelAction = async (
   if (!accessToken) {
     return { error: "No registered" };
   }
-  const url = `${process.env.BACKEND_URL}/channels/${chatId}/quitChat/${user}`;
+  const url = `${process.env.BACKEND_URL}/channels/${chatId}/quitChat`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -271,15 +268,13 @@ export const leaveChannelAction = async (
     body: null,
   });
 
-  const data = await response.json();
-
   if (!response.ok) {
+    const data = await response.json();
     return { error: data.message };
   }
-
   revalidateTag(`user:chat`);
 
-  return { data };
+  return { data: "success" };
 };
 
 export const updateChannelAction = async (chatId: string, payload: any) => {
@@ -335,7 +330,7 @@ export const kickChatUser = async (chatId: any, userId: any) => {
   return { data };
 };
 
-export const createDMChannelAction = async (user1: string, user2: string) => {
+export const createDMChannelAction = async (user2: string) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return { error: "No session found" };
@@ -344,7 +339,7 @@ export const createDMChannelAction = async (user1: string, user2: string) => {
   if (!accessToken) {
     return { error: "No registered" };
   }
-  const url = `${process.env.BACKEND_URL}/channels/createDM`;
+  const url = `${process.env.BACKEND_URL}/channels/createDM/${user2}`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -352,7 +347,7 @@ export const createDMChannelAction = async (user1: string, user2: string) => {
       "x-api-key": process.env.X_API_KEY as string,
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ user1: parseInt(user1), user2 }),
+    body: null,
   });
 
   const data = await response.json();
@@ -385,7 +380,7 @@ export const muteChatUser = async (payload: {
     body.mutedById = parseInt(body.mutedById);
   }
 
-  console.log(body);
+  // console.log(body);
 
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/muteUser`;
   const response = await fetch(url, {
@@ -426,7 +421,7 @@ export const unMuteChatUser = async (payload: {
     body.userId = parseInt(userId);
   }
 
-  console.log(body);
+  // console.log(body);
 
   const url = `${process.env.BACKEND_URL}/channels/${chatId}/unmute`;
   const response = await fetch(url, {
@@ -532,11 +527,12 @@ export const getBanlist = async (chatId: number) => {
       "x-api-key": process.env.X_API_KEY as string,
       Authorization: `Bearer ${accessToken}`,
     },
+    cache: "no-cache",
   });
 
   const data = await response.json();
 
-  console.log(data);
+  // console.log(data);
   if (!response.ok) {
     return { error: data.message };
   }
@@ -565,7 +561,7 @@ export const addChatAdmin = async (chatId: string, userId: string) => {
   });
 
   const data = await response.json();
-  console.log(data);
+  // console.log(data);
   if (!response.ok) {
     return { error: data.message };
   }

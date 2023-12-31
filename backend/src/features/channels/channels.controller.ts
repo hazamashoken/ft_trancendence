@@ -292,39 +292,28 @@ export class ChannelsController {
     return this.channelsService.create(dto);
   }
 
-  @Post('createDm')
+  @Post('createDm/:userId')
   @ApiOperation({
     summary: 'create direct messages',
     description:
       'by default max_users will be set as 2 and chatType will be set as direct',
-  })
-  @ApiBody({
-    description: 'Direct messages creation data',
-    type: dmCreate,
-    examples: {
-      NormalRequest: {
-        summary: 'A normal example',
-        value: {
-          user1: 1,
-          user2: 2,
-        },
-      },
-    },
   })
   @ApiCreatedResponse({
     type: ChannelsEntity,
     description: 'create direct messages',
   })
   async createDm(
-    @Body() dto: dmCreate,
+    // @Body() dto: dmCreate,
+    @Param('userId') userId: number,
     @AuthUser() authUser: AuthUserInterface,
   ): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents({
       event: 'dmCreated',
-      userId: dto.user2.toString(),
+      userId: userId,
     }),
-      { user1: authUser.user.id, user2: dto.user2 };
-    return this.channelsService.createDm(dto.user1, dto.user2);
+      { user1: authUser.user.id, user2: userId };
+
+    return this.channelsService.createDm(authUser.user.id, userId);
   }
 
   //   @Post(':chatId/delete/:userId')
@@ -392,6 +381,7 @@ export class ChannelsController {
     @Body() dto: UpdateChannelDto,
   ): Promise<ChannelsEntity> {
     this.chatGateway.sendEvents({ event: 'chat updated', chatId: chatId });
+
     return this.channelsService.update(chatId, dto, authUser.user.id);
   }
 
@@ -1061,7 +1051,7 @@ export class ChannelsController {
   //     return await this.channelsService.joinChannel(chatId, authUser.user.id);
   //   }
 
-  @Post(':chatId/quitChat/:userId')
+  @Post(':chatId/quitChat')
   @ApiOperation({
     summary: 'remove user from active chatUsers list',
   })
@@ -1080,7 +1070,7 @@ export class ChannelsController {
   @ApiCreatedResponse({ type: ChatUserDto, description: 'quit chat' })
   async quit(
     @Param('chatId') chatId: number,
-    @Param('userId') userId: number,
+    // @Param('userId') userId: number,
     @AuthUser() authUser: AuthUserInterface,
     // @Body() dto: chatD,
   ): Promise<ChatUserDto[]> {
@@ -1089,7 +1079,10 @@ export class ChannelsController {
       event: 'quitChat',
       chatId: chatId,
     });
-    return await this.channelsService.quitChannel(chatId, authUser.user.id);
+    return await this.channelsService.removeSelfFromChat(
+      chatId,
+      authUser.user.id,
+    );
   }
 }
 //   @Get(':chatId/activeUsers')

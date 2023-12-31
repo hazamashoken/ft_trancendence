@@ -21,6 +21,7 @@ import { StatsService } from '../stats/stats.service';
 import { POINT_DEFAULT } from '@backend/typeorm/stats.entity';
 import { PongGateway } from '@backend/gateWay/pong.gateway';
 import { Team } from '@backend/pong/pong.enum';
+import { UserSessionService } from '../user-session/user-session.service';
 
 const PONE_WIN = 1;
 const PTWO_WIN = 2;
@@ -30,6 +31,7 @@ export class MatchsService {
     @InjectRepository(Match) private matchRepository: Repository<Match>,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Stats) private statsRepository: Repository<Stats>,
+    private readonly usService: UserSessionService,
     private readonly pongGateway: PongGateway,
   ) {}
   /*
@@ -84,6 +86,8 @@ export class MatchsService {
         newMatch.matchId.toString(),
         Team.player1,
       );
+
+    this.usService.updateUserStatus(user, 'IN_GAME');
     return newMatch;
   }
 
@@ -118,7 +122,7 @@ export class MatchsService {
         'You are not in a game, Cannot invite the player.',
       );
     }
-    const player: Partial<User> = await this.userRepository.findOne({
+    const player: User = await this.userRepository.findOne({
       where: { id: playerId },
     });
     if (!player) {
@@ -126,7 +130,7 @@ export class MatchsService {
         'PlayerId not found, Cannot invite the player.',
       );
     }
-    if (match.player2) {
+    if (match.player2 && match.player1) {
       throw new HttpException(
         'Match is full, Cannot invite the player.',
         HttpStatus.BAD_REQUEST,
@@ -147,9 +151,33 @@ export class MatchsService {
     if (otherMatch) {
       throw new ConflictException('Player is already in a match.');
     }
+
+    if (!match.player2) {
+      this.pongGateway
+        .getGameInstance()
+        .moveUserByName(
+          player.intraLogin,
+          match.matchId.toString(),
+          Team.player2,
+        );
+      return await this.matchRepository.save({
+        ...match,
+        player2: player,
+        status: 'STARTING',
+      });
+    }
+
+    this.pongGateway
+      .getGameInstance()
+      .moveUserByName(
+        player.intraLogin,
+        match.matchId.toString(),
+        Team.player1,
+      );
+    this.usService.updateUserStatus(player, 'IN_GAME');
     return await this.matchRepository.save({
       ...match,
-      player2: player,
+      player1: player,
       status: 'STARTING',
     });
   }
@@ -207,6 +235,7 @@ export class MatchsService {
         );
       match.player1 = userX;
       match.status = 'WAITING';
+      this.usService.updateUserStatus(userX, 'IN_GAME');
       return await this.matchRepository.save(match);
     }
 
@@ -220,6 +249,7 @@ export class MatchsService {
         );
       match.player2 = userX;
       match.status = 'STARTING';
+      this.usService.updateUserStatus(userX, 'IN_GAME');
       return await this.matchRepository.save(match);
       // >>>>>>> dev
     }
@@ -323,6 +353,7 @@ export class MatchsService {
       if (!match?.player2) {
         this.matchRepository.delete({ matchId: matchId });
       }
+      this.usService.updateUserStatus(userX, 'ONLINE');
       return await this.matchRepository.save(match);
     } else if (match?.player2?.id === userId) {
       this.pongGateway
@@ -333,6 +364,7 @@ export class MatchsService {
       if (!match?.player1) {
         this.matchRepository.delete({ matchId: matchId });
       }
+      this.usService.updateUserStatus(userX, 'ONLINE');
       return await this.matchRepository.save(match);
       // >>>>>>> dev
     }
@@ -369,9 +401,9 @@ export class MatchsService {
       where: { matchId: matchId },
       relations: ['player1', 'player2'],
     });
-    if (!match) {
-      throw new NotFoundException('MatchId not found, Cannot start the match.');
-    }
+
+    if (!match) return;
+
     if (match.status === 'PLAYING') return;
     return await this.matchRepository.save({
       ...match,
@@ -388,14 +420,12 @@ export class MatchsService {
       where: { matchId: matchId },
       relations: ['player1', 'player2'],
     });
-    if (!match) {
-      throw new NotFoundException(
-        'MatchId not found, Cannot finish the match.',
-      );
-    }
+    if (!match) return;
     Logger.log(match, 'Match');
     const result: number = player1Point > player2Point ? PONE_WIN : PTWO_WIN;
     this.updatePlayersStats(match.player1.id, match.player2.id, result);
+    this.usService.updateUserStatus(match.player1, 'ONLINE');
+    this.usService.updateUserStatus(match.player2, 'ONLINE');
     return await this.matchRepository.save({
       ...match,
       player1Point: player1Point,

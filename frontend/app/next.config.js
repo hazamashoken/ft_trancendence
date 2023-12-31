@@ -31,6 +31,10 @@ const nextConfig = {
   //     },
   // },
   // transpilePackages: ['lodash-es'],
+  // publicRuntimeConfig: {
+  //   NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  //   NEXT_PUBLIC_X_API_KEY: process.env.NEXT_PUBLIC_X_API_KEY,
+  // },
 };
 
 module.exports = nextConfig;

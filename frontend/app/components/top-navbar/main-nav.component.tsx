@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { signOut } from "next-auth/react";
 import React from "react";
+import useLocalStorage from "@/lib/hooks/use-local-storage";
 
 export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
   const [open, setOpen] = React.useState(false);
+  const [is_verified, setOtpVerified] = useLocalStorage("otp", false);
   return (
     <nav
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
@@ -62,7 +64,9 @@ export function MainNav({
             <Button
               variant={"ghost"}
               onClick={() => {
-                signOut();
+                signOut().then(() => {
+                  setOtpVerified(false);
+                });
               }}
             >
               Sign Out

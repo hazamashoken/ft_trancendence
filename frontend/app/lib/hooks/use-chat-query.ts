@@ -35,18 +35,9 @@ export const useChatQuery = ({
       },
       { skipNull: true }
     );
-    // const url = `${apiUrl}?cursor=${pageParam}`;
     const res = await client.get(url).then((res) => res.data);
     return res.data;
   };
-
-  // const { data } = useQuery({
-  //   queryKey: [queryKey],
-  //   enabled: isConnected,
-  //   queryFn: fetchMessages,
-  // });
-
-  // return { data };
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({

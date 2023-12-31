@@ -32,9 +32,12 @@ export function ProfileCard(props: { meStat: any; ranking: any }) {
           </CardHeader>
           <strong>
             <pre>
-              {Object.entries(data?.user ?? user).map(([key, value], index) => (
-                <p key={index}>{`${key}: ${value}`}</p>
-              ))}
+              {(data?.user || user) &&
+                Object.entries(data?.user ?? user)?.map(
+                  ([key, value], index) => (
+                    <p key={index}>{`${key}: ${value}`}</p>
+                  )
+                )}
             </pre>
           </strong>
           <div className="flex flex-col">
@@ -60,7 +63,7 @@ export function ProfileCard(props: { meStat: any; ranking: any }) {
         </CardHeader>
         <ScrollArea className="h-[350px]">
           <div className="flex flex-col justify-around w-full gap-1">
-            {ranking.map((rank: any, index: number) => (
+            {ranking?.map((rank: any, index: number) => (
               <div className="container " key={index}>
                 {index === 0 || <Separator />}
                 <Link href={`/user/${rank?.user?.id}`}>

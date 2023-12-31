@@ -14,6 +14,7 @@ export function PingPong(props: any) {
   const { isConnected, socket } = useGameSocket();
   const [userTeam, setUserTeam] = React.useState(Team.player1);
   const [gameState, setGameState] = React.useState<GameState>(newGameState());
+  const [isPlayer, setIsPlayer] = React.useState(false);
 
   React.useEffect(() => {
     socket?.on("pong_state", (data: GameState) => {
@@ -24,16 +25,18 @@ export function PingPong(props: any) {
     if (gameState?.player2?.name == userName) setUserTeam(Team.player2);
   }, [socket, isConnected]);
 
+  React.useEffect(() => {
+    if (
+      user?.intraLogin == gameState?.player1?.name ||
+      user?.intraLogin == gameState?.player2?.name
+    )
+      setIsPlayer(true);
+  }, [user, gameState]);
+
   return (
-    <>
+    <div className="z-30">
       <GameLoop gameState={gameState} />
-      <Game
-        width={"1200"}
-        height={"600"}
-        // gameState={gameState}
-        // player={session?.user}
-        team={userTeam}
-      />
-    </>
+      <Game isPlayer={isPlayer} team={userTeam} />
+    </div>
   );
 }

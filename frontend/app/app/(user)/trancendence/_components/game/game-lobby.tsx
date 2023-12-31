@@ -40,7 +40,7 @@ export function GameLobby(props: { data: TMatch[] }) {
           <ScrollArea className="border rounded-md">
             <div className="space-y-1 h-[785px]">
               {data
-                .filter(
+                ?.filter(
                   (match) =>
                     match.status === "WAITING" || match.status === "STARTING"
                 )
@@ -54,7 +54,7 @@ export function GameLobby(props: { data: TMatch[] }) {
           <ScrollArea className="border rounded-md">
             <div className="space-y-1 h-[785px]">
               {data
-                .filter((match) => match.status === "PLAYING")
+                ?.filter((match) => match.status === "PLAYING")
                 .map((match, index) => (
                   <MatchItem key={index} {...match} />
                 ))}
@@ -65,7 +65,7 @@ export function GameLobby(props: { data: TMatch[] }) {
           <ScrollArea className="border rounded-md">
             <div className="space-y-1 h-[785px]">
               {data
-                .filter((match) => match.status === "FINISHED")
+                ?.filter((match) => match.status === "FINISHED")
                 .map((match, index) => (
                   <MatchItem key={index} {...match} />
                 ))}

@@ -46,21 +46,21 @@ export function ChatBox(props: { userId: string }) {
   useEffect(() => {
     const getChat = async () => {
       getUserChats(userId).then((res) => {
-        setChatList(res.data);
+        setChatList(res?.data);
       });
       if (!chatId) return;
       getChatUser(chatId).then((res) => {
-        setChatUserList(res.data);
+        setChatUserList(res?.data);
       });
       getBanlist(chatId).then((res) => {
-        setBannedUsers(res.data);
+        setBannedUsers(res?.data);
       });
     };
 
     socket?.on("event", (res: any) => {
-      if (res.event === "quitChat") {
+      if (res?.event === "quitChat") {
         getChat();
-        if (res.chatId === chatId.toString()) {
+        if (res?.chatId === chatId?.toString()) {
           setChatId("");
           setChatMeta({
             id: "",
@@ -69,42 +69,43 @@ export function ChatBox(props: { userId: string }) {
           });
           setChatUserList([]);
         }
-      } else if (res.event === "getChatMessages") {
-        if (res.chatId === chatId.toString()) {
+      } else if (res?.event === "getChatMessages") {
+        if (res?.chatId === chatId?.toString()) {
           queryClient.invalidateQueries({ queryKey: [`chat:${chatId}`] });
         }
-      } else if (res.event === "chat updated") {
+      } else if (res?.event === "chat updated") {
         getUserChats(userId).then((res) => {
-          setChatList(res.data);
+          setChatList(res?.data);
         });
-      } else if (res.event === "dmCreated") {
-        if (res.chatId === chatId.toString()) {
+      } else if (res?.event === "dmCreated") {
+        if (res?.chatId === chatId) {
           getUserChats(userId).then((res) => {
-            setChatList(res.data);
+            setChatList(res?.data);
           });
         }
-      } else if (res.event === "addUsersToChat") {
-        if (res.chatId === chatId.toString()) {
+      } else if (res?.event === "addUsersToChat") {
+        if (res?.chatId === chatId?.toString()) {
           getChatUser(chatId).then((res) => {
-            setChatUserList(res.data);
+            setChatUserList(res?.data);
           });
-        } else if (res.userName === session?.user?.displayName) {
+        } else if (res?.userName === session?.user?.displayName) {
           getUserChats(userId).then((res) => {
-            setChatList(res.data);
+            setChatList(res?.data);
           });
         }
-      } else if (res.event === "getChatUsers") {
-        console.log(res);
-        if (res.chatId === chatId.toString()) {
+      } else if (res?.event === "getChatUsers") {
+        // console.log(res);
+        if (!chatId) return;
+        if (res?.chatId === chatId?.toString()) {
           getChatUser(chatId).then((res) => {
-            setChatUserList(res.data);
+            setChatUserList(res?.data);
           });
           getBanlist(chatId).then((res) => {
-            setBannedUsers(res.data);
+            setBannedUsers(res?.data);
           });
-        } else if (res.userId === userId && res.message === "user removed") {
+        } else if (res?.userId === userId && res?.message === "user removed") {
           getUserChats(userId).then((res) => {
-            setChatList(res.data);
+            setChatList(res?.data);
           });
           setChatId("");
           setChatMeta({

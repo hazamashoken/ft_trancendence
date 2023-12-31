@@ -40,6 +40,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import Link from "next/link";
 
 function ChannelItem(props: any) {
   const { chatId, chatName, chatType, chatOwner, joinChat } = props;
@@ -169,7 +170,7 @@ export function JoinChannelDialog(props: any) {
               {isLoading
                 ? rows
                 : chatList
-                    .filter(
+                    ?.filter(
                       (item: any) =>
                         item.chatName
                           .toLowerCase()
