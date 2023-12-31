@@ -42,7 +42,7 @@ make re
 
 
 ```sh
-put .env in the root of frontend folder
+put .env in the root of frontend folder `app`
 ```
 
 ## Tools
