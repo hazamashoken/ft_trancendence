@@ -353,6 +353,7 @@ export class MatchsService {
       if (!match?.player2) {
         this.matchRepository.delete({ matchId: matchId });
       }
+      this.usService.updateUserStatus(userX, 'ONLINE');
       return await this.matchRepository.save(match);
     } else if (match?.player2?.id === userId) {
       this.pongGateway

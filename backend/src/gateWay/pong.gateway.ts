@@ -104,8 +104,14 @@ export class PongGateway {
 
     // this.logger.log('disconnect: ' + id);
     //client.leave('public channel');
+    const session = await this.usService.getSessionByToken(
+      client.handshake.auth.accessToken,
+    );
     this._gameInstance.deleteUserByID(id);
-    if (this._gameInstance.empty()) stopGameLoop();
+    if (this._gameInstance.empty()) {
+      stopGameLoop();
+      this.usService.updateUserStatus(session.user, "OFFLINE");
+    }
   }
 
   getGameInstance() {
