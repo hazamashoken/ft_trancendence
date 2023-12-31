@@ -41,6 +41,7 @@ export async function getMatchs() {
       "x-api-key": process.env.X_API_KEY as string,
       Authorization: `Bearer ${accessToken}`,
     },
+    cache: "no-cache",
   });
 
   const data = await response.json();
@@ -132,6 +133,7 @@ export async function getMatch(matchId: number) {
     next: {
       tags: ["matches"],
     },
+    cache: "no-cache",
   });
 
   const data = await response.json();

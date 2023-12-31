@@ -32,6 +32,7 @@ export function LobbyResizeable(props: {
           Authorization: `Bearer ${session?.accessToken}`,
           "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
         },
+        cache: "no-cache",
       }).then((res) => res.json()),
     refetchInterval: 4000,
   });
@@ -47,6 +48,7 @@ export function LobbyResizeable(props: {
           Authorization: `Bearer ${session?.accessToken}`,
           "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY as string,
         },
+        cache: "no-cache",
       }).then((res) => res.json()),
     refetchInterval: 10000,
   });

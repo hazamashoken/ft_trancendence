@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { leaveMatch } from "../../_actions/game";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { GameSocketIndicator } from "@/components/socket-indicator";
 import { useGameSocket } from "@/components/providers/game-socket-provider";
 import { cx } from "class-variance-authority";
-import { ReactNode } from "react";
 
 export function GameHeader(props: any) {
   const { user, match } = props;

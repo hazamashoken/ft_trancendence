@@ -527,6 +527,7 @@ export const getBanlist = async (chatId: number) => {
       "x-api-key": process.env.X_API_KEY as string,
       Authorization: `Bearer ${accessToken}`,
     },
+    cache: "no-cache",
   });
 
   const data = await response.json();
