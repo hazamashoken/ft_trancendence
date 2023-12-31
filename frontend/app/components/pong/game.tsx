@@ -9,7 +9,7 @@ import { useGameSocket } from "@/components/providers/game-socket-provider";
 import { cx } from "class-variance-authority";
 
 export default function Game(props: any) {
-  const { isPlayer } = props;
+  const { isPlayer = false } = props;
   const { socket, isConnected } = useGameSocket();
   const [phase, setPhase] = useState(
     props.team == Team.player1 ||

@@ -21,8 +21,8 @@ export default async function GameRoomPage({
 
   return (
     <div className="flex flex-col justify-center flex-grow">
-      <GameHeader user={session?.user} match={res.data} />
-      <PingPong user={session?.user} match={res.data} />
+      <GameHeader user={session?.user} match={res?.data} />
+      <PingPong user={session?.user} match={res?.data} />
     </div>
   );
 }

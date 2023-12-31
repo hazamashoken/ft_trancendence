@@ -32,11 +32,12 @@ export function ProfileCard(props: { meStat: any; ranking: any }) {
           </CardHeader>
           <strong>
             <pre>
-              {Object.entries(data?.user ?? user)?.map(
-                ([key, value], index) => (
-                  <p key={index}>{`${key}: ${value}`}</p>
-                )
-              )}
+              {(data?.user || user) &&
+                Object.entries(data?.user ?? user)?.map(
+                  ([key, value], index) => (
+                    <p key={index}>{`${key}: ${value}`}</p>
+                  )
+                )}
             </pre>
           </strong>
           <div className="flex flex-col">

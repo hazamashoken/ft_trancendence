@@ -40,7 +40,7 @@ export default function Home() {
     <main className="flex flex-col min-h-screen m-4">
       <h1>Online User</h1>
       <div>
-        {onlineUsers.map((user) => (
+        {onlineUsers?.map((user) => (
           <div key={user.id} className="border-2 border-sky-500">
             {user.id} - {user.user.intraLogin}
           </div>
@@ -49,7 +49,7 @@ export default function Home() {
       <div className="m-2"></div>
       <h1>Ingame User</h1>
       <div>
-        {ingameUsers.map((user) => (
+        {ingameUsers?.map((user) => (
           <div key={user.id} className="border-2 border-sky-500">
             {user.id} - {user.user.intraLogin}
           </div>

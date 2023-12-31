@@ -30,7 +30,7 @@ export default async function UserPage({ params }: { params: { id: string } }) {
           <AvatarFallback>{res?.data?.displayName}</AvatarFallback>
         </Avatar>
         <pre className="text-center">
-          {Object.entries(res.data)
+          {Object.entries(res?.data)
             ?.filter(([key, value]) => thingsToNotShow.includes(key) === false)
             .map(([key, value], index) => {
               if (key === "stats") {

@@ -29,14 +29,6 @@ export function GameHeader(props: any) {
     }
   };
 
-  const thingsToNotShow = [
-    "intraUrl",
-    "imageUrl",
-    "createdAt",
-    "updatedAt",
-    "id",
-  ];
-
   return (
     <>
       <div className="flex justify-around">
@@ -48,37 +40,6 @@ export function GameHeader(props: any) {
             </AvatarFallback>
           </Avatar>
           <Badge>{match?.player1?.displayName ?? "-"}</Badge>
-          <pre className="text-center">
-            {Object.entries(match?.player1)
-              ?.filter(
-                ([key, value]) => thingsToNotShow.includes(key) === false
-              )
-              .map(([key, value], index) => {
-                if (key === "stats") {
-                  return (
-                    <pre key={index}>
-                      {Object.entries(value ?? [])
-                        ?.filter(
-                          ([key, value]) =>
-                            thingsToNotShow.includes(key) === false
-                        )
-                        .map(([key, value], index) => (
-                          <p key={index}>
-                            <span className="font-bold">{key}</span> :{" "}
-                            <span>{value}</span>
-                          </p>
-                        ))}
-                    </pre>
-                  );
-                }
-                return (
-                  <p key={index}>
-                    <span className="font-bold">{key}</span> :{" "}
-                    <span>{(value as ReactNode) ?? "-"}</span>
-                  </p>
-                );
-              })}
-          </pre>
         </div>
         <div className="flex flex-col gap-2 w-[200px] justify-center items-center">
           <Button
@@ -101,37 +62,6 @@ export function GameHeader(props: any) {
             </AvatarFallback>
           </Avatar>
           <Badge>{match?.player2?.displayName ?? "-"}</Badge>
-          <pre className="text-center">
-            {Object.entries(match?.player2)
-              ?.filter(
-                ([key, value]) => thingsToNotShow.includes(key) === false
-              )
-              .map(([key, value], index) => {
-                if (key === "stats") {
-                  return (
-                    <pre key={index}>
-                      {Object.entries(value ?? [])
-                        ?.filter(
-                          ([key, value]) =>
-                            thingsToNotShow.includes(key) === false
-                        )
-                        .map(([key, value], index) => (
-                          <p key={index}>
-                            <span className="font-bold">{key}</span> :{" "}
-                            <span>{value}</span>
-                          </p>
-                        ))}
-                    </pre>
-                  );
-                }
-                return (
-                  <p key={index}>
-                    <span className="font-bold">{key}</span> :{" "}
-                    <span>{(value as ReactNode) ?? "-"}</span>
-                  </p>
-                );
-              })}
-          </pre>
         </div>
       </div>
     </>
